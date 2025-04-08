@@ -1,0 +1,28 @@
+Package: ezcox
+Title: Easy and Efficient Batch Processing of Cox and Regression Models
+Version: 1.99.0.9000
+Authors@R: c(
+    person("Shixiang", "Wang", , "w_shixiang@163.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-9855-7357")),
+    person("Yun", "Peng", , "yunyunp96@163.com", role = "aut",
+           comment = c(ORCID = "0000-0003-2801-3332")),
+    person("Chenyang", "Shu", , "402221506@qq.com", role = "aut")
+  )
+Maintainer: Shixiang Wang <w_shixiang@163.com>
+Description: Easily process batches of univariate or multivariate Cox and
+    regression models. Returns results in a tidy format and generates
+    visualization plots for straightforward interpretation.
+License: GPL (>= 3)
+Imports: 
+    rlang (>= 1.1.0),
+    utils,
+    vctrs (>= 0.5.0)
+Suggests: 
+    testthat (>= 3.0.0)
+VignetteBuilder: 
+    knitr
+Config/testthat/edition: 3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE, roclets = c("collate", "namespace", "rd",
+    "roxytest::testthat_roclet"))
+RoxygenNote: 7.3.2
