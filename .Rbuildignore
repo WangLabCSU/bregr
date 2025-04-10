@@ -9,3 +9,7 @@
 ^\.github$
 ^data-raw$
 ^\.vscode$
+
+
+# flir files
+^flir$
