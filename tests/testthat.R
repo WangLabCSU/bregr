@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(ezcox)
+library(bregr)
 
-test_check("ezcox")
+test_check("bregr")

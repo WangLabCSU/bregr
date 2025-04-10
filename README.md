@@ -1,25 +1,25 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# ezcox
+# bregr
 
 <!-- badges: start -->
 
 [![CRAN
-status](https://www.r-pkg.org/badges/version/ezcox)](https://CRAN.R-project.org/package=ezcox)
-[![](https://cranlogs.r-pkg.org/badges/grand-total/ezcox?color=blue)](https://cran.r-project.org/package=ezcox)
+status](https://www.r-pkg.org/badges/version/bregr)](https://CRAN.R-project.org/package=bregr)
+[![](https://cranlogs.r-pkg.org/badges/grand-total/bregr?color=blue)](https://cran.r-project.org/package=bregr)
 <!-- badges: end -->
 
-The goal of ezcox is to …
+The goal of bregr is to …
 
 ## Installation
 
-You can install the development version of ezcox from
+You can install the development version of bregr from
 [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
-pak::pak("WangLabCSU/ezcox")
+pak::pak("WangLabCSU/bregr")
 ```
 
 ## Example
@@ -27,7 +27,7 @@ pak::pak("WangLabCSU/ezcox")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(ezcox)
+library(bregr)
 ## basic example code
 ```
 

@@ -1,5 +1,5 @@
-Package: ezcox
-Title: Easy and Efficient Batch Processing of Cox and Regression Models
+Package: bregr
+Title: Easy and Efficient Batch Processing of Regression Models in R
 Version: 1.99.0.9000
 Authors@R: c(
     person("Shixiang", "Wang", , "w_shixiang@163.com", role = c("aut", "cre"),
@@ -9,12 +9,12 @@ Authors@R: c(
     person("Chenyang", "Shu", , "402221506@qq.com", role = "aut")
   )
 Maintainer: Shixiang Wang <w_shixiang@163.com>
-Description: Easily process batches of univariate or multivariate Cox and
+Description: Easily process batches of univariate or multivariate
     regression models. Returns results in a tidy format and generates
     visualization plots for straightforward interpretation.
 License: GPL (>= 3)
-URL: https://github.com/WangLabCSU/ezcox
-BugReports: https://github.com/WangLabCSU/ezcox/issues
+URL: https://github.com/WangLabCSU/bregr
+BugReports: https://github.com/WangLabCSU/bregr/issues
 Imports: 
     lifecycle,
     rlang (>= 1.1.0),
