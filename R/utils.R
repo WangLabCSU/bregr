@@ -3,6 +3,13 @@
 #   .name_repair = "universal"
 # )
 # vctrs:::make_syntactic("a 1")
+#
+# stop_not_found <- function(path) {
+#   abort(
+#     .subclass = "fs_error_not_found",
+#     path = path
+#   )
+# }
 
 # Chunk
 #' @description
