@@ -1,54 +1,37 @@
 # TODO: br开头函数，set y，set x，set model，run，输出tidy结果，再对接可视化
+# TODO: support group by, i.e. convert groups into focal variables
+#
 # if necessary, use helper function to set parameters
 
-# Create a new breg-class object
-new_breg = function() {
-  structure(
-    list(
-      y = list(),
-      x = list(),
-      config = list(),
-      models = list()
-    ),
-    class = "breg"
-  )
-}
-
+#' Set independent variables for model construction
+#' @param y Character vector representing dependent variables.
 #' @export
-print.breg = function(x, ...) {
-  cli_text("A object of {.cls breg} class\n")
-  cli_ul()
-  cli_li("{.field Y}:")
-  cli_li("{.field X}:")
-  ulid <- cli_ul()
-  cli_li("focal variable{?s}: {letters[1:10]}")
-  #cli_li("{col_blue('focal')} term{?s}: {letters[1:10]}")
-  cli_li("control variable{?s}: {letters[1:10]}")
-  #cli_li("{col_blue('covariable')} term{?s}: {letters[1:10]}")
-  cli_end(ulid)
-  cli_li("{.field Model config}:")
-  cli_end()
-
-  cli_text()
-  cli_text(col_grey("Focal variables (or primary variables) are injected into the model one by one, while covariates (or control variables) remain constant across all models in the batch."))
-}
-
-
 br_set_y = function(y) {
-  obj = new_breg()
+  stopifnot(is.character(y))
+
+  obj = breg()
   obj$y = y
   obj
 }
 
-br_set_x = function(obj, x) {
+#' Set independent variables for model construction
+#' @param x Character vector representing focal variables.
+#' @param x2 Character vector representing control variables, optional.
+#' @export
+br_set_x = function(obj, x, x2 = NULL) {
+  stopifnot(is.character(x) | is.character(x2))
+
   if (!rlang::inherits_any(obj, "breg")) {
     cli_abort("bad input for argument {.arg obj}, a object of class {.cls breg} is required")
   }
   obj$x = x
+  obj$x2 = x2
   obj
 }
 
 br_set_model = function(obj, m) {
+  stopifnot(is.character(m) | is.list(m))
+
   if (!rlang::inherits_any(obj, "breg")) {
     cli_abort("bad input for argument {.arg obj}, a object of class {.cls breg} is required")
   }

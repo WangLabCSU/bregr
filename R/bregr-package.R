@@ -5,5 +5,6 @@
 #' @import vctrs
 #' @import cli
 #' @importFrom lifecycle deprecated
+#' @rawNamespace if (getRversion() < "4.3.0") importFrom("S7", "@")
 ## usethis namespace: end
 NULL
