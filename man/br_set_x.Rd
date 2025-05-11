@@ -7,6 +7,8 @@
 br_set_x(obj, x, x2 = NULL)
 }
 \arguments{
+\item{obj}{An object of class \code{breg}.}
+
 \item{x}{Character vector representing focal variables.}
 
 \item{x2}{Character vector representing control variables, optional.}

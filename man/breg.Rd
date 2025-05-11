@@ -5,25 +5,12 @@
 \title{New breg-class object}
 \usage{
 breg(
-  y = character(0),
-  x = character(0),
-  x2 = character(0),
+  y = NULL,
+  x = NULL,
+  x2 = NULL,
   config = list(),
   models = list(),
-  data = (function (.data = list(), row.names = NULL) 
- {
-     if (is.null(row.names)) {
-
-            list2DF(.data)
-     }
-     else {
-         out <- list2DF(.data,
-    length(row.names))
-         attr(out, "row.names") <- row.names
-         out
-     }
-
-    })()
+  data = NULL
 )
 }
 \arguments{
@@ -33,20 +20,18 @@ breg(
 
 \item{x2}{Character vector representing control variables, optional.}
 
-\item{config}{List of model configurations.}
+\item{config}{Configurations for model construction.}
+
+\item{models}{List of model.}
 
 \item{data}{Data frame containing the model result data.}
-
-\item{n_x}{Integer representing the number of focal variables.}
-
-\item{n_x2}{Integer representing the number of control variables. description}
-
-\item{raw}{Logical, whether to print raw S7 representation. Default is FALSE.}
 }
 \description{
 New breg-class object
 }
 \examples{
-obj = breg("y", "x1", c("x2", "x3"))
+obj <- breg("y", letters[1:5], LETTERS[1:5])
+obj
+print(obj, raw = TRUE)
 
 }

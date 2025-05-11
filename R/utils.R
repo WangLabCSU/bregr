@@ -12,6 +12,15 @@
 # }
 
 # Chunk
-#' @description
-#' `r lifecycle::badge('superseded')`
-#' `top_n()` has been superseded in favour of ...
+# @description
+# `r lifecycle::badge('superseded')`
+# `top_n()` has been superseded in favour of ...
+
+
+assert_breg_obj <- function(obj) {
+  if (!rlang::inherits_any(obj, "breg")) {
+    cli_abort("bad input for argument {.arg obj}, a object of class {.cls breg} is required")
+  } else {
+    obj
+  }
+}

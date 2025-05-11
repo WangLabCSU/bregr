@@ -8,43 +8,75 @@
 #' @param models List of model.
 #' @param data Data frame containing the model result data.
 #' @export
+#' @import S7
+#' @rdname breg
 #' @examples
-#' obj = breg("y", "x1", c("x2", "x3"))
-#' 
-breg <- S7::new_class("breg", properties = list(
-  y = S7::class_character,
-  x = S7::class_character,
-  x2 = S7::class_character,
-  config = S7::class_list,
-  models = S7::class_list,
-  data = S7::class_data.frame,
-  n_x = S7::new_property(
-    S7::class_integer,
-    getter = function(self) length(self@x)
+#' obj <- breg("y", letters[1:5], LETTERS[1:5])
+#' obj
+#' print(obj, raw = TRUE)
+#'
+breg <- new_class("breg",
+  properties = list(
+    y = NULL | class_character,
+    x = NULL | class_character,
+    x2 = NULL | class_character,
+    config = class_list,
+    models = class_list,
+    data = class_data.frame,
+    n_x = new_property(
+      class_integer,
+      getter = function(self) length(self@x)
+    ),
+    n_x2 = new_property(
+      class_integer,
+      getter = function(self) length(self@x2)
+    )
   ),
-  n_x2 = S7::new_property(
-    S7::class_integer,
-    getter = function(self) length(self@x2)
-  )
-))
+  constructor = function(y = NULL, x = NULL, x2 = NULL, config = list(), models = list(),
+                         data = NULL) {
+    new_object(
+      S7_object(),
+      y = y,
+      x = x,
+      x2 = x2,
+      config = config,
+      models = models,
+      data = data %||% data.frame()
+    )
+  }
+)
 
-#' @name breg
-#' @export
-#' @param raw Logical, whether to print raw S7 representation. Default is FALSE.
-S7::method(print, breg) <- function(x, ..., raw = FALSE) {
-  cli_text("A object of {.cls breg} class\n")
+#' Print method for breg object
+#' 
+#' Print a breg object.
+#' @name print.breg
+#' @param x An object of class `breg`.
+#' @param ... Additional arguments (currently not used).
+#' @param raw Logical, whether to print raw S7 representation. Default is `FALSE`.
+#' @return Invisibly returns `x`.
+#' 
+#' @method print breg
+method(print, breg) <- function(x, ..., raw = FALSE) {
+  
+  if (raw) {
+    print(utils::str(x))
+  } else {
+    cli_text("A object of {.cls breg} class\n")
 
-  cli_ul()
-  cli_li("{.field Y}: {x@y}")
-  cli_li("{.field X}:")
-  ulid <- cli_ul()
-  # https://cli.r-lib.org/reference/pluralization.html#choosing-the-right-quantity
-  cli_li("{col_blue('focal')}{qty(x@n_x)} variable{?s}: {x@x}")
-  cli_li("{col_blue('control')}{qty(x@n_x2)} variable{?s}: {x@x2}")
-  cli_end(ulid)
-  cli_li("{.field Model config}:")
-  cli_end()
-
-  cli_text()
-  cli_text(col_grey("Focal variables (or primary variables) are injected into the model one by one, while covariates (or control variables) remain constant across all models in the batch."))
+    cli_ul()
+    cli_li("{.field Y}: {.emph {x@y}}")
+    cli_li("{.field X}:")
+    ulid <- cli_ul()
+    # https://cli.r-lib.org/reference/pluralization.html#choosing-the-right-quantity
+    cli_li("{col_blue('focal')}{qty(x@n_x)} variable{?s}: {.emph {x@x}}")
+    cli_li("{col_blue('control')}{qty(x@n_x2)} variable{?s}: {.emph {x@x2}}")
+    cli_end(ulid)
+    cli_li("{.field Model config}:")
+    cli_end()
+  
+    cli_text()
+    cli_text(col_grey("Focal variables (or primary variables) are injected into the model one by one, while covariates (or control variables) remain constant across all models in the batch."))
+  }
+ 
+  invisible(x)
 }
