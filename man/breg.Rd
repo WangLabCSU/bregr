@@ -8,9 +8,10 @@ breg(
   y = NULL,
   x = NULL,
   x2 = NULL,
-  config = list(),
+  data = NULL,
+  config = NULL,
   models = list(),
-  data = NULL
+  results = NULL
 )
 }
 \arguments{
@@ -20,11 +21,13 @@ breg(
 
 \item{x2}{Character vector representing control variables, optional.}
 
+\item{data}{Data frame containing the data for modeling.}
+
 \item{config}{Configurations for model construction.}
 
 \item{models}{List of model.}
 
-\item{data}{Data frame containing the model result data.}
+\item{results}{Data frame containing the model result data.}
 }
 \description{
 New breg-class object
