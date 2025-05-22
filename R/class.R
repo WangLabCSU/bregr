@@ -38,7 +38,7 @@ breg <- new_class("breg",
   ),
   constructor = function(y = NULL, x = NULL, x2 = NULL,
                          data = NULL,
-                         config = NULL, 
+                         config = NULL,
                          models = list(),
                          params = list(),
                          results = NULL) {

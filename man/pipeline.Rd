@@ -47,4 +47,17 @@ br_set_data(data) |>
   br_set_x(c("age", "sex"), "ph.ecog") |>
   br_set_model("coxph") |>
   br_run()
+
+br_set_data(data) |>
+  br_set_y(c("time", "status")) |>
+  br_set_x(c("age * sex"), "pat.karno") |>
+  br_set_model("coxph") |>
+  br_run()
+
+br_set_data(data) |>
+  br_set_y(c("time")) |>
+  br_set_x(c("age", "sex"), "pat.karno") |>
+  br_set_model('quasi(variance = "mu", link = "log")') |>
+  br_run()
+
 }

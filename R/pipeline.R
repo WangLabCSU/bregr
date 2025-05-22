@@ -1,8 +1,3 @@
-# TODO: br开头函数，set y，set x，set model，run，输出tidy结果，再对接可视化
-# TODO: support group by, i.e. convert groups into focal variables
-#
-# if necessary, use helper function to set parameters
-
 #' Modeling and analysis pipeline in bregr
 #'
 #' - `br_set_data()`: Set data for model construction.
@@ -21,6 +16,19 @@
 #'   br_set_x(c("age", "sex"), "ph.ecog") |>
 #'   br_set_model("coxph") |>
 #'   br_run()
+#'
+#' br_set_data(data) |>
+#'   br_set_y(c("time", "status")) |>
+#'   br_set_x(c("age * sex"), "pat.karno") |>
+#'   br_set_model("coxph") |>
+#'   br_run()
+#'
+#' br_set_data(data) |>
+#'   br_set_y(c("time")) |>
+#'   br_set_x(c("age", "sex"), "pat.karno") |>
+#'   br_set_model('quasi(variance = "mu", link = "log")') |>
+#'   br_run()
+#'
 br_set_data <- function(data) {
   assert_s3_class(data, "data.frame")
 
@@ -45,7 +53,9 @@ br_set_y <- function(obj, y) {
 #' @rdname pipeline
 #' @export
 br_set_x <- function(obj, x, x2 = NULL) {
-  # TODO: 支持交互项
+  # all.vars(quote(x * y))
+  # lobster::ast()
+
   assert_breg_obj(obj)
   assert_character(x)
   assert_character(x2, allow_null = TRUE)
@@ -80,7 +90,13 @@ br_set_model <- function(obj, method, ...) {
   }
 
   config <- list(...)
-
+  # TODO: config text directly from ... by deparse?substitute?
+  config_text <- gsub(
+    "^list\\(|\\)$", "",
+    paste(deparse(config, width.cutoff = 500),
+      collapse = ""
+    )
+  )
 
   if (method == "coxph") {
     assert_character_len(
@@ -95,8 +111,7 @@ br_set_model <- function(obj, method, ...) {
       if (identical(config, list())) {
         models[[i]] <- glue::glue("survival::coxph({recipe}, data = data)")
       } else {
-        # TODO: auto-unpack the config when run
-        models[[i]] <- glue::glue("survival::coxph({recipe}, data = data, config)")
+        models[[i]] <- glue::glue("survival::coxph({recipe}, data = data, {config_text})")
       }
     }
   } else {
@@ -109,16 +124,14 @@ br_set_model <- function(obj, method, ...) {
     models <- list()
     for (i in seq_len(obj@n_x)) {
       recipe <- glue::glue("{paste(obj@y, collapse = ', ')} ~ {paste(vctrs::vec_c(obj@x[i], obj@x2), collapse = ' + ')}")
-      models[[i]] <- glue::glue("stats::glm({recipe}, data = data, family = {method}, config)")
 
-      # recipe = glue::glue("{paste(y, collapse = ' + ')} ~ {paste(unique(x), collapse = ' + ')}")
-      # recipe <- stats::formula(recipe)
-      # # stats::as.formula()
-      # stats::glm(recipe, data = data, family = f, ...)
+      if (identical(config, list())) {
+        models[[i]] <- glue::glue("stats::glm({recipe}, data = data, family = {method})")
+      } else {
+        models[[i]] <- glue::glue("stats::glm({recipe}, data = data, family = {method}, {config_text})")
+      }
     }
   }
-
-  
 
   obj@config <- config
   obj@models <- models
@@ -127,35 +140,32 @@ br_set_model <- function(obj, method, ...) {
 
 
 # TODO: support group by
+# support group by, i.e. convert groups into focal variables
+# if necessary, use helper function to set parameters
 
 #' @rdname pipeline
 #' @export
 br_run <- function(obj, ...) {
   assert_breg_obj(obj)
   # TODO: other parameters from https://easystats.github.io/parameters/
+  # TODO: supported run in parallele with future.apply?
 
-  ms = obj@models
+  ms <- obj@models
 
-  result_list = list()
+  result_list <- list()
   for (i in seq_along(ms)) {
-    obj@models[[i]] = local(
-      {
-        data = obj@data
-        rlang::eval_bare(rlang::parse_expr(ms[[i]]))
-      }
-    )
-    result_list[[i]] = parameters::model_parameters(
-      obj@models[[i]]) #, exponentiate = exp, ci = ci)  #TODO
+    obj@models[[i]] <- local({
+      data <- obj@data
+      rlang::eval_bare(rlang::parse_expr(ms[[i]]))
+    })
+    result_list[[i]] <- parameters::model_parameters(
+      obj@models[[i]]
+    ) # , exponentiate = exp, ci = ci)  #TODO
   }
-  names(obj@models) <- obj@x
-  names(result_list) <- obj@x
-
-  obj@params = result_list
-  #obj@results <- dplyr::bind_rows(result_list, .id = "Focal_variable")
-  obj@results = vctrs::vec_rbind(!!!map(result_list, as.data.frame), .names_to = "Focal_variable")
-
+  names(result_list) <- names(obj@models) <- obj@x
+  obj@params <- result_list
+  obj@results <- vctrs::vec_rbind(!!!map(result_list, as.data.frame), .names_to = "Focal_variable")
   obj
-  # TODO: https://github.com/WangLabCSU/regverse/blob/523dd97137d7a468f8eb60e4a9ef026fb55936a7/R/REGModel.R#L130
 }
 
 # All-in-one pipeline to run the basic regression analysis in batch
