@@ -11,6 +11,7 @@ breg(
   data = NULL,
   config = NULL,
   models = list(),
+  params = list(),
   results = NULL
 )
 }
@@ -26,6 +27,8 @@ breg(
 \item{config}{Configurations for model construction.}
 
 \item{models}{List of model.}
+
+\item{params}{List of \code{parameters_model} objects obtained from \code{\link[parameters:model_parameters]{parameters::model_parameters()}}.}
 
 \item{results}{Data frame containing the model result data.}
 }

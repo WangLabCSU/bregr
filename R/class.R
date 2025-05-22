@@ -7,6 +7,7 @@
 #' @param data Data frame containing the data for modeling.
 #' @param config Configurations for model construction.
 #' @param models List of model.
+#' @param params List of `parameters_model` objects obtained from [parameters::model_parameters()].
 #' @param results Data frame containing the model result data.
 #' @export
 #' @import S7
@@ -24,6 +25,7 @@ breg <- new_class("breg",
     data = class_data.frame,
     config = NULL | class_character | class_list,
     models = class_list,
+    params = class_list,
     results = class_data.frame,
     n_x = new_property(
       class_integer,
@@ -34,11 +36,12 @@ breg <- new_class("breg",
       getter = function(self) length(self@x2)
     )
   ),
-  constructor = function(
-      y = NULL, x = NULL, x2 = NULL,
-      data = NULL,
-      config = NULL, models = list(),
-      results = NULL) {
+  constructor = function(y = NULL, x = NULL, x2 = NULL,
+                         data = NULL,
+                         config = NULL, 
+                         models = list(),
+                         params = list(),
+                         results = NULL) {
     new_object(
       S7_object(),
       y = y,
@@ -47,6 +50,7 @@ breg <- new_class("breg",
       data = data %||% data.frame(),
       config = config,
       models = models,
+      params = params,
       results = results %||% data.frame()
     )
   }

@@ -24,3 +24,22 @@ assert_breg_obj <- function(obj) {
     obj
   }
 }
+
+assert_character_len <- function(x, ..., len = 1, msg = NULL) {
+  assert_character(x, ...)
+  if (length(x) != len) {
+    if (is.null(msg)) {
+      cli_abort("bad input for argument {.arg x}, a character vector of length {.val {len}} is required")
+    } else {
+      cli_abort(msg)
+    }
+  } else {
+    x
+  }
+}
+
+assert_not_overlap <- function(x, y) {
+  if (any(x %in% y)) {
+    cli_abort("bad input for argument {.arg x}, values in {.arg x} cannot be in {.arg y}")
+  }
+}

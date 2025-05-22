@@ -33,8 +33,8 @@ br_set_data <- function(data) {
 #' @rdname pipeline
 #' @export
 br_set_y <- function(obj, y) {
-  assert_character(y)
   assert_breg_obj(obj)
+  assert_character(y)
 
   obj@y <- y
   obj
@@ -45,9 +45,11 @@ br_set_y <- function(obj, y) {
 #' @rdname pipeline
 #' @export
 br_set_x <- function(obj, x, x2 = NULL) {
+  # TODO: 支持交互项
+  assert_breg_obj(obj)
   assert_character(x)
   assert_character(x2, allow_null = TRUE)
-  assert_breg_obj(obj)
+  assert_not_overlap(x, x2)
 
   obj@x <- x
   obj@x2 <- x2
@@ -59,28 +61,100 @@ br_set_x <- function(obj, x, x2 = NULL) {
 #' @param ... Additional arguments for model construction.
 #' @export
 br_set_model <- function(obj, method, ...) {
-  assert_string(method)
   assert_breg_obj(obj)
-
-  method_list = c(
-    "coxph", "binomial", "gaussian",
-    "Gamma", "inverse.gaussian",
-    "poisson", "quasi", "quasibinomial",
-    "quasipoisson"
-  )
-  rlang::arg_match0(method, method_list)
-  # TODO: support ...
+  assert_string(method)
   rlang::check_dots_used()
 
-  obj@config <- method
+  # if (is_call) {
+  #   # e.g., quasi(variance = "mu", link = "log")
+  #   f <- eval(parse(text = f))
+  # }
+  if (!grepl("\\(", method)) {
+    method_list <- c(
+      "coxph", "binomial", "gaussian",
+      "Gamma", "inverse.gaussian",
+      "poisson", "quasi", "quasibinomial",
+      "quasipoisson"
+    )
+    rlang::arg_match0(method, method_list)
+  }
+
+  config <- list(...)
+
+
+  if (method == "coxph") {
+    assert_character_len(
+      obj@y,
+      len = 2,
+      msg = "two dependent variables corresponding to 'time' and 'status' are required for Cox proportional hazards model"
+    )
+
+    models <- list()
+    for (i in seq_len(obj@n_x)) {
+      recipe <- glue::glue("survival::Surv({paste(obj@y, collapse = ', ')}) ~ {paste(vctrs::vec_c(obj@x[i], obj@x2), collapse = ' + ')}")
+      if (identical(config, list())) {
+        models[[i]] <- glue::glue("survival::coxph({recipe}, data = data)")
+      } else {
+        # TODO: auto-unpack the config when run
+        models[[i]] <- glue::glue("survival::coxph({recipe}, data = data, config)")
+      }
+    }
+  } else {
+    assert_character_len(
+      obj@y,
+      len = 1,
+      msg = "only one dependent variable is allowed for non-Cox proportional hazards models"
+    )
+
+    models <- list()
+    for (i in seq_len(obj@n_x)) {
+      recipe <- glue::glue("{paste(obj@y, collapse = ', ')} ~ {paste(vctrs::vec_c(obj@x[i], obj@x2), collapse = ' + ')}")
+      models[[i]] <- glue::glue("stats::glm({recipe}, data = data, family = {method}, config)")
+
+      # recipe = glue::glue("{paste(y, collapse = ' + ')} ~ {paste(unique(x), collapse = ' + ')}")
+      # recipe <- stats::formula(recipe)
+      # # stats::as.formula()
+      # stats::glm(recipe, data = data, family = f, ...)
+    }
+  }
+
+  
+
+  obj@config <- config
+  obj@models <- models
   obj
 }
+
+
+# TODO: support group by
 
 #' @rdname pipeline
 #' @export
 br_run <- function(obj, ...) {
   assert_breg_obj(obj)
+  # TODO: other parameters from https://easystats.github.io/parameters/
 
+  ms = obj@models
+
+  result_list = list()
+  for (i in seq_along(ms)) {
+    obj@models[[i]] = local(
+      {
+        data = obj@data
+        rlang::eval_bare(rlang::parse_expr(ms[[i]]))
+      }
+    )
+    result_list[[i]] = parameters::model_parameters(
+      obj@models[[i]]) #, exponentiate = exp, ci = ci)  #TODO
+  }
+  names(obj@models) <- obj@x
+  names(result_list) <- obj@x
+
+  obj@params = result_list
+  #obj@results <- dplyr::bind_rows(result_list, .id = "Focal_variable")
+  obj@results = vctrs::vec_rbind(!!!map(result_list, as.data.frame), .names_to = "Focal_variable")
+
+  obj
   # TODO: https://github.com/WangLabCSU/regverse/blob/523dd97137d7a468f8eb60e4a9ef026fb55936a7/R/REGModel.R#L130
 }
 
