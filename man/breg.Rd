@@ -8,6 +8,7 @@ breg(
   y = NULL,
   x = NULL,
   x2 = NULL,
+  group_by = NULL,
   data = NULL,
   config = NULL,
   models = list(),

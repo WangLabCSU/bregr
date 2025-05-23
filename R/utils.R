@@ -38,8 +38,22 @@ assert_character_len <- function(x, ..., len = 1, msg = NULL) {
   }
 }
 
-assert_not_overlap <- function(x, y) {
+assert_not_overlap <- function(x, y, msg = NULL) {
   if (any(x %in% y)) {
-    cli_abort("bad input for argument {.arg x}, values in {.arg x} cannot be in {.arg y}")
+    if (is.null(msg)) {
+      cli_abort("bad input for argument {.arg x}, values in {.arg x} cannot be in {.arg y}")
+    } else {
+      cli_abort(msg)
+    }
   }
+}
+
+# https://github.com/tidyverse/dplyr/issues/4223#issuecomment-469269857
+named_group_split <- function(.tbl, ..., sep = " / ") {
+  grouped <- dplyr::group_by(.tbl, ...)
+  names <- rlang::inject(paste(!!!dplyr::group_keys(grouped), sep = sep))
+
+  grouped |> 
+    dplyr::group_split() |> 
+    rlang::set_names(names)
 }

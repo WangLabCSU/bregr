@@ -19,6 +19,7 @@ Imports:
     cli,
     glue,
     lifecycle,
+    parallel,
     parameters,
     rlang (>= 1.1.0),
     S7,

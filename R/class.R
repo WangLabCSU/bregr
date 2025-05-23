@@ -22,6 +22,7 @@ breg <- new_class("breg",
     y = NULL | class_character,
     x = NULL | class_character,
     x2 = NULL | class_character,
+    group_by = NULL | class_character,
     data = class_data.frame,
     config = NULL | class_character | class_list,
     models = class_list,
@@ -36,7 +37,7 @@ breg <- new_class("breg",
       getter = function(self) length(self@x2)
     )
   ),
-  constructor = function(y = NULL, x = NULL, x2 = NULL,
+  constructor = function(y = NULL, x = NULL, x2 = NULL, group_by = NULL,
                          data = NULL,
                          config = NULL,
                          models = list(),
@@ -47,6 +48,7 @@ breg <- new_class("breg",
       y = y,
       x = x,
       x2 = x2,
+      group_by = group_by,
       data = data %||% data.frame(),
       config = config,
       models = models,
@@ -72,6 +74,7 @@ method(print, breg) <- function(x, ..., raw = FALSE) {
   } else {
     cli_text("A object of {.cls breg} class\n")
 
+    # TODO: expr_print(1:3)
     cli_ul()
     cli_li("{.field Y}: {.emph {x@y}}")
     cli_li("{.field X}:")
