@@ -53,7 +53,7 @@ named_group_split <- function(.tbl, ..., sep = " / ") {
   grouped <- dplyr::group_by(.tbl, ...)
   names <- rlang::inject(paste(!!!dplyr::group_keys(grouped), sep = sep))
 
-  grouped |> 
-    dplyr::group_split() |> 
+  grouped |>
+    dplyr::group_split() |>
     rlang::set_names(names)
 }

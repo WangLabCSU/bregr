@@ -205,45 +205,6 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   ms <- obj@models
   dots <- rlang::list2(...)
 
-  runner <- function(ms, data, dots, x, run_parallel) {
-    f <- function(m, data, dots) {
-      # m: model template
-      # data: data frame for modeling
-      # dots: arguments passing to model_parameters
-      # x: focal variables
-      model <- rlang::eval_bare(rlang::parse_expr(m))
-      param <- do.call(
-        parameters::model_parameters,
-        args = vctrs::vec_c(list(model), dots)
-      )
-      list(model = model, param = param)
-    }
-
-    if (run_parallel > 1) {
-      res <- parallel::mclapply(ms, f, data = data, dots = dots, mc.cores = run_parallel)
-    } else {
-      res <- map(ms, f, data = data, dots = dots)
-    }
-    models <- map(res, function(x) x$model)
-    params <- map(res, function(x) x$param)
-    names(params) <- names(models) <- x
-
-    # TODO: Get comprehensive data for models
-    # broom.helpers::model_get_model_frame(obj@models[[1]])
-    results <- vctrs::vec_rbind(!!!map(params, as.data.frame), .names_to = "Focal_variable")
-    # self$model, as.data.frame(self$result), private$model_data
-    #vars <- sapply(self$forest_data$term_label, get_vars)
-    #self$forest_data <- self$forest_data[order(match(vars, self$terms), decreasing = FALSE)]
-    # https://github.com/WangLabCSU/regverse/blob/523dd97137d7a468f8eb60e4a9ef026fb55936a7/R/REGModel.R#L318
-    
-
-    list(
-      models = models,
-      params = params,
-      results = results
-    )
-  }
-
   if (is.null(group_by)) {
     res <- runner(ms, obj@data, dots, obj@x, run_parallel)
   } else {
@@ -254,9 +215,9 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
       runner(ms, data, dots, obj@x, run_parallel)
     })
     res <- list_transpose(res_list)
-    res$models = purrr::list_flatten(res$models)
-    res$params = purrr::list_flatten(res$params)
-    res$results = vctrs::vec_rbind(!!!res$results, .names_to = "Group_variable")
+    res$models <- purrr::list_flatten(res$models)
+    res$params <- purrr::list_flatten(res$params)
+    res$results <- vctrs::vec_rbind(!!!res$results, .names_to = "Group_variable")
   }
 
   # result_list <- list()
@@ -278,4 +239,65 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   obj@params <- res$params
   obj@results <- res$results
   obj
+}
+
+
+runner <- function(ms, data, dots, x, run_parallel) {
+  f <- function(m, data, dots) {
+    # m: model template
+    # data: data frame for modeling
+    # dots: arguments passing to model_parameters
+    # x: focal variables
+    model <- rlang::eval_bare(rlang::parse_expr(m))
+    param <- do.call(
+      parameters::model_parameters,
+      args = vctrs::vec_c(list(model), dots)
+    )
+
+    # TODO: Get comprehensive data for models
+    result1 = as.data.frame(param)
+    model_data = broom.helpers::model_get_model_frame(model)
+    # broom::glance(model)
+    # broom::augment(model)
+    broom::tidy(model, conf.int = TRUE)
+    broom.helpers::tidy_plus_plus(model)
+
+    # colnames(tidy_model)[1:2] <- c("term", "estimate")
+
+  # forest_terms <- merge(
+  #   # TODO: 这个对纯交互项处理也存在问题
+  #   data.table::data.table(
+  #     term_label = attr(model$terms, "term.labels")
+  #   )[, variable := remove_backticks(term_label)],
+  #   data.table::data.table(
+  #     variable = names(attr(model$terms, "dataClasses"))[-1],
+  #     class = attr(model$terms, "dataClasses")[-1]
+  #   ),
+  #   by = "variable", all.x = FALSE, all.y = FALSE
+  # )
+
+    # self$model, as.data.frame(self$result), private$model_data
+    # vars <- sapply(self$forest_data$term_label, get_vars)
+    # self$forest_data <- self$forest_data[order(match(vars, self$terms), decreasing = FALSE)]
+    # https://github.com/WangLabCSU/regverse/blob/523dd97137d7a468f8eb60e4a9ef026fb55936a7/R/REGModel.R#L318
+
+    list(model = model, param = param, result = result)
+  }
+
+  if (run_parallel > 1) {
+    res <- parallel::mclapply(ms, f, data = data, dots = dots, mc.cores = run_parallel)
+  } else {
+    res <- map(ms, f, data = data, dots = dots)
+  }
+  # TODO: list_transpose(res)? and flatten?
+  models <- map(res, function(x) x$model)
+  params <- map(res, function(x) x$param)
+  results <- vctrs::vec_rbind(!!!map(res, function(x) x$result), .names_to = "Focal_variable")
+  names(params) <- names(models) <- x
+
+  list(
+    models = models,
+    params = params,
+    results = results
+  )
 }
