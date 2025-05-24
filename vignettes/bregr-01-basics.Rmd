@@ -1,0 +1,83 @@
+---
+title: "01: Basics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Basics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(bregr)
+```
+
+
+#' # Generalized Linear (GLM) Model
+#' m1 <- br_set_data(data) |>
+#'   br_set_y("counts") |>
+#'   br_set_x(x = "outcome", x2 = "treatment")) |>
+#'   br_set_model("poisson") |>
+#'   br_run()
+#' m1
+#'
+#' # Cox-PH Model
+#'
+#' # 2. Model Batch Processing ---------------
+#' # 3. Group Modeling -----------------------
+
+#' library(survival)
+#' library(bregr)
+#'
+#' data <- data.frame(
+#'   counts = c(18, 17, 15, 20, 10, 20, 25, 13, 12),
+#'   outcome = gl(3, 1, 9),
+#'   treatment = gl(3, 3)
+#' )
+#' 
+#' # 1. Single Model -------------------------
+#'
+#' # Generalized Linear (GLM) Model
+#' m1 <- br_set_data(data) |>
+#'   br_set_y("counts") |>
+#'   br_set_x(x = "outcome", x2 = "treatment")) |>
+#'   br_set_model("poisson") |>
+#'   br_run()
+#' m1
+#'
+#' # Cox-PH Model
+#'
+#' # 2. Model Batch Processing ---------------
+#' # 3. Group Modeling -----------------------
+#'
+#'
+#' br_set_data(data) |>
+#'   br_set_y(c("time", "status")) |>
+#'   br_set_x(c("age", "sex"), "ph.ecog") |>
+#'   br_set_model("coxph") |>
+#'   br_run()
+#'
+#' br_set_data(data) |>
+#'   br_set_y(c("time", "status")) |>
+#'   br_set_x(c("age", "sex"), "ph.ecog") |>
+#'   br_set_model("coxph") |>
+#'   br_run()
+#'
+#' br_set_data(data) |>
+#'   br_set_y(c("time", "status")) |>
+#'   br_set_x(c("age * sex"), "pat.karno") |>
+#'   br_set_model("coxph") |>
+#'   br_run(exponentiate = TRUE, conf.level = 0.90)
+#'
+#' br_set_data(data) |>
+#'   br_set_y(c("time")) |>
+#'   br_set_x(c("age", "sex"), "pat.karno") |>
+#'   br_set_model('quasi(variance = "mu", link = "log")') |>
+#'   br_run()
+#'

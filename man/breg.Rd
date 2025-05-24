@@ -12,7 +12,8 @@ breg(
   data = NULL,
   config = NULL,
   models = list(),
-  results = NULL
+  results = NULL,
+  results_tidy = NULL
 )
 }
 \arguments{
@@ -30,7 +31,9 @@ breg(
 
 \item{models}{List of model.}
 
-\item{results}{A \code{data.frame} containing the result data of models.}
+\item{results}{A \code{data.frame} containing the result data of models (from \code{\link[broom.helpers:tidy_plus_plus]{broom.helpers::tidy_plus_plus()}}).}
+
+\item{results_tidy}{A \code{data.frame} containing the tidy result data of models (from \code{\link[broom:reexports]{broom::tidy()}}).}
 }
 \description{
 New breg-class object

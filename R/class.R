@@ -8,7 +8,8 @@
 #' @param data A `data.frame` containing the data for modeling.
 #' @param config Configurations for model construction.
 #' @param models List of model.
-#' @param results A `data.frame` containing the result data of models.
+#' @param results A `data.frame` containing the result data of models (from [broom.helpers::tidy_plus_plus()]).
+#' @param results_tidy A `data.frame` containing the tidy result data of models (from [broom::tidy()]).
 #' @export
 #' @import S7
 #' @rdname breg
@@ -27,6 +28,7 @@ breg <- new_class("breg",
     config = NULL | class_character | class_list,
     models = class_list,
     results = class_data.frame,
+    results_tidy = class_data.frame,
     n_x = new_property(
       class_integer,
       getter = function(self) length(self@x)
@@ -40,7 +42,8 @@ breg <- new_class("breg",
                          data = NULL,
                          config = NULL,
                          models = list(),
-                         results = NULL) {
+                         results = NULL,
+                         results_tidy = NULL) {
     new_object(
       S7_object(),
       y = y,
@@ -50,7 +53,8 @@ breg <- new_class("breg",
       data = data %||% data.frame(),
       config = config,
       models = models,
-      results = results %||% data.frame()
+      results = results %||% data.frame(),
+      results_tidy = results %||% data.frame()
     )
   }
 )

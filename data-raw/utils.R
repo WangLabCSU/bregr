@@ -3,4 +3,4 @@
 
 ## code to prepare `lung2` dataset goes here
 
-usethis::use_data(lung2, overwrite = TRUE)
+# usethis::use_data(lung2, overwrite = TRUE)
