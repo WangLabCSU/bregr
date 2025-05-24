@@ -51,7 +51,11 @@ assert_not_overlap <- function(x, y, msg = NULL) {
 # https://github.com/tidyverse/dplyr/issues/4223#issuecomment-469269857
 named_group_split <- function(.tbl, ..., sep = " / ") {
   grouped <- dplyr::group_by(.tbl, ...)
-  names <- rlang::inject(paste(!!!dplyr::group_keys(grouped), sep = sep))
+  if (length(dplyr::group_keys(grouped)) > 1) {
+    names <- rlang::inject(paste0("[", paste(!!!dplyr::group_keys(grouped), sep = sep), "]"))
+  } else {
+    names <- rlang::inject(paste(!!!dplyr::group_keys(grouped), sep = sep))
+  }
 
   grouped |>
     dplyr::group_split() |>

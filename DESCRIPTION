@@ -1,6 +1,6 @@
 Package: bregr
 Title: Easy and Efficient Batch Processing of Regression Models in R
-Version: 1.99.0.9000
+Version: 0.99.0.9000
 Authors@R: c(
     person("Shixiang", "Wang", , "w_shixiang@163.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-9855-7357")),
@@ -16,14 +16,17 @@ License: GPL (>= 3)
 URL: https://github.com/WangLabCSU/bregr
 BugReports: https://github.com/WangLabCSU/bregr/issues
 Imports: 
+    broom.helpers,
     cli,
+    dplyr,
     glue,
     lifecycle,
     parallel,
-    parameters,
+    purrr,
     rlang (>= 1.1.0),
     S7,
     survival,
+    tibble,
     utils,
     vctrs (>= 0.5.0)
 Suggests: 

@@ -4,11 +4,11 @@
 #' @param y Character vector representing dependent variables.
 #' @param x Character vector representing focal variables.
 #' @param x2 Character vector representing control variables, optional.
-#' @param data Data frame containing the data for modeling.
+#' @param group_by Character vector representing group by column, optional.
+#' @param data A `data.frame` containing the data for modeling.
 #' @param config Configurations for model construction.
 #' @param models List of model.
-#' @param params List of `parameters_model` objects obtained from [parameters::model_parameters()].
-#' @param results Data frame containing the model result data.
+#' @param results A `data.frame` containing the result data of models.
 #' @export
 #' @import S7
 #' @rdname breg
@@ -26,7 +26,6 @@ breg <- new_class("breg",
     data = class_data.frame,
     config = NULL | class_character | class_list,
     models = class_list,
-    params = class_list,
     results = class_data.frame,
     n_x = new_property(
       class_integer,
@@ -41,7 +40,6 @@ breg <- new_class("breg",
                          data = NULL,
                          config = NULL,
                          models = list(),
-                         params = list(),
                          results = NULL) {
     new_object(
       S7_object(),
@@ -52,7 +50,6 @@ breg <- new_class("breg",
       data = data %||% data.frame(),
       config = config,
       models = models,
-      params = params,
       results = results %||% data.frame()
     )
   }
@@ -74,7 +71,6 @@ method(print, breg) <- function(x, ..., raw = FALSE) {
   } else {
     cli_text("A object of {.cls breg} class\n")
 
-    # TODO: expr_print(1:3)
     cli_ul()
     cli_li("{.field Y}: {.emph {x@y}}")
     cli_li("{.field X}:")
@@ -83,8 +79,11 @@ method(print, breg) <- function(x, ..., raw = FALSE) {
     cli_li("{col_blue('focal')}{qty(x@n_x)} variable{?s}: {.emph {x@x}}")
     cli_li("{col_blue('control')}{qty(x@n_x2)} variable{?s}: {.emph {x@x2}}")
     cli_end(ulid)
-    cli_li("{.field Data}:")
-    cli_li("{.field Model config}:")
+    cli_li("{.field group_by}: {.emph {x@group_by}}")
+    cli_li("{.field data}: {.emph {rlang::expr_deparse(x@data)}}")
+    cli_li("{.field config}: {.emph {x@config}}")
+    cli_li("{.field models}: {.emph {rlang::expr_deparse(x@models)}}")
+    cli_li("{.field results}: {.emph {rlang::expr_deparse(x@results)}}")
     cli_end()
 
     cli_text()

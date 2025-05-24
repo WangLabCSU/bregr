@@ -19,7 +19,7 @@
 #' @param group_by A string specifying the group by column.
 #' @param run_parallel Integer, indicating cores to run the task, default is `1`.
 #' @param ... Additional arguments for model construction in `br_set_model()`
-#' or for [parameters::model_parameters()] in `br_run()`.
+#' or for [tidy_plus_plus()] in `br_run()`.
 #' Note: The default value for `exponentiate` is `FALSE` (coefficients are not exponentiated).
 #' For coxph models, this is typically set to `TRUE`.
 #' @param model_args A list of arguments passed to `br_set_model()`.
@@ -43,7 +43,7 @@
 #'   br_set_y(c("time", "status")) |>
 #'   br_set_x(c("age * sex"), "pat.karno") |>
 #'   br_set_model("coxph") |>
-#'   br_run(exponentiate = TRUE, ci = 0.90)
+#'   br_run(exponentiate = TRUE, conf.level = 0.90)
 #'
 #' br_set_data(data) |>
 #'   br_set_y(c("time")) |>
@@ -69,7 +69,10 @@ br_set_data <- function(data) {
   assert_s3_class(data, "data.frame")
 
   obj <- breg()
-  obj@data <- data
+  # if (!is.null(rownames(data))) {
+  #   cli::cli_inform("converting data.frame with rownames to tibble, rownames reset to column {.field .row_names}")
+  # }
+  obj@data <- tibble::as_tibble(data, rownames = ".row_names")
   obj
 }
 
@@ -117,10 +120,6 @@ br_set_model <- function(obj, method, ...) {
   }
 
   config <- rlang::list2(...)
-  # if (identical(config, list(NULL))) {
-  #   config <- list()
-  # }
-  # TODO: config text directly from ... by deparse?substitute?
   config_text <- gsub(
     "^list\\(|\\)$", "",
     paste(deparse(config, width.cutoff = 500),
@@ -163,21 +162,17 @@ br_set_model <- function(obj, method, ...) {
     }
   }
 
-  obj@config <- config
+  obj@config <- config_text
   obj@models <- models
   obj
 }
-
-
-# TODO: support group by
-# support group by, i.e. convert groups into focal variables
-# if necessary, use helper function to set parameters
 
 #' @rdname pipeline
 #' @export
 br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   assert_breg_obj(obj)
-  assert_string(group_by, allow_null = TRUE, allow_empty = FALSE)
+  #assert_string(group_by, allow_null = TRUE, allow_empty = FALSE)
+  assert_character(group_by, allow_na = FALSE, allow_null = TRUE)
   assert_number_whole(run_parallel, min = 1, max = parallel::detectCores() - 1)
 
   if (.Platform$OS.type == "windows") {
@@ -216,27 +211,10 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
     })
     res <- list_transpose(res_list)
     res$models <- purrr::list_flatten(res$models)
-    res$params <- purrr::list_flatten(res$params)
     res$results <- vctrs::vec_rbind(!!!res$results, .names_to = "Group_variable")
   }
 
-  # result_list <- list()
-  # for (i in seq_along(ms)) {
-  #   obj@models[[i]] <- local({
-  #     data <- obj@data
-  #     rlang::eval_bare(rlang::parse_expr(ms[[i]]))
-  #   })
-  #   result_list[[i]] <- do.call(
-  #     parameters::model_parameters,
-  #     args = vctrs::vec_c(list(obj@models[[i]]), dots)
-  #   )
-  # }
-  # names(result_list) <- names(obj@models) <- obj@x
-  # obj@params <- result_list
-  # obj@results <- vctrs::vec_rbind(!!!map(result_list, as.data.frame), .names_to = "Focal_variable")
-
   obj@models <- res$models
-  obj@params <- res$params
   obj@results <- res$results
   obj
 }
@@ -246,42 +224,20 @@ runner <- function(ms, data, dots, x, run_parallel) {
   f <- function(m, data, dots) {
     # m: model template
     # data: data frame for modeling
-    # dots: arguments passing to model_parameters
+    # dots: arguments passing to parse model parameters
     # x: focal variables
     model <- rlang::eval_bare(rlang::parse_expr(m))
-    param <- do.call(
-      parameters::model_parameters,
+    # Get comprehensive result for models
+    # broom.helpers::model_* funs
+    # when weights were assigned to observations
+    # the number of observations will be multiplied
+    # see: https://github.com/larmarange/broom.helpers/blob/210cc945bd6a462148a358f8d4851e0d16d208e3/R/model_get_n.R#L96
+    result <- do.call(
+      broom.helpers::tidy_plus_plus,
       args = vctrs::vec_c(list(model), dots)
     )
 
-    # TODO: Get comprehensive data for models
-    result1 = as.data.frame(param)
-    model_data = broom.helpers::model_get_model_frame(model)
-    # broom::glance(model)
-    # broom::augment(model)
-    broom::tidy(model, conf.int = TRUE)
-    broom.helpers::tidy_plus_plus(model)
-
-    # colnames(tidy_model)[1:2] <- c("term", "estimate")
-
-  # forest_terms <- merge(
-  #   # TODO: 这个对纯交互项处理也存在问题
-  #   data.table::data.table(
-  #     term_label = attr(model$terms, "term.labels")
-  #   )[, variable := remove_backticks(term_label)],
-  #   data.table::data.table(
-  #     variable = names(attr(model$terms, "dataClasses"))[-1],
-  #     class = attr(model$terms, "dataClasses")[-1]
-  #   ),
-  #   by = "variable", all.x = FALSE, all.y = FALSE
-  # )
-
-    # self$model, as.data.frame(self$result), private$model_data
-    # vars <- sapply(self$forest_data$term_label, get_vars)
-    # self$forest_data <- self$forest_data[order(match(vars, self$terms), decreasing = FALSE)]
-    # https://github.com/WangLabCSU/regverse/blob/523dd97137d7a468f8eb60e4a9ef026fb55936a7/R/REGModel.R#L318
-
-    list(model = model, param = param, result = result)
+    list(model = model, result = result)
   }
 
   if (run_parallel > 1) {
@@ -289,15 +245,12 @@ runner <- function(ms, data, dots, x, run_parallel) {
   } else {
     res <- map(ms, f, data = data, dots = dots)
   }
-  # TODO: list_transpose(res)? and flatten?
   models <- map(res, function(x) x$model)
-  params <- map(res, function(x) x$param)
   results <- vctrs::vec_rbind(!!!map(res, function(x) x$result), .names_to = "Focal_variable")
-  names(params) <- names(models) <- x
+  names(models) <- x
 
   list(
     models = models,
-    params = params,
     results = results
   )
 }

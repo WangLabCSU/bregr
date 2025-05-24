@@ -12,7 +12,6 @@ breg(
   data = NULL,
   config = NULL,
   models = list(),
-  params = list(),
   results = NULL
 )
 }
@@ -23,15 +22,15 @@ breg(
 
 \item{x2}{Character vector representing control variables, optional.}
 
-\item{data}{Data frame containing the data for modeling.}
+\item{group_by}{Character vector representing group by column, optional.}
+
+\item{data}{A \code{data.frame} containing the data for modeling.}
 
 \item{config}{Configurations for model construction.}
 
 \item{models}{List of model.}
 
-\item{params}{List of \code{parameters_model} objects obtained from \code{\link[parameters:model_parameters]{parameters::model_parameters()}}.}
-
-\item{results}{Data frame containing the model result data.}
+\item{results}{A \code{data.frame} containing the result data of models.}
 }
 \description{
 New breg-class object

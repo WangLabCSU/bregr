@@ -54,7 +54,7 @@ Column names should follow R's naming conventions.}
 \item{obj}{An object of class \code{breg}.}
 
 \item{...}{Additional arguments for model construction in \code{br_set_model()}
-or for \code{\link[parameters:model_parameters]{parameters::model_parameters()}} in \code{br_run()}.
+or for \code{\link[=tidy_plus_plus]{tidy_plus_plus()}} in \code{br_run()}.
 Note: The default value for \code{exponentiate} is \code{FALSE} (coefficients are not exponentiated).
 For coxph models, this is typically set to \code{TRUE}.}
 }
@@ -87,7 +87,7 @@ br_set_data(data) |>
   br_set_y(c("time", "status")) |>
   br_set_x(c("age * sex"), "pat.karno") |>
   br_set_model("coxph") |>
-  br_run(exponentiate = TRUE, ci = 0.90)
+  br_run(exponentiate = TRUE, conf.level = 0.90)
 
 br_set_data(data) |>
   br_set_y(c("time")) |>
