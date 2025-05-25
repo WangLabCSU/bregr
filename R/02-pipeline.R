@@ -1,4 +1,4 @@
-#' Modeling and analysis pipeline in bregr
+#' Modeling and analysis pipeline
 #'
 #' - `br_pipeline()`: All-in-one end to end wrapper to run the regression analysis in batch.
 #' Which could be splitted into the following steps:
@@ -9,7 +9,7 @@
 #' - `br_set_model()`: Set model configurations.
 #' - `br_run()`: Run the regression analysis in batch.
 #'
-#' @rdname pipeline
+#' @name pipeline
 #' @param data A `data.frame` containing all necessary variables for analysis.
 #' Column names should follow R's naming conventions.
 #' @param obj An object of class `breg`.
@@ -30,7 +30,6 @@
 #' For logistic, multinomial, and Cox-PH regressions models, `exponentiate` is typically set to `TRUE`.
 #' @param model_args A list of arguments passed to `br_set_model()`.
 #' @param run_args A list of arguments passed to `br_run()`.
-#' @export
 #' @examples
 #' library(bregr)
 #' # 1. Pipeline -------------------------
@@ -75,6 +74,11 @@
 #' assert_breg_obj(m2)
 #' assert_breg_obj(m3)
 #' assert_breg_obj(m4)
+#' @seealso [accessors] for accessing `breg` object properties.
+NULL
+
+#' @rdname pipeline
+#' @export
 br_pipeline <- function(
     data, y, x, method, x2 = NULL,
     group_by = NULL, run_parallel = 1L,
@@ -197,6 +201,7 @@ br_set_model <- function(obj, method, ...) {
     }
   }
 
+  names(models) = obj@x
   obj@config <- config_text
   obj@models <- models
   obj
@@ -289,7 +294,7 @@ runner <- function(ms, data, dots, x, run_parallel) {
     list(model = model, result = result, result_tidy = result_tidy)
   }
 
-  names(ms) <- x
+  #names(ms) <- x
   if (run_parallel > 1) {
     res <- parallel::mclapply(ms, f, data = data, dots = dots, mc.cores = run_parallel)
   } else {
