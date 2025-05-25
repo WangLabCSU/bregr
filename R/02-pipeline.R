@@ -28,6 +28,8 @@
 #' - `br_run()` for passing other configurations for obtaining modeling results with [tidy_plus_plus()].
 #' e.g., The default value for `exponentiate` is `FALSE` (coefficients are not exponentiated).
 #' For logistic, multinomial, and Cox-PH regressions models, `exponentiate` is typically set to `TRUE`.
+#' To generate a reseanable results, some arguments have been reset, include:
+#'   - `intercept`: `TRUE` (default) (instead of `FALSE` in default [tidy_plus_plus()]).
 #' @param model_args A list of arguments passed to `br_set_model()`.
 #' @param run_args A list of arguments passed to `br_run()`.
 #' @examples
@@ -267,17 +269,25 @@ runner <- function(ms, data, dots, x, run_parallel) {
     # dots: arguments passing to parse model parameters
     # x: focal variables
     model <- rlang::eval_bare(rlang::parse_expr(m))
-    # Get comprehensive result for models
+
+    # NOTE:
     # broom.helpers::model_* funs
     # when weights were assigned to observations
     # the number of observations will be multiplied
     # see: https://github.com/larmarange/broom.helpers/blob/210cc945bd6a462148a358f8d4851e0d16d208e3/R/model_get_n.R#L96
+    
+    # Change default values of some arguments in tidy_plus_plus
+    if (!"intercept" %in% names(dots)) {
+      dots[["intercept"]] <- TRUE
+    }
+
+    # Get comprehensive result for models
     result <- do.call(
       broom.helpers::tidy_plus_plus,
       args = vctrs::vec_c(list(model), dots)
     )
-    # TODO: Intercept not included in tidy_plus_plus, double check default settings.
 
+    # Get tidy result for models
     # output conf.int while exponentiate depends on dots
     result_tidy <- do.call(
       broom::tidy,

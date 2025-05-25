@@ -67,6 +67,10 @@ For Cox-PH models, it should be a length-2 vector in the format \code{c("time", 
 \item \code{br_run()} for passing other configurations for obtaining modeling results with \code{\link[=tidy_plus_plus]{tidy_plus_plus()}}.
 e.g., The default value for \code{exponentiate} is \code{FALSE} (coefficients are not exponentiated).
 For logistic, multinomial, and Cox-PH regressions models, \code{exponentiate} is typically set to \code{TRUE}.
+To generate a reseanable results, some arguments have been reset, include:
+\itemize{
+\item \code{intercept}: \code{TRUE} (default) (instead of \code{FALSE} in default \code{\link[=tidy_plus_plus]{tidy_plus_plus()}}).
+}
 }}
 }
 \description{
