@@ -15,6 +15,10 @@ br_show_forest_ggstats(breg, ..., idx = NULL)
 }
 \description{
 Provide an interface to visualize the model results with \href{https://github.com/larmarange/ggstats/}{\strong{ggstats}} package.
-Illustration for arguments and examples could be found at \href{https://larmarange.github.io/ggstats/reference/ggcoef_model.html}{\code{ggcoef_model} reference page}, or please check the doc for \code{...}.
+Illustration for arguments and examples could be found at \href{https://larmarange.github.io/ggstats/reference/ggcoef_model.html}{\code{ggcoef_model} reference page}, or please check the doc for dynamic dots \code{...}.
+}
+\seealso{
+Other br_show: 
+\code{\link{br_show_forest_ggstatsplot}()}
 }
 \concept{br_show}

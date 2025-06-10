@@ -82,7 +82,7 @@ br_get_model <- function(obj, idx) {
     }
   } else if (is.character(idx)) {
     idx <- as.character(idx)
-    if (!idx %in% names(obj@models) || idx > length(obj@models)) {
+    if (!idx %in% names(obj@models)) {
       cli_abort("{.arg idx} index out of range (input focal variable names)")
     }
   }

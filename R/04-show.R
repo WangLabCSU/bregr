@@ -41,6 +41,27 @@ br_show_forest_ggstats <- function(breg, ..., idx = NULL) {
   do.call(.f, vctrs::vec_c(list(mds), list(...)))
 }
 
+#' Show forest with `ggstatsplot` interface
+#'
+#' Provide an interface to visualize the model results with [**ggstatsplot**](https://github.com/IndrajeetPatil/ggstatsplot/) package.
+#' Illustration for arguments and examples could be found at [`ggcoefstats` reference page](https://indrajeetpatil.github.io/ggstatsplot/reference/ggcoefstats.html), or please check the doc for dynamic dots `...`.
+#'
+#' @param breg An object of class `breg` with results.
+#' @param idx Length-1. Index or name (focal variable) of the model(s).
+#' @param ... Arguments passing to [ggstatsplot::ggcoefstats()].
+#' @export
+#' @family br_show
+br_show_forest_ggstatsplot <- function(breg, idx = 1, ...) {
+  assert_breg_obj_with_results(breg)
+  if (length(idx) != 1) {
+    cli_abort("length-1 {.arg idx} (integer index or a focal variable name) is required")
+  }
+  rlang::check_installed("ggstatsplot")
+
+  mod <- br_get_model(breg, idx)
+  ggstatsplot::ggcoefstats(mod, ...)
+}
+
 br_show_table <- function(breg, ...) {
   assert_breg_obj_with_results(breg)
 }

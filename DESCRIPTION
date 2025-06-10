@@ -32,6 +32,7 @@ Imports:
     vctrs (>= 0.5.0)
 Suggests: 
     ggstats,
+    ggstatsplot,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)

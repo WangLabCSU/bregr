@@ -3,6 +3,7 @@
 # File R/"02-pipeline.R": @testexamples
 
 test_that("[unknown alias] @ L82", {
+  
   library(bregr)
   # 1. Pipeline -------------------------
   # 1.1. A single linear model ----------
@@ -11,11 +12,11 @@ test_that("[unknown alias] @ L82", {
     br_set_x("qsec") |> # set focal variables
     br_set_model("gaussian") |> # set model
     br_run() # run analysis
-
+  
   # get model tidy result
   br_get_results(m, tidy = TRUE)
   # or m@results_tidy
-
+  
   # compare with R's built-in function
   lm(mpg ~ qsec, data = mtcars) |> summary()
   # 1.2. Batch linear model -------------
@@ -34,7 +35,7 @@ test_that("[unknown alias] @ L82", {
     br_set_x2("wt") |> # set control variables
     br_set_model("gaussian") |>
     br_run(group_by = "am")
-
+  
   # 2. All-in-one pipeline wrapper ---
   m4 <- br_pipeline(mtcars,
     y = "mpg",
@@ -42,9 +43,10 @@ test_that("[unknown alias] @ L82", {
     x2 = "vs",
     method = "gaussian"
   )
-
+  
   assert_breg_obj(m)
   assert_breg_obj(m2)
   assert_breg_obj(m3)
   assert_breg_obj(m4)
 })
+
