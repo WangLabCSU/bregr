@@ -4,14 +4,14 @@
 \alias{br_show_forest_ggstats}
 \title{Show forest with \code{ggstats} interface}
 \usage{
-br_show_forest_ggstats(breg, ..., idx = NULL)
+br_show_forest_ggstats(breg, idx = NULL, ...)
 }
 \arguments{
 \item{breg}{An object of class \code{breg} with results.}
 
-\item{...}{Arguments passing to \code{\link[ggstats:ggcoef_model]{ggstats::ggcoef_table()}} or \code{\link[ggstats:ggcoef_model]{ggstats::ggcoef_compare()}}.}
-
 \item{idx}{Index or names (focal variables) of the model(s).}
+
+\item{...}{Arguments passing to \code{\link[ggstats:ggcoef_model]{ggstats::ggcoef_table()}} or \code{\link[ggstats:ggcoef_model]{ggstats::ggcoef_compare()}} excepts \code{model}.}
 }
 \description{
 Provide an interface to visualize the model results with \href{https://github.com/larmarange/ggstats/}{\strong{ggstats}} package.
@@ -19,6 +19,8 @@ Illustration for arguments and examples could be found at \href{https://larmaran
 }
 \seealso{
 Other br_show: 
+\code{\link{br_show_fitted_line}()},
+\code{\link{br_show_fitted_line_2d}()},
 \code{\link{br_show_forest_ggstatsplot}()}
 }
 \concept{br_show}

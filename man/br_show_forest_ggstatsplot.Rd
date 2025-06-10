@@ -9,9 +9,9 @@ br_show_forest_ggstatsplot(breg, idx = 1, ...)
 \arguments{
 \item{breg}{An object of class \code{breg} with results.}
 
-\item{idx}{Length-1. Index or name (focal variable) of the model(s).}
+\item{idx}{Length-1. Index or name (focal variable) of the model.}
 
-\item{...}{Arguments passing to \code{\link[ggstatsplot:ggcoefstats]{ggstatsplot::ggcoefstats()}}.}
+\item{...}{Arguments passing to \code{\link[ggstatsplot:ggcoefstats]{ggstatsplot::ggcoefstats()}} excepts \code{x}.}
 }
 \description{
 Provide an interface to visualize the model results with \href{https://github.com/IndrajeetPatil/ggstatsplot/}{\strong{ggstatsplot}} package.
@@ -19,6 +19,8 @@ Illustration for arguments and examples could be found at \href{https://indrajee
 }
 \seealso{
 Other br_show: 
+\code{\link{br_show_fitted_line}()},
+\code{\link{br_show_fitted_line_2d}()},
 \code{\link{br_show_forest_ggstats}()}
 }
 \concept{br_show}

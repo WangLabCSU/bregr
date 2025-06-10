@@ -12,10 +12,10 @@ br_show_forest <- function(breg, ...) {
 #'
 #' @param breg An object of class `breg` with results.
 #' @param idx Index or names (focal variables) of the model(s).
-#' @param ... Arguments passing to [ggstats::ggcoef_table()] or [ggstats::ggcoef_compare()].
+#' @param ... Arguments passing to [ggstats::ggcoef_table()] or [ggstats::ggcoef_compare()] excepts `model`.
 #' @export
 #' @family br_show
-br_show_forest_ggstats <- function(breg, ..., idx = NULL) {
+br_show_forest_ggstats <- function(breg, idx = NULL, ...) {
   assert_breg_obj_with_results(breg)
   # if (!is_installed("ggstats")) {
   #   cli_inform("installing required package {.pkg ggstats}")
@@ -47,8 +47,8 @@ br_show_forest_ggstats <- function(breg, ..., idx = NULL) {
 #' Illustration for arguments and examples could be found at [`ggcoefstats` reference page](https://indrajeetpatil.github.io/ggstatsplot/reference/ggcoefstats.html), or please check the doc for dynamic dots `...`.
 #'
 #' @param breg An object of class `breg` with results.
-#' @param idx Length-1. Index or name (focal variable) of the model(s).
-#' @param ... Arguments passing to [ggstatsplot::ggcoefstats()].
+#' @param idx Length-1. Index or name (focal variable) of the model.
+#' @param ... Arguments passing to [ggstatsplot::ggcoefstats()] excepts `x`.
 #' @export
 #' @family br_show
 br_show_forest_ggstatsplot <- function(breg, idx = 1, ...) {
@@ -60,6 +60,48 @@ br_show_forest_ggstatsplot <- function(breg, idx = 1, ...) {
 
   mod <- br_get_model(breg, idx)
   ggstatsplot::ggcoefstats(mod, ...)
+}
+
+#' Show fitted regression line with `visreg` interface
+#'
+#' Provide an interface to visualize the model results with [**visreg**](https://github.com/larmarange/ggstats/) package, to show how a predictor variable x affects an outcome y.
+#' Illustration for arguments and examples could be found at [`visreg` reference page](https://pbreheny.github.io/visreg/reference/visreg.html), or please check the doc for dynamic dots `...`.
+#'
+#' @param breg An object of class `breg` with results.
+#' @inheritParams br_show_forest_ggstatsplot
+#' @param ... Arguments passing to [visreg::visreg()] excepts `fit`.
+#' @export
+#' @family br_show
+br_show_fitted_line <- function(breg, idx = 1, ...) {
+  assert_breg_obj_with_results(breg)
+  if (length(idx) != 1) {
+    cli_abort("length-1 {.arg idx} (integer index or a focal variable name) is required")
+  }
+  rlang::check_installed("visreg")
+
+  mod <- br_get_model(breg, idx)
+  visreg::visreg(mod, ...)
+}
+
+#' Show fitted regression line with `visreg` interface
+#'
+#' Similar to [br_show_fitted_line()], but visualize how two variables interact to affect the response in regression models.
+#' Illustration for arguments and examples could be found at [`visreg2d` reference page](https://pbreheny.github.io/visreg/reference/visreg2d.html), or please check the doc for dynamic dots `...`.
+#'
+#' @param breg An object of class `breg` with results.
+#' @inheritParams br_show_forest_ggstatsplot
+#' @param ... Arguments passing to [visreg::visreg2d()] excepts `fit`.
+#' @export
+#' @family br_show
+br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
+  assert_breg_obj_with_results(breg)
+  if (length(idx) != 1) {
+    cli_abort("length-1 {.arg idx} (integer index or a focal variable name) is required")
+  }
+  rlang::check_installed("visreg")
+
+  mod <- br_get_model(breg, idx)
+  visreg::visreg2d(mod, ...)
 }
 
 br_show_table <- function(breg, ...) {
