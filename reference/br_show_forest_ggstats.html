@@ -46,7 +46,7 @@ Illustration for arguments and examples could be found at <a href="https://larma
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">br_show_forest_ggstats</span><span class="op">(</span><span class="va">breg</span>, <span class="va">...</span>, idx <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">br_show_forest_ggstats</span><span class="op">(</span><span class="va">breg</span>, idx <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -57,17 +57,19 @@ Illustration for arguments and examples could be found at <a href="https://larma
 <dd><p>An object of class <code>breg</code> with results.</p></dd>
 
 
-<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Arguments passing to <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html" class="external-link">ggstats::ggcoef_table()</a></code> or <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html" class="external-link">ggstats::ggcoef_compare()</a></code>.</p></dd>
-
-
 <dt id="arg-idx">idx<a class="anchor" aria-label="anchor" href="#arg-idx"></a></dt>
 <dd><p>Index or names (focal variables) of the model(s).</p></dd>
+
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Arguments passing to <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html" class="external-link">ggstats::ggcoef_table()</a></code> or <code><a href="https://larmarange.github.io/ggstats/reference/ggcoef_model.html" class="external-link">ggstats::ggcoef_compare()</a></code> excepts <code>model</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other br_show:
+<code><a href="br_show_fitted_line.html">br_show_fitted_line</a>()</code>,
+<code><a href="br_show_fitted_line_2d.html">br_show_fitted_line_2d</a>()</code>,
 <code><a href="br_show_forest_ggstatsplot.html">br_show_forest_ggstatsplot</a>()</code></p></div>
     </div>
 
