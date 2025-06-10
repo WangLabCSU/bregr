@@ -96,7 +96,9 @@ m <- br_set_data(mtcars) |> # set model data
   br_run() # run analysis
 
 # get model tidy result
-m@results_tidy
+br_get_results(m, tidy = TRUE)
+# or m@results_tidy
+
 # compare with R's built-in function
 lm(mpg ~ qsec, data = mtcars) |> summary()
 # 1.2. Batch linear model -------------

@@ -43,7 +43,9 @@
 #'   br_run() # run analysis
 #'
 #' # get model tidy result
-#' m@results_tidy
+#' br_get_results(m, tidy = TRUE)
+#' # or m@results_tidy
+#'
 #' # compare with R's built-in function
 #' lm(mpg ~ qsec, data = mtcars) |> summary()
 #' # 1.2. Batch linear model -------------
@@ -62,7 +64,7 @@
 #'   br_set_x2("wt") |> # set control variables
 #'   br_set_model("gaussian") |>
 #'   br_run(group_by = "am")
-#' 
+#'
 #' # 2. All-in-one pipeline wrapper ---
 #' m4 <- br_pipeline(mtcars,
 #'   y = "mpg",
@@ -70,7 +72,7 @@
 #'   x2 = "vs",
 #'   method = "gaussian"
 #' )
-#' 
+#'
 #' @testexamples
 #' assert_breg_obj(m)
 #' assert_breg_obj(m2)
@@ -203,7 +205,7 @@ br_set_model <- function(obj, method, ...) {
     }
   }
 
-  names(models) = obj@x
+  names(models) <- obj@x
   obj@config <- config_text
   obj@models <- models
   obj
@@ -275,7 +277,7 @@ runner <- function(ms, data, dots, x, run_parallel) {
     # when weights were assigned to observations
     # the number of observations will be multiplied
     # see: https://github.com/larmarange/broom.helpers/blob/210cc945bd6a462148a358f8d4851e0d16d208e3/R/model_get_n.R#L96
-    
+
     # Change default values of some arguments in tidy_plus_plus
     if (!"intercept" %in% names(dots)) {
       dots[["intercept"]] <- TRUE
@@ -304,7 +306,7 @@ runner <- function(ms, data, dots, x, run_parallel) {
     list(model = model, result = result, result_tidy = result_tidy)
   }
 
-  #names(ms) <- x
+  # names(ms) <- x
   if (run_parallel > 1) {
     res <- parallel::mclapply(ms, f, data = data, dots = dots, mc.cores = run_parallel)
   } else {

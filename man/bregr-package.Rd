@@ -12,6 +12,7 @@ Easily process batches of univariate or multivariate regression models. Returns 
 Useful links:
 \itemize{
   \item \url{https://github.com/WangLabCSU/bregr}
+  \item \url{https://wanglabcsu.github.io/bregr/}
   \item Report bugs at \url{https://github.com/WangLabCSU/bregr/issues}
 }
 
