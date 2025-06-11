@@ -3,27 +3,31 @@
 #' - `br_pipeline()`: All-in-one end to end wrapper to run the regression analysis in batch.
 #' Which could be splitted into the following steps:
 #' - `br_set_data()`: Set data for model construction.
-#' - `br_set_y()`: Set independent variables for model construction.
-#' - `br_set_x()`: Set focal variables for model construction.
-#' - `br_set_x2()`: (Optional) Set control variables for model construction.
+#' - `br_set_y()`: Set dependent variables for model construction.
+#' - `br_set_x()`: Set focal terms for model construction.
+#' - `br_set_x2()`: (Optional) Set control terms for model construction.
 #' - `br_set_model()`: Set model configurations.
 #' - `br_run()`: Run the regression analysis in batch.
+#'
+#' Please note the difference between [variables](https://easystats.github.io/insight/#variables) and
+#' [terms](https://easystats.github.io/insight/#terms),
+#' e.g., `x + poly(x, 2)` has *one* variable `x`, but *two* terms `x` and `poly(x, 2)`.
 #'
 #' @name pipeline
 #' @param data A `data.frame` containing all necessary variables for analysis.
 #' Column names should follow R's naming conventions.
 #' @param obj An object of class `breg`.
-#' @param y Character vector specifying dependent variables.
+#' @param y Character vector specifying dependent variables (response variables).
 #' For GLM models, this is typically a single character (e.g., `"outcome"`).
 #' For Cox-PH models, it should be a length-2 vector in the format `c("time", "status")`.
-#' @param x Character vector specifying focal variables.
-#' @param x2 Character vector specifying control variables (optional).
+#' @param x Character vector specifying focal independent terms (predictors).
+#' @param x2 Character vector specifying control independent terms (predictor, optional).
 #' @param method Method for model construction.
 #' @param group_by A string specifying the group by column.
 #' @param run_parallel Integer, indicating cores to run the task, default is `1`.
 #' @param ... Additional arguments depending on the called function.
-#' - `br_set_x()` for passing focal variables as characters.
-#' - `br_set_x2()` for passing control variables as characters.
+#' - `br_set_x()` for passing focal terms as characters.
+#' - `br_set_x2()` for passing control terms as characters.
 #' - `br_set_model()` for passing other configurations for modeling.
 #' - `br_run()` for passing other configurations for obtaining modeling results with [tidy_plus_plus()].
 #' e.g., The default value for `exponentiate` is `FALSE` (coefficients are not exponentiated).
@@ -224,7 +228,7 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   }
   if (run_parallel > 1) {
     if (length(obj@n_x) < 100) {
-      cli::cli_warn("running in parallel is not recommended for small number of focal variables")
+      cli::cli_warn("running in parallel is not recommended for small number of focal terms")
     }
   }
 

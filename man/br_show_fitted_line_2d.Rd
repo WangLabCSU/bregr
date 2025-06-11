@@ -20,7 +20,9 @@ Illustration for arguments and examples could be found at \href{https://pbreheny
 \seealso{
 Other br_show: 
 \code{\link{br_show_fitted_line}()},
+\code{\link{br_show_forest}()},
 \code{\link{br_show_forest_ggstats}()},
-\code{\link{br_show_forest_ggstatsplot}()}
+\code{\link{br_show_forest_ggstatsplot}()},
+\code{\link{br_show_table}()}
 }
 \concept{br_show}

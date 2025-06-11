@@ -39,15 +39,15 @@ br_run(obj, ..., group_by = NULL, run_parallel = 1L)
 \item{data}{A \code{data.frame} containing all necessary variables for analysis.
 Column names should follow R's naming conventions.}
 
-\item{y}{Character vector specifying dependent variables.
+\item{y}{Character vector specifying dependent variables (response variables).
 For GLM models, this is typically a single character (e.g., \code{"outcome"}).
 For Cox-PH models, it should be a length-2 vector in the format \code{c("time", "status")}.}
 
-\item{x}{Character vector specifying focal variables.}
+\item{x}{Character vector specifying focal independent terms (predictors).}
 
 \item{method}{Method for model construction.}
 
-\item{x2}{Character vector specifying control variables (optional).}
+\item{x2}{Character vector specifying control independent terms (predictor, optional).}
 
 \item{group_by}{A string specifying the group by column.}
 
@@ -61,8 +61,8 @@ For Cox-PH models, it should be a length-2 vector in the format \code{c("time", 
 
 \item{...}{Additional arguments depending on the called function.
 \itemize{
-\item \code{br_set_x()} for passing focal variables as characters.
-\item \code{br_set_x2()} for passing control variables as characters.
+\item \code{br_set_x()} for passing focal terms as characters.
+\item \code{br_set_x2()} for passing control terms as characters.
 \item \code{br_set_model()} for passing other configurations for modeling.
 \item \code{br_run()} for passing other configurations for obtaining modeling results with \code{\link[=tidy_plus_plus]{tidy_plus_plus()}}.
 e.g., The default value for \code{exponentiate} is \code{FALSE} (coefficients are not exponentiated).
@@ -78,12 +78,17 @@ To generate a reseanable results, some arguments have been reset, include:
 \item \code{br_pipeline()}: All-in-one end to end wrapper to run the regression analysis in batch.
 Which could be splitted into the following steps:
 \item \code{br_set_data()}: Set data for model construction.
-\item \code{br_set_y()}: Set independent variables for model construction.
-\item \code{br_set_x()}: Set focal variables for model construction.
-\item \code{br_set_x2()}: (Optional) Set control variables for model construction.
+\item \code{br_set_y()}: Set dependent variables for model construction.
+\item \code{br_set_x()}: Set focal terms for model construction.
+\item \code{br_set_x2()}: (Optional) Set control terms for model construction.
 \item \code{br_set_model()}: Set model configurations.
 \item \code{br_run()}: Run the regression analysis in batch.
 }
+}
+\details{
+Please note the difference between \href{https://easystats.github.io/insight/#variables}{variables} and
+\href{https://easystats.github.io/insight/#terms}{terms},
+e.g., \code{x + poly(x, 2)} has \emph{one} variable \code{x}, but \emph{two} terms \code{x} and \code{poly(x, 2)}.
 }
 \examples{
 library(bregr)
