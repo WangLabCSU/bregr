@@ -4,9 +4,9 @@
 br_pipeline(): All-in-one end to end wrapper to run the regression analysis in batch.
 Which could be splitted into the following steps:
 br_set_data(): Set data for model construction.
-br_set_y(): Set independent variables for model construction.
-br_set_x(): Set focal variables for model construction.
-br_set_x2(): (Optional) Set control variables for model construction.
+br_set_y(): Set dependent variables for model construction.
+br_set_x(): Set focal terms for model construction.
+br_set_x2(): (Optional) Set control terms for model construction.
 br_set_model(): Set model configurations.
 br_run(): Run the regression analysis in batch.
 
@@ -15,9 +15,9 @@ br_run(): Run the regression analysis in batch.
 br_pipeline(): All-in-one end to end wrapper to run the regression analysis in batch.
 Which could be splitted into the following steps:
 br_set_data(): Set data for model construction.
-br_set_y(): Set independent variables for model construction.
-br_set_x(): Set focal variables for model construction.
-br_set_x2(): (Optional) Set control variables for model construction.
+br_set_y(): Set dependent variables for model construction.
+br_set_x(): Set focal terms for model construction.
+br_set_x2(): (Optional) Set control terms for model construction.
 br_set_model(): Set model configurations.
 br_run(): Run the regression analysis in batch.
 
@@ -64,9 +64,9 @@ br_run(): Run the regression analysis in batch.
 <ul><li><p><code>br_pipeline()</code>: All-in-one end to end wrapper to run the regression analysis in batch.
 Which could be splitted into the following steps:</p></li>
 <li><p><code>br_set_data()</code>: Set data for model construction.</p></li>
-<li><p><code>br_set_y()</code>: Set independent variables for model construction.</p></li>
-<li><p><code>br_set_x()</code>: Set focal variables for model construction.</p></li>
-<li><p><code>br_set_x2()</code>: (Optional) Set control variables for model construction.</p></li>
+<li><p><code>br_set_y()</code>: Set dependent variables for model construction.</p></li>
+<li><p><code>br_set_x()</code>: Set focal terms for model construction.</p></li>
+<li><p><code>br_set_x2()</code>: (Optional) Set control terms for model construction.</p></li>
 <li><p><code>br_set_model()</code>: Set model configurations.</p></li>
 <li><p><code>br_run()</code>: Run the regression analysis in batch.</p></li>
 </ul></div>
@@ -108,13 +108,13 @@ Column names should follow R's naming conventions.</p></dd>
 
 
 <dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
-<dd><p>Character vector specifying dependent variables.
+<dd><p>Character vector specifying dependent variables (response variables).
 For GLM models, this is typically a single character (e.g., <code>"outcome"</code>).
 For Cox-PH models, it should be a length-2 vector in the format <code>c("time", "status")</code>.</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Character vector specifying focal variables.</p></dd>
+<dd><p>Character vector specifying focal independent terms (predictors).</p></dd>
 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
@@ -122,7 +122,7 @@ For Cox-PH models, it should be a length-2 vector in the format <code>c("time", 
 
 
 <dt id="arg-x-">x2<a class="anchor" aria-label="anchor" href="#arg-x-"></a></dt>
-<dd><p>Character vector specifying control variables (optional).</p></dd>
+<dd><p>Character vector specifying control independent terms (predictor, optional).</p></dd>
 
 
 <dt id="arg-group-by">group_by<a class="anchor" aria-label="anchor" href="#arg-group-by"></a></dt>
@@ -146,8 +146,8 @@ For Cox-PH models, it should be a length-2 vector in the format <code>c("time", 
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments depending on the called function.</p><ul><li><p><code>br_set_x()</code> for passing focal variables as characters.</p></li>
-<li><p><code>br_set_x2()</code> for passing control variables as characters.</p></li>
+<dd><p>Additional arguments depending on the called function.</p><ul><li><p><code>br_set_x()</code> for passing focal terms as characters.</p></li>
+<li><p><code>br_set_x2()</code> for passing control terms as characters.</p></li>
 <li><p><code>br_set_model()</code> for passing other configurations for modeling.</p></li>
 <li><p><code>br_run()</code> for passing other configurations for obtaining modeling results with <code>tidy_plus_plus()</code>.
 e.g., The default value for <code>exponentiate</code> is <code>FALSE</code> (coefficients are not exponentiated).
@@ -157,6 +157,12 @@ To generate a reseanable results, some arguments have been reset, include:</p><u
 </ul></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Please note the difference between <a href="https://easystats.github.io/insight/#variables" class="external-link">variables</a> and
+<a href="https://easystats.github.io/insight/#terms" class="external-link">terms</a>,
+e.g., <code>x + poly(x, 2)</code> has <em>one</em> variable <code>x</code>, but <em>two</em> terms <code>x</code> and <code>poly(x, 2)</code>.</p>
+    </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><a href="accessors.html">accessors</a> for accessing <code>breg</code> object properties.</p></div>
