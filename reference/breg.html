@@ -101,20 +101,19 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">obj</span> <span class="op">&lt;-</span> <span class="fu">breg</span><span class="op">(</span><span class="st">"y"</span>, <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">obj</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> A object of <span style="color: #0000BB;">&lt;breg&gt;</span> class</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">Y</span>: <span style="font-style: italic;">y</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">X</span>:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   • <span style="color: #0000BB;">focal</span> variables: <span style="font-style: italic;">a</span>, <span style="font-style: italic;">b</span>, <span style="font-style: italic;">c</span>, <span style="font-style: italic;">d</span>, and <span style="font-style: italic;">e</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   • <span style="color: #0000BB;">control</span> variables: <span style="font-style: italic;">A</span>, <span style="font-style: italic;">B</span>, <span style="font-style: italic;">C</span>, <span style="font-style: italic;">D</span>, and <span style="font-style: italic;">E</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A object of <span style="color: #0000BB;">&lt;breg&gt;</span> class with slots:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">y</span> (<span style="color: #0000BB;">response</span> variable): <span style="font-style: italic;">y</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">x</span> (<span style="color: #0000BB;">focal</span> terms): <span style="font-style: italic;">a</span>, <span style="font-style: italic;">b</span>, <span style="font-style: italic;">c</span>, <span style="font-style: italic;">d</span>, and <span style="font-style: italic;">e</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">x2</span> (<span style="color: #0000BB;">control</span> terms): <span style="font-style: italic;">A</span>, <span style="font-style: italic;">B</span>, <span style="font-style: italic;">C</span>, <span style="font-style: italic;">D</span>, and <span style="font-style: italic;">E</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">group_by</span>:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">data</span>: <span style="font-style: italic;">&lt;df[,0]&gt;</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">config</span>:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">models</span>: <span style="font-style: italic;">&lt;list: &gt;</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">results</span>: <span style="font-style: italic;">&lt;df[,0]&gt;</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">results_tidy</span>: <span style="font-style: italic;">&lt;df[,0]&gt;</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Focal variables (or primary variables) are injected into the model one by one,</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">while covariates (or control variables) remain constant across all models in</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">the batch.</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">Focal term(s) are injected into the model one by one,</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">while control term(s) remain constant across all models in the batch.</span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">obj</span>, raw <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bregr::breg&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ y           : chr "y"</span>
