@@ -21,6 +21,7 @@ Imports:
     broom.helpers,
     cli,
     dplyr,
+    forestploter,
     glue,
     insight,
     lifecycle,

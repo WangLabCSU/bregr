@@ -73,25 +73,33 @@ method(print, breg) <- function(x, ..., raw = FALSE) {
   if (raw) {
     print(utils::str(x))
   } else {
-    cli_text("A object of {.cls breg} class\n")
+    cli_text("A object of {.cls breg} class with slots:\n")
 
+    qty_x <- qty(x@n_x)
+    qty_x2 <- qty(x@n_x2)
+    if (qty_x == 0) qty_x <- qty_x + 1
+    if (qty_x2 == 0) qty_x2 <- qty_x2 + 1
+
+    # TODO: add variable?
     cli_ul()
-    cli_li("{.field Y}: {.emph {x@y}}")
-    cli_li("{.field X}:")
-    ulid <- cli_ul()
+    cli_li("{.field y} ({col_blue('response')} variable): {.emph {x@y}}")
+    # cli_li("{.field x}:")
+    # ulid <- cli_ul()
     # https://cli.r-lib.org/reference/pluralization.html#choosing-the-right-quantity
-    cli_li("{col_blue('focal')}{qty(x@n_x)} variable{?s}: {.emph {x@x}}")
-    cli_li("{col_blue('control')}{qty(x@n_x2)} variable{?s}: {.emph {x@x2}}")
-    cli_end(ulid)
+    cli_li("{.field x} ({col_blue('focal')}{qty_x} term{?s}): {.emph {x@x}}")
+    cli_li("{.field x2} ({col_blue('control')}{qty_x2} term{?s}): {.emph {x@x2}}")
+    # cli_end(ulid)
     cli_li("{.field group_by}: {.emph {x@group_by}}")
     cli_li("{.field data}: {.emph {rlang::expr_deparse(x@data)}}")
     cli_li("{.field config}: {.emph {x@config}}")
     cli_li("{.field models}: {.emph {rlang::expr_deparse(x@models)}}")
     cli_li("{.field results}: {.emph {rlang::expr_deparse(x@results)}}")
+    cli_li("{.field results_tidy}: {.emph {rlang::expr_deparse(x@results_tidy)}}")
     cli_end()
 
     cli_text()
-    cli_text(col_grey("Focal variables (or primary variables) are injected into the model one by one, while covariates (or control variables) remain constant across all models in the batch."))
+    cli_text(col_grey("Focal term(s) are injected into the model one by one,"))
+    cli_text(col_grey("while control term(s) remain constant across all models in the batch."))
   }
 
   invisible(x)

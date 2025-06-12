@@ -8,6 +8,120 @@
 #' @family br_show
 br_show_forest <- function(breg, ...) {
   assert_breg_obj_with_results(breg)
+
+  # TODO: grouped (compared) forestplot for group_by???
+
+  dt <- br_get_results(breg)
+
+  # if (global_p) {
+  #   if (inherits(model, "coxph")) {
+  #     p_val <- as.numeric(summary(model)$sctest[3])
+  #     label <- paste("Global p ", format.pval(p_val, digits = 2, eps = 1e-3))
+  #     forest_terms <- forest_terms |>
+  #       dplyr::add_row(term_label = "Global p", variable = label)
+  #   } else {
+  #     message("No global p value availabe for non-Cox model")
+  #   }
+  # }
+
+  # ref_line = NULL, xlim = NULL, vars = NULL, p = NULL,
+  # ref_line = 1, xlim = c(0, 2)
+
+  # if (!is.null(vars))
+  #   data <- data[data$focal_term %in% vars]
+  # if (!is.null(p)) {
+  #   minps <- sapply(split(data, data$focal_term), function(x) min(x$p,
+  #                                                                 na.rm = TRUE))
+  #   vars2 <- names(minps[minps < p])
+  #   data <- data[data$focal_term %in% vars2]
+  # }
+
+  ref_line <- if (inherits(model, "coxph") || (inherits(
+    model,
+    "glm"
+  ) && model$family$link == "logit")) {
+    1L
+  } else {
+    0L
+  }
+  xlim <- c(floor(min(data$CI_low, na.rm = TRUE)), ceiling(max(data$CI_high,
+    na.rm = TRUE
+  )))
+  if (is.infinite(xlim[1])) {
+    warning("\ninfinite CI detected, set a minimal value -100",
+      immediate. = TRUE
+    )
+    xlim[1] <- -100
+  }
+  if (is.infinite(xlim[2])) {
+    warning("\ninfinite CI detected, set a maximal value 100",
+      immediate. = TRUE
+    )
+    xlim[2] <- 100
+  }
+
+
+  c(
+    "Group_variable", "Focal_variable", "reference_row", "label", "n_obs",
+    "estimate", "std.error", "p.value", "conf.low", "conf.high"
+  )
+
+  has_group <- !is.null(br_get_group_by(breg))
+  dt <- dt |>
+    dplyr::mutate(
+      ` ` = paste(rep(" ", 20), collapse = " "),
+      `Estimate (95% CI)` = dplyr::case_when(
+        dt$reference_row ~ "Reference",
+        is.na(dt$std.error) ~ "",
+        TRUE ~ sprintf(
+          "%.2f (%.2f to %.2f)",
+          estimate,
+          conf.low,
+          conf.high
+        )
+      ),
+      P = if_else(is.na(p.value), "", format.pval(p.value,
+        digits = 2,
+        eps = 0.001
+      )),
+      conf.low = if_else(is.na(conf.low), estimate, conf.low),
+      conf.high = if_else(is.na(conf.high), estimate, conf.high)
+    ) #|> dplyr::mutate_all(~dplyr::if_else(is.na(.), "", as.character(.)))
+
+  sel_cols <- c(
+    if (has_group) "Group_variable" else NULL,
+    "Focal_variable", "variable", "label", "n_obs", " ", "Estimate (95% CI)",
+    "P", "estimate", "conf.low", "conf.high"
+  )
+  dt2 <- dt |>
+    dplyr::select(dplyr::all_of(sel_cols), dplyr::everything()) |>
+    rename(c(
+      "Group_variable" = "Group",
+      "Focal_variable" = "Focal",
+      "variable" = "Variable",
+      "label" = "Level",
+      "n_obs" = "N"
+    ))
+
+  idx_end <- 7L
+  idx_ci <- 5L
+  if (has_group) {
+    idx_end <- 8L
+    idx_end <- 6L
+  }
+  forestploter::forest(dt2[, 1:idx_end],
+    est = dt$estimate,
+    lower = dt$conf.low,
+    upper = dt$conf.high,
+    ci_column = idx_ci
+  )
+  forestploter::forest(dt2[, 1:idx_end],
+    est = dt$estimate,
+    lower = dt$conf.low,
+    upper = dt$conf.high,
+    ci_column = idx_ci,
+    ref_line = ref_line, xlim = xlim, ...
+  )
 }
 
 #' Show forest with `ggstats` interface
@@ -120,3 +234,6 @@ br_show_table <- function(breg, ..., args_table_format = list(), export = FALSE,
   if (export) tbl <- do.call(insight::export_table, vctrs::vec_c(list(tbl), args_table_export))
   tbl
 }
+
+# TODO: show table with gtsummary
+# https://github.com/WangLabCSU/bregr/issues/16
