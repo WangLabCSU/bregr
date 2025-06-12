@@ -1,70 +1,25 @@
 # Show model results in plots, tables, and some other formats
 # Set a family of functions, instead of including them all into one doc file
+# =====================
 
 #' Show forest
 #'
+#' Show forest plot with **forestploter** for fullfill the functionality of **bregr** results.
+#'
 #' @param breg An object of class `breg` with results.
+#' @param clean If `TRUE`, remove "Group" or "Focal" variable column when the values
+#' are same, and reduce repeat values in column "Group", "Focal", and "Variable".
+#' @param ... Arguments passing to [forestploter::forest()].
 #' @export
 #' @family br_show
-br_show_forest <- function(breg, ...) {
+br_show_forest <- function(breg, clean = TRUE, ...) {
   assert_breg_obj_with_results(breg)
 
   # TODO: grouped (compared) forestplot for group_by???
+  # TODO: users xlim is also acceptable?
+  # TODO: focal 后侧列右侧加个虚线？
 
   dt <- br_get_results(breg)
-
-  # if (global_p) {
-  #   if (inherits(model, "coxph")) {
-  #     p_val <- as.numeric(summary(model)$sctest[3])
-  #     label <- paste("Global p ", format.pval(p_val, digits = 2, eps = 1e-3))
-  #     forest_terms <- forest_terms |>
-  #       dplyr::add_row(term_label = "Global p", variable = label)
-  #   } else {
-  #     message("No global p value availabe for non-Cox model")
-  #   }
-  # }
-
-  # ref_line = NULL, xlim = NULL, vars = NULL, p = NULL,
-  # ref_line = 1, xlim = c(0, 2)
-
-  # if (!is.null(vars))
-  #   data <- data[data$focal_term %in% vars]
-  # if (!is.null(p)) {
-  #   minps <- sapply(split(data, data$focal_term), function(x) min(x$p,
-  #                                                                 na.rm = TRUE))
-  #   vars2 <- names(minps[minps < p])
-  #   data <- data[data$focal_term %in% vars2]
-  # }
-
-  ref_line <- if (inherits(model, "coxph") || (inherits(
-    model,
-    "glm"
-  ) && model$family$link == "logit")) {
-    1L
-  } else {
-    0L
-  }
-  xlim <- c(floor(min(data$CI_low, na.rm = TRUE)), ceiling(max(data$CI_high,
-    na.rm = TRUE
-  )))
-  if (is.infinite(xlim[1])) {
-    warning("\ninfinite CI detected, set a minimal value -100",
-      immediate. = TRUE
-    )
-    xlim[1] <- -100
-  }
-  if (is.infinite(xlim[2])) {
-    warning("\ninfinite CI detected, set a maximal value 100",
-      immediate. = TRUE
-    )
-    xlim[2] <- 100
-  }
-
-
-  c(
-    "Group_variable", "Focal_variable", "reference_row", "label", "n_obs",
-    "estimate", "std.error", "p.value", "conf.low", "conf.high"
-  )
 
   has_group <- !is.null(br_get_group_by(breg))
   dt <- dt |>
@@ -80,20 +35,86 @@ br_show_forest <- function(breg, ...) {
           conf.high
         )
       ),
-      P = if_else(is.na(p.value), "", format.pval(p.value,
-        digits = 2,
-        eps = 0.001
-      )),
+      P = if_else(
+        is.na(p.value),
+        "",
+        format.pval(p.value, digits = 2, eps = 0.001)
+      ),
       conf.low = if_else(is.na(conf.low), estimate, conf.low),
       conf.high = if_else(is.na(conf.high), estimate, conf.high)
     ) #|> dplyr::mutate_all(~dplyr::if_else(is.na(.), "", as.character(.)))
 
+  xlim <- c(
+    floor(min(dt$conf.low, na.rm = TRUE)),
+    ceiling(max(dt$conf.high, na.rm = TRUE))
+  )
+  if (is.infinite(xlim[1])) {
+    cli_warn("infinite CI detected, set a minimal value -100")
+    xlim[1] <- -100
+  }
+  if (is.infinite(xlim[2])) {
+    cli_warn("infinite CI detected, set a maximal value 100")
+    xlim[2] <- 100
+  }
+
+  grp_is_null <- if (has_group) FALSE else TRUE
+  fcl_is_null <- FALSE
+  if (clean) {
+    # Drop Group or Focal column if necessary
+    if (!grp_is_null) {
+      if (length(unique(dt$Group_variable)) == 1L) {
+        dt$Group_variable <- NULL
+        grp_is_null <- TRUE
+      }
+    }
+    if (grp_is_null && length(unique(dt$Focal_variable)) == 1L) {
+      dt$Focal_variable <- NULL
+      fcl_is_null <- TRUE
+    }
+
+    # Keep unique variable in single model at plotting
+    if (!grp_is_null) {
+      dt <- dt |> dplyr::group_by(.data$Group_variable, .data$Focal_variable, .data$variable)
+    } else if (!fcl_is_null) {
+      dt <- dt |> dplyr::group_by(.data$Focal_variable, .data$variable)
+    } else {
+      dt <- dt |> dplyr::group_by(.data$variable)
+    }
+    dt <- dt |>
+      dplyr::mutate(
+        variable = if_else(is.na(reference_row) | !reference_row, variable, "")
+      ) |>
+      dplyr::ungroup()
+
+    if (!all(grp_is_null, fcl_is_null)) {
+      # Keep unique Focal
+      if (!grp_is_null) {
+        dt <- dt |> dplyr::group_by(.data$Group_variable, .data$Focal_variable)
+      } else if (!fcl_is_null) {
+        dt <- dt |> dplyr::group_by(.data$Focal_variable)
+      }
+      dt <- dt |>
+        dplyr::mutate(Focal_variable = if_else(dplyr::row_number() == 1, Focal_variable, "")) |>
+        dplyr::ungroup()
+
+      # Keep unique Group
+      if (!grp_is_null) {
+        dt <- dt |>
+          dplyr::group_by(.data$Group_variable) |>
+          dplyr::mutate(Group_variable = if_else(dplyr::row_number() == 1, Group_variable, "")) |>
+          dplyr::ungroup()
+      }
+    }
+  }
+
+
   sel_cols <- c(
-    if (has_group) "Group_variable" else NULL,
-    "Focal_variable", "variable", "label", "n_obs", " ", "Estimate (95% CI)",
+    if (!grp_is_null) "Group_variable" else NULL,
+    if (!fcl_is_null) "Focal_variable" else NULL,
+    "variable", "label", "n_obs", " ", "Estimate (95% CI)",
     "P", "estimate", "conf.low", "conf.high"
   )
-  dt2 <- dt |>
+  dt <- dt |>
     dplyr::select(dplyr::all_of(sel_cols), dplyr::everything()) |>
     rename(c(
       "Group_variable" = "Group",
@@ -103,24 +124,15 @@ br_show_forest <- function(breg, ...) {
       "n_obs" = "N"
     ))
 
-  idx_end <- 7L
-  idx_ci <- 5L
-  if (has_group) {
-    idx_end <- 8L
-    idx_end <- 6L
-  }
-  forestploter::forest(dt2[, 1:idx_end],
-    est = dt$estimate,
-    lower = dt$conf.low,
-    upper = dt$conf.high,
-    ci_column = idx_ci
-  )
-  forestploter::forest(dt2[, 1:idx_end],
+  idx_end <- which(colnames(dt) == "P")
+  idx_ci <- idx_end - 2L
+
+  forestploter::forest(dt[, 1:idx_end],
     est = dt$estimate,
     lower = dt$conf.low,
     upper = dt$conf.high,
     ci_column = idx_ci,
-    ref_line = ref_line, xlim = xlim, ...
+    xlim = xlim, ...
   )
 }
 

@@ -4,13 +4,18 @@
 \alias{br_show_forest}
 \title{Show forest}
 \usage{
-br_show_forest(breg, ...)
+br_show_forest(breg, clean = TRUE, ...)
 }
 \arguments{
 \item{breg}{An object of class \code{breg} with results.}
+
+\item{clean}{If \code{TRUE}, remove "Group" or "Focal" variable column when the values
+are same, and reduce repeat values in column "Group", "Focal", and "Variable".}
+
+\item{...}{Arguments passing to \code{\link[forestploter:forest]{forestploter::forest()}}.}
 }
 \description{
-Show forest
+Show forest plot with \strong{forestploter} for fullfill the functionality of \strong{bregr} results.
 }
 \seealso{
 Other br_show: 
