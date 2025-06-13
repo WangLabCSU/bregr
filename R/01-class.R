@@ -91,10 +91,10 @@ method(print, breg) <- function(x, ..., raw = FALSE) {
     # cli_end(ulid)
     cli_li("{.field group_by}: {.emph {x@group_by}}")
     cli_li("{.field data}: {.emph {rlang::expr_deparse(x@data)}}")
-    cli_li("{.field config}: {.emph {x@config}}")
+    cli_li("{.field config}: {.emph {rlang::expr_deparse(x@config)}}")
     cli_li("{.field models}: {.emph {rlang::expr_deparse(x@models)}}")
-    cli_li("{.field results}: {.emph {rlang::expr_deparse(x@results)}}")
-    cli_li("{.field results_tidy}: {.emph {rlang::expr_deparse(x@results_tidy)}}")
+    cli_li("{.field results}: {.emph {rlang::expr_deparse(x@results)}} with colnames {.emph {colnames(x@results)}}")
+    cli_li("{.field results_tidy}: {.emph {rlang::expr_deparse(x@results_tidy)}} with colnames {.emph {colnames(x@results_tidy)}}")
     cli_end()
 
     cli_text()

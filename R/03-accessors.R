@@ -1,7 +1,7 @@
 #' Data accessors
 #'
-#' Accessors for `breg` objects. Functions with addtional arguments
-#' provide additional functionality.
+#' Accessors for `breg` objects. Opposites to `br_set_*()` functions.
+#' Functions with additional arguments provide additional functionality.
 #'
 #' @name accessors
 #' @seealso [pipeline] for building `breg` objects.

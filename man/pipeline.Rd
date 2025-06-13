@@ -45,7 +45,9 @@ For Cox-PH models, it should be a length-2 vector in the format \code{c("time", 
 
 \item{x}{Character vector specifying focal independent terms (predictors).}
 
-\item{method}{Method for model construction.}
+\item{method}{Method for model construction.
+A string representing a complex method setting is acceptable,
+e.g., 'quasi(variance = "mu", link = "log")'.}
 
 \item{x2}{Character vector specifying control independent terms (predictor, optional).}
 
@@ -66,13 +68,13 @@ For Cox-PH models, it should be a length-2 vector in the format \code{c("time", 
 \item \code{br_set_model()} for passing other configurations for modeling.
 \item \code{br_run()} for passing other configurations for obtaining modeling results with \code{\link[=tidy_plus_plus]{tidy_plus_plus()}}.
 e.g., The default value for \code{exponentiate} is \code{FALSE} (coefficients are not exponentiated).
-For logistic, multinomial, and Cox-PH regressions models, \code{exponentiate} is typically set to \code{TRUE}.
+For logistic, and Cox-PH regressions models, \code{exponentiate} is set to \code{TRUE} at default.
 }}
 }
 \description{
-\itemize{
-\item \code{br_pipeline()}: All-in-one end to end wrapper to run the regression analysis in batch.
+\code{br_pipeline()}: All-in-one end to end wrapper to run the regression analysis in batch.
 Which could be splitted into the following steps:
+\itemize{
 \item \code{br_set_data()}: Set data for model construction.
 \item \code{br_set_y()}: Set dependent variables for model construction.
 \item \code{br_set_x()}: Set focal terms for model construction.

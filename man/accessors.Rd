@@ -49,8 +49,8 @@ The tidy results are obtained from \code{\link[broom:reexports]{broom::tidy()}} 
 \item{...}{Subset operations passing to \code{\link[dplyr:filter]{dplyr::filter()}} to filter results.}
 }
 \description{
-Accessors for \code{breg} objects. Functions with addtional arguments
-provide additional functionality.
+Accessors for \code{breg} objects. Opposites to \verb{br_set_*()} functions.
+Functions with additional arguments provide additional functionality.
 }
 \seealso{
 \link{pipeline} for building \code{breg} objects.

@@ -1,6 +1,6 @@
 #' Modeling and analysis pipeline
 #'
-#' - `br_pipeline()`: All-in-one end to end wrapper to run the regression analysis in batch.
+#' `br_pipeline()`: All-in-one end to end wrapper to run the regression analysis in batch.
 #' Which could be splitted into the following steps:
 #' - `br_set_data()`: Set data for model construction.
 #' - `br_set_y()`: Set dependent variables for model construction.
@@ -23,6 +23,8 @@
 #' @param x Character vector specifying focal independent terms (predictors).
 #' @param x2 Character vector specifying control independent terms (predictor, optional).
 #' @param method Method for model construction.
+#' A string representing a complex method setting is acceptable,
+#' e.g., 'quasi(variance = "mu", link = "log")'.
 #' @param group_by A string specifying the group by column.
 #' @param run_parallel Integer, indicating cores to run the task, default is `1`.
 #' @param ... Additional arguments depending on the called function.
@@ -31,7 +33,7 @@
 #' - `br_set_model()` for passing other configurations for modeling.
 #' - `br_run()` for passing other configurations for obtaining modeling results with [tidy_plus_plus()].
 #' e.g., The default value for `exponentiate` is `FALSE` (coefficients are not exponentiated).
-#' For logistic, multinomial, and Cox-PH regressions models, `exponentiate` is typically set to `TRUE`.
+#' For logistic, and Cox-PH regressions models, `exponentiate` is set to `TRUE` at default.
 #' @param model_args A list of arguments passed to `br_set_model()`.
 #' @param run_args A list of arguments passed to `br_run()`.
 #' @examples
@@ -154,14 +156,10 @@ br_set_model <- function(obj, method, ...) {
   assert_breg_obj(obj)
   assert_string(method, allow_empty = FALSE)
 
+  # TODO: method is a string represent a call
+  # e.g., quasi(variance = "mu", link = "log")
   if (!grepl("\\(", method)) {
-    method_list <- c(
-      "coxph", "binomial", "gaussian",
-      "Gamma", "inverse.gaussian",
-      "poisson", "quasi", "quasibinomial",
-      "quasipoisson"
-    )
-    rlang::arg_match0(method, method_list)
+    rlang::arg_match0(method, br_avail_methods())
   }
 
   config <- rlang::list2(...)
@@ -208,7 +206,7 @@ br_set_model <- function(obj, method, ...) {
   }
 
   names(models) <- obj@x
-  obj@config <- config_text
+  obj@config <- list(method = method, extra = config_text)
   obj@models <- models
   obj
 }
@@ -241,8 +239,21 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
     )
   }
 
-  ms <- obj@models
+  ms <- br_get_models(obj)
+  config <- br_get_config(obj)
   dots <- rlang::list2(...)
+
+  # For logistic, and Cox-PH regressions models, `exponentiate` is typically set to `TRUE`.
+  exponentiate = FALSE
+  if (!"exponentiate" %in% names(dots)) {
+    if (config$method %in% br_avail_methods_use_exp()) {
+      dots[["exponentiate"]] = TRUE
+      cli_inform("set `exponentiate=TRUE` for model(s) constructed from {.field {config$method}} method at default")
+    } else {
+      dots[["exponentiate"]] = FALSE
+    }
+    exponentiate = dots[["exponentiate"]]
+  }
 
   if (is.null(group_by)) {
     res <- runner(ms, obj@data, dots, obj@x, run_parallel)
@@ -262,6 +273,7 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   obj@models <- res$models
   obj@results <- res$results
   obj@results_tidy <- res$results_tidy
+  attr(obj, "exponentiate") = exponentiate
   obj
 }
 
