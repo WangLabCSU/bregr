@@ -151,19 +151,16 @@ br_show_forest <- function(breg, clean = TRUE, ..., subset = NULL, drop = NULL, 
     colnames(dt)[1:idx_end] <- tab_headers
   }
 
-  forest(dt[, 1:idx_end],
-    est = dt$estimate,
-    lower = dt$conf.low,
-    upper = dt$conf.high,
-    ci_column = idx_ci,
-    xlim = xlim,
-    !!!dots
-  )
-}
-
-forest <- function(...) {
-  dots <- rlang::list2(...)
-  do.call(forestploter::forest, dots)
+  rlang::inject(
+    forestploter::forest(
+      dt[, 1:idx_end],
+      est = dt$estimate,
+      lower = dt$conf.low,
+      upper = dt$conf.high,
+      ci_column = idx_ci,
+      xlim = xlim,
+      !!!dots
+    ))
 }
 
 #' Show forest with `ggstats` interface
