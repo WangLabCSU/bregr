@@ -38,6 +38,8 @@ br_get_model(obj, idx)
 br_get_results(obj, tidy = FALSE, ...)
 }
 \arguments{
+\item{obj}{A \code{breg} object.}
+
 \item{idx}{Index or names (focal variables) of the model(s) to return.}
 
 \item{tidy}{If \code{TRUE} return tidy (compact) results, otherwise return comprehensive results.

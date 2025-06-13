@@ -32,7 +32,8 @@ Imports:
     survival,
     tibble,
     utils,
-    vctrs (>= 0.5.0)
+    vctrs (>= 0.5.0),
+    visreg
 Suggests: 
     ggstats,
     ggstatsplot,

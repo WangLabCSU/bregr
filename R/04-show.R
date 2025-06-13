@@ -9,10 +9,11 @@
 #' @param breg An object of class `breg` with results.
 #' @param clean If `TRUE`, remove "Group" or "Focal" variable column when the values
 #' are same, and reduce repeat values in column "Group", "Focal", and "Variable".
+#' @param drop_controls If `TRUE`, drop control variables from the plot.
 #' @param ... Arguments passing to [forestploter::forest()].
 #' @export
 #' @family br_show
-br_show_forest <- function(breg, clean = TRUE, ...) {
+br_show_forest <- function(breg, clean = TRUE, drop_controls = FALSE, ...) {
   assert_breg_obj_with_results(breg)
 
   # TODO: grouped (compared) forestplot for group_by???
@@ -36,12 +37,12 @@ br_show_forest <- function(breg, clean = TRUE, ...) {
         )
       ),
       P = if_else(
-        is.na(p.value),
+        is.na(.data$p.value),
         "",
-        format.pval(p.value, digits = 2, eps = 0.001)
+        format.pval(.data$p.value, digits = 2, eps = 0.001)
       ),
-      conf.low = if_else(is.na(conf.low), estimate, conf.low),
-      conf.high = if_else(is.na(conf.high), estimate, conf.high)
+      conf.low = if_else(is.na(.data$conf.low), .data$estimate, .data$conf.low),
+      conf.high = if_else(is.na(.data$conf.high), .data$estimate, .data$conf.high)
     ) #|> dplyr::mutate_all(~dplyr::if_else(is.na(.), "", as.character(.)))
 
   xlim <- c(
@@ -82,7 +83,7 @@ br_show_forest <- function(breg, clean = TRUE, ...) {
     }
     dt <- dt |>
       dplyr::mutate(
-        variable = if_else(is.na(reference_row) | !reference_row, variable, "")
+        variable = if_else(is.na(.data$reference_row) | !.data$reference_row, .data$variable, "")
       ) |>
       dplyr::ungroup()
 
@@ -94,14 +95,14 @@ br_show_forest <- function(breg, clean = TRUE, ...) {
         dt <- dt |> dplyr::group_by(.data$Focal_variable)
       }
       dt <- dt |>
-        dplyr::mutate(Focal_variable = if_else(dplyr::row_number() == 1, Focal_variable, "")) |>
+        dplyr::mutate(Focal_variable = if_else(dplyr::row_number() == 1, .data$Focal_variable, "")) |>
         dplyr::ungroup()
 
       # Keep unique Group
       if (!grp_is_null) {
         dt <- dt |>
           dplyr::group_by(.data$Group_variable) |>
-          dplyr::mutate(Group_variable = if_else(dplyr::row_number() == 1, Group_variable, "")) |>
+          dplyr::mutate(Group_variable = if_else(dplyr::row_number() == 1, .data$Group_variable, "")) |>
           dplyr::ungroup()
       }
     }

@@ -4,13 +4,15 @@
 \alias{br_show_forest}
 \title{Show forest}
 \usage{
-br_show_forest(breg, clean = TRUE, ...)
+br_show_forest(breg, clean = TRUE, drop_controls = FALSE, ...)
 }
 \arguments{
 \item{breg}{An object of class \code{breg} with results.}
 
 \item{clean}{If \code{TRUE}, remove "Group" or "Focal" variable column when the values
 are same, and reduce repeat values in column "Group", "Focal", and "Variable".}
+
+\item{drop_controls}{If \code{TRUE}, drop control variables from the plot.}
 
 \item{...}{Arguments passing to \code{\link[forestploter:forest]{forestploter::forest()}}.}
 }

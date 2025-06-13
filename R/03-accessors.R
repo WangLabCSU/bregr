@@ -8,6 +8,7 @@
 NULL
 
 #' @rdname accessors
+#' @param obj A `breg` object.
 #' @export
 br_get_data <- function(obj) {
   assert_breg_obj(obj)
