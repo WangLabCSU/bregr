@@ -7,20 +7,24 @@
 #' Show forest plot with **forestploter** for fullfill the functionality of **bregr** results.
 #'
 #' @param breg An object of class `breg` with results.
-#' @param clean If `TRUE`, remove "Group" or "Focal" variable column when the values
-#' are same, and reduce repeat values in column "Group", "Focal", and "Variable".
-#' @param drop_controls If `TRUE`, drop control variables from the plot.
+#' @param clean If `TRUE`, remove "Group" or "Focal" variable column when the values in the result table
+#' are same (before performing `subset` and `drop`),
+#' and reduce repeat values in column "Group", "Focal", and "Variable".
+#' @param subset A expression to filter the result table rows for visualization.
+#' @param drop A integer index for dropping result table columns for compact visualization.
+#' @param tab_headers A character vector to replace plotted table.
 #' @param ... Arguments passing to [forestploter::forest()].
 #' @export
 #' @family br_show
-br_show_forest <- function(breg, clean = TRUE, drop_controls = FALSE, ...) {
+br_show_forest <- function(breg, clean = TRUE, ..., subset = NULL, drop = NULL, tab_headers = NULL) {
   assert_breg_obj_with_results(breg)
 
   # TODO: grouped (compared) forestplot for group_by???
-  # TODO: users xlim is also acceptable?
-  # TODO: focal 后侧列右侧加个虚线？
+  dots <- rlang::list2(...)
 
   dt <- br_get_results(breg)
+  x2 <- br_get_x2(breg)
+  dt <- dt
 
   has_group <- !is.null(br_get_group_by(breg))
   dt <- dt |>
@@ -45,17 +49,22 @@ br_show_forest <- function(breg, clean = TRUE, drop_controls = FALSE, ...) {
       conf.high = if_else(is.na(.data$conf.high), .data$estimate, .data$conf.high)
     ) #|> dplyr::mutate_all(~dplyr::if_else(is.na(.), "", as.character(.)))
 
-  xlim <- c(
-    floor(min(dt$conf.low, na.rm = TRUE)),
-    ceiling(max(dt$conf.high, na.rm = TRUE))
-  )
-  if (is.infinite(xlim[1])) {
-    cli_warn("infinite CI detected, set a minimal value -100")
-    xlim[1] <- -100
-  }
-  if (is.infinite(xlim[2])) {
-    cli_warn("infinite CI detected, set a maximal value 100")
-    xlim[2] <- 100
+  if (!"xlim" %in% names(dots)) {
+    xlim <- c(
+      floor(min(dt$conf.low, na.rm = TRUE)),
+      ceiling(max(dt$conf.high, na.rm = TRUE))
+    )
+    if (is.infinite(xlim[1])) {
+      cli_warn("infinite CI detected, set a minimal value -100")
+      xlim[1] <- -100
+    }
+    if (is.infinite(xlim[2])) {
+      cli_warn("infinite CI detected, set a maximal value 100")
+      xlim[2] <- 100
+    }
+  } else {
+    xlim <- dots[["xlim"]]
+    dots[["xlim"]] <- NULL
   }
 
   grp_is_null <- if (has_group) FALSE else TRUE
@@ -108,6 +117,10 @@ br_show_forest <- function(breg, clean = TRUE, drop_controls = FALSE, ...) {
     }
   }
 
+  subset <- rlang::enquo(subset)
+  if (!rlang::quo_is_null(subset)) {
+    dt <- dt |> dplyr::filter(!!subset)
+  }
 
   sel_cols <- c(
     if (!grp_is_null) "Group_variable" else NULL,
@@ -125,16 +138,32 @@ br_show_forest <- function(breg, clean = TRUE, drop_controls = FALSE, ...) {
       "n_obs" = "N"
     ))
 
+  assert_number_whole(drop, min = 1, max = as.numeric(ncol(dt)), allow_null = TRUE)
+  if (!is.null(drop)) {
+    for (i in drop) dt[[i]] <- NULL
+  }
+
   idx_end <- which(colnames(dt) == "P")
   idx_ci <- idx_end - 2L
 
-  forestploter::forest(dt[, 1:idx_end],
+  if (!is.null(tab_headers)) {
+    assert_character_len(tab_headers, len = idx_end)
+    colnames(dt)[1:idx_end] <- tab_headers
+  }
+
+  forest(dt[, 1:idx_end],
     est = dt$estimate,
     lower = dt$conf.low,
     upper = dt$conf.high,
     ci_column = idx_ci,
-    xlim = xlim, ...
+    xlim = xlim,
+    !!!dots
   )
+}
+
+forest <- function(...) {
+  dots <- rlang::list2(...)
+  do.call(forestploter::forest, dots)
 }
 
 #' Show forest with `ggstats` interface

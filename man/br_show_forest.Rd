@@ -4,17 +4,29 @@
 \alias{br_show_forest}
 \title{Show forest}
 \usage{
-br_show_forest(breg, clean = TRUE, drop_controls = FALSE, ...)
+br_show_forest(
+  breg,
+  clean = TRUE,
+  ...,
+  subset = NULL,
+  drop = NULL,
+  tab_headers = NULL
+)
 }
 \arguments{
 \item{breg}{An object of class \code{breg} with results.}
 
-\item{clean}{If \code{TRUE}, remove "Group" or "Focal" variable column when the values
-are same, and reduce repeat values in column "Group", "Focal", and "Variable".}
-
-\item{drop_controls}{If \code{TRUE}, drop control variables from the plot.}
+\item{clean}{If \code{TRUE}, remove "Group" or "Focal" variable column when the values in the result table
+are same (before performing \code{subset} and \code{drop}),
+and reduce repeat values in column "Group", "Focal", and "Variable".}
 
 \item{...}{Arguments passing to \code{\link[forestploter:forest]{forestploter::forest()}}.}
+
+\item{subset}{A expression to filter the result table rows for visualization.}
+
+\item{drop}{A integer index for dropping result table columns for compact visualization.}
+
+\item{tab_headers}{A character vector to replace plotted table.}
 }
 \description{
 Show forest plot with \strong{forestploter} for fullfill the functionality of \strong{bregr} results.
