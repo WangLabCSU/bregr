@@ -1,17 +1,19 @@
 #' Modeling and analysis pipeline
 #'
-#' `br_pipeline()`: All-in-one end to end wrapper to run the regression analysis in batch.
-#' Which could be splitted into the following steps:
-#' - `br_set_data()`: Set data for model construction.
-#' - `br_set_y()`: Set dependent variables for model construction.
-#' - `br_set_x()`: Set focal terms for model construction.
-#' - `br_set_x2()`: (Optional) Set control terms for model construction.
-#' - `br_set_model()`: Set model configurations.
-#' - `br_run()`: Run the regression analysis in batch.
+#' Provides a set of functions for running batch regression analysis.
+#' Combines data setup, model configuration, and execution steps into a single workflow.
+#' Supports both GLM and Cox-PH models with options for focal/control terms and parallel processing.
 #'
+#' @details
 #' Please note the difference between [variables](https://easystats.github.io/insight/#variables) and
 #' [terms](https://easystats.github.io/insight/#terms),
 #' e.g., `x + poly(x, 2)` has *one* variable `x`, but *two* terms `x` and `poly(x, 2)`.
+#' 
+#' @returns 
+#' An object of class `breg` with input values added to corresponding slot(s).
+#' For `br_run()`, the returned object is a `breg` object with results added to 
+#' the slots `@results` and `@results_tidy`, note that `@models` is updated to a list
+#' of constructed model object (See [accessors]).
 #'
 #' @name pipeline
 #' @param data A `data.frame` containing all necessary variables for analysis.
@@ -85,7 +87,8 @@
 #' @seealso [accessors] for accessing `breg` object properties.
 NULL
 
-#' @rdname pipeline
+#' @describeIn pipeline All-in-one end to end wrapper to run the regression analysis in batch.
+#' Which could be splitted into the following steps
 #' @export
 br_pipeline <- function(
     data, y, x, method, x2 = NULL,
@@ -100,7 +103,7 @@ br_pipeline <- function(
     br_run(group_by = group_by, run_parallel = run_parallel, !!!run_args)
 }
 
-#' @rdname pipeline
+#' @describeIn pipeline Set data for model construction.
 #' @export
 br_set_data <- function(data) {
   assert_s3_class(data, "data.frame")
@@ -110,7 +113,7 @@ br_set_data <- function(data) {
   obj
 }
 
-#' @rdname pipeline
+#' @describeIn pipeline Set dependent variables for model construction.
 #' @export
 br_set_y <- function(obj, y) {
   assert_breg_obj(obj)
@@ -120,7 +123,7 @@ br_set_y <- function(obj, y) {
   obj
 }
 
-#' @rdname pipeline
+#' @describeIn pipeline Set focal terms for model construction.
 #' @export
 br_set_x <- function(obj, ...) {
   assert_breg_obj(obj)
@@ -133,7 +136,7 @@ br_set_x <- function(obj, ...) {
   obj
 }
 
-#' @rdname pipeline
+#' @describeIn pipeline  Set control terms for model construction (Optional in pipeline).
 #' @export
 br_set_x2 <- function(obj, ...) {
   assert_breg_obj(obj)
@@ -150,7 +153,7 @@ br_set_x2 <- function(obj, ...) {
 }
 
 
-#' @rdname pipeline
+#' @describeIn pipeline Set model configurations.
 #' @export
 br_set_model <- function(obj, method, ...) {
   assert_breg_obj(obj)
@@ -211,7 +214,7 @@ br_set_model <- function(obj, method, ...) {
   obj
 }
 
-#' @rdname pipeline
+#' @describeIn pipeline Run the regression analysis in batch.
 #' @export
 br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   assert_breg_obj(obj)
@@ -244,15 +247,15 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   dots <- rlang::list2(...)
 
   # For logistic, and Cox-PH regressions models, `exponentiate` is typically set to `TRUE`.
-  exponentiate = FALSE
+  exponentiate <- FALSE
   if (!"exponentiate" %in% names(dots)) {
     if (config$method %in% br_avail_methods_use_exp()) {
-      dots[["exponentiate"]] = TRUE
+      dots[["exponentiate"]] <- TRUE
       cli_inform("set `exponentiate=TRUE` for model(s) constructed from {.field {config$method}} method at default")
     } else {
-      dots[["exponentiate"]] = FALSE
+      dots[["exponentiate"]] <- FALSE
     }
-    exponentiate = dots[["exponentiate"]]
+    exponentiate <- dots[["exponentiate"]]
   }
 
   if (is.null(group_by)) {
@@ -273,7 +276,7 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   obj@models <- res$models
   obj@results <- res$results
   obj@results_tidy <- res$results_tidy
-  attr(obj, "exponentiate") = exponentiate
+  attr(obj, "exponentiate") <- exponentiate
   obj
 }
 

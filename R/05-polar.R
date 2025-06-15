@@ -9,24 +9,26 @@ br_show_risk_network <- function(breg, ...) {
   rlang::check_installed("ggnewscale")
 
   data <- br_get_data(breg)
-  x = br_get_x(breg)
-  method = br_get_config(breg)$method
-  exponentiate = attr(breg, "exponentiate")
+  x <- br_get_x(breg)
+  method <- br_get_config(breg)$method
+  exponentiate <- attr(breg, "exponentiate")
   if (method != "coxph") {
     cli_abort("this function is designed for Cox-PH model analysis")
   }
   cli_inform("please note only continuous focal terms analyzed and visualized")
 
   # 1. Obtain regression results
-  result = br_get_results(breg, tidy = FALSE, ...)
+  result <- br_get_results(breg, tidy = FALSE, ...)
   data_reg <- result |>
-    dplyr::filter(.data$Focal_variable == .data$variable,
-                  .data$var_type == "continuous")
+    dplyr::filter(
+      .data$Focal_variable == .data$variable,
+      .data$var_type == "continuous"
+    )
   if ("Group_variable" %in% result && length(unique(data_reg$Group_variable)) > 1) {
     cli_abort("this function cannot be used for analyzing data with multiple group variable after filtering")
   }
   if (isFALSE(exponentiate)) {
-    data_reg$estimate = exp(data_reg$estimate)
+    data_reg$estimate <- exp(data_reg$estimate)
   }
 
   data_reg$role <- dplyr::case_when(
@@ -35,7 +37,7 @@ br_show_risk_network <- function(breg, ...) {
     data_reg$estimate > 1 ~ "risker"
   )
   data_reg$`-log10(p)` <- -log10(data_reg$p.value)
-  data_reg2 = data_reg[, c("Focal_variable", "n_obs", "estimate", "role", "-log10(p)")]
+  data_reg2 <- data_reg[, c("Focal_variable", "n_obs", "estimate", "role", "-log10(p)")]
 
   # 2. Correlation analysis
   vars_comb <- combn(x |> get_vars(), 2, simplify = FALSE)
@@ -51,14 +53,16 @@ br_show_risk_network <- function(breg, ...) {
 
   # 3. Visualization
   p <- polar_init(data_reg2,
-                  x = .data$Focal_variable,
-                  ggplot2::aes(color = .data$role, size = .data$`-log10(p)`)
+    x = .data$Focal_variable,
+    ggplot2::aes(color = .data$role, size = .data$`-log10(p)`)
   ) + ggplot2::scale_color_manual(values = c("grey", "blue", "red")) +
     labs(size = "-log10(p)", color = "risk type") +
     ggnewscale::new_scale("color") +
     ggnewscale::new_scale("size") +
-    polar_connect(data_cor, x1 = .data$var1, x2 = .data$var2,
-                  size = .data$size, color = .data$way, alpha = 0.5) +
+    polar_connect(data_cor,
+      x1 = .data$var1, x2 = .data$var2,
+      size = .data$size, color = .data$way, alpha = 0.5
+    ) +
     ggplot2::scale_color_manual(values = c("cyan", "orange")) +
     ggplot2::labs(color = "correlation type", size = "correlation size") +
     ggplot2::theme(
@@ -186,7 +190,9 @@ polar_connect <- function(data, x1, x2, ...) {
       as.character(x)
     } else if (is.language(x)) {
       setdiff(as.character(x), c("$", ".data"))
-    } else x
+    } else {
+      x
+    }
   })
   stopifnot(!is.null(calls$x1), !is.null(calls$x2))
 
@@ -216,12 +222,12 @@ polar_connect <- function(data, x1, x2, ...) {
   my_aes <- do.call("aes_string", aes_args)
 
   do.call("geom_segment_straight",
-          args = c(
-            list(
-              mapping = my_aes,
-              data = data
-            ),
-            dot_list
-          )
+    args = c(
+      list(
+        mapping = my_aes,
+        data = data
+      ),
+      dot_list
+    )
   )
 }

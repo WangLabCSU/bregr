@@ -2,7 +2,7 @@
 % Please edit documentation in R/01-class.R
 \name{breg}
 \alias{breg}
-\title{New breg-class object}
+\title{Creates a new breg-class object}
 \usage{
 breg(
   y = NULL,
@@ -17,26 +17,26 @@ breg(
 )
 }
 \arguments{
-\item{y}{Character vector representing dependent variables.}
+\item{y}{Character vector of dependent variable names.}
 
-\item{x}{Character vector representing focal variables.}
+\item{x}{Character vector of focal independent variable names.}
 
-\item{x2}{Character vector representing control variables, optional.}
+\item{x2}{Optional character vector of control variable names.}
 
-\item{group_by}{Character vector representing group by column, optional.}
+\item{group_by}{Optional character vector specifying grouping column.}
 
-\item{data}{A \code{data.frame} containing the data for modeling.}
+\item{data}{A \code{data.frame} containing modeling data.}
 
-\item{config}{Configurations for model construction.}
+\item{config}{List of model configuration parameters.}
 
-\item{models}{List of model.}
+\item{models}{List containing fitted model objects.}
 
-\item{results}{A \code{data.frame} containing the result data of models (from \code{\link[broom.helpers:tidy_plus_plus]{broom.helpers::tidy_plus_plus()}}).}
+\item{results}{A \code{data.frame} of model results from \code{\link[broom.helpers:tidy_plus_plus]{broom.helpers::tidy_plus_plus()}}.}
 
-\item{results_tidy}{A \code{data.frame} containing the tidy result data of models (from \code{\link[broom:reexports]{broom::tidy()}}).}
+\item{results_tidy}{A \code{data.frame} of tidy model results from \code{\link[broom:reexports]{broom::tidy()}}.}
 }
 \description{
-New breg-class object
+Constructs a breg-class object containing regression model specifications and results.
 }
 \examples{
 obj <- breg("y", letters[1:5], LETTERS[1:5])

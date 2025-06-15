@@ -40,8 +40,8 @@ remove_backticks <- function(x) {
 
 `%:::%` <- function(pkg, fun, inherits = TRUE) {
   get(fun,
-      envir = asNamespace(pkg),
-      inherits = inherits
+    envir = asNamespace(pkg),
+    inherits = inherits
   )
 }
 

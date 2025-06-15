@@ -13,7 +13,7 @@
 \alias{br_get_models}
 \alias{br_get_model}
 \alias{br_get_results}
-\title{Data accessors}
+\title{Accessor functions for \code{breg} objects}
 \usage{
 br_get_data(obj)
 
@@ -49,8 +49,9 @@ The tidy results are obtained from \code{\link[broom:reexports]{broom::tidy()}} 
 \item{...}{Subset operations passing to \code{\link[dplyr:filter]{dplyr::filter()}} to filter results.}
 }
 \description{
-Accessors for \code{breg} objects. Opposites to \verb{br_set_*()} functions.
-Functions with additional arguments provide additional functionality.
+These functions provide access to components of \code{breg} objects, serving as counterparts
+to the \verb{br_set_*()} functions. Some functions include additional arguments for extended
+functionality.
 }
 \seealso{
 \link{pipeline} for building \code{breg} objects.

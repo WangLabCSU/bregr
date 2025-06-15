@@ -71,23 +71,40 @@ e.g., The default value for \code{exponentiate} is \code{FALSE} (coefficients ar
 For logistic, and Cox-PH regressions models, \code{exponentiate} is set to \code{TRUE} at default.
 }}
 }
-\description{
-\code{br_pipeline()}: All-in-one end to end wrapper to run the regression analysis in batch.
-Which could be splitted into the following steps:
-\itemize{
-\item \code{br_set_data()}: Set data for model construction.
-\item \code{br_set_y()}: Set dependent variables for model construction.
-\item \code{br_set_x()}: Set focal terms for model construction.
-\item \code{br_set_x2()}: (Optional) Set control terms for model construction.
-\item \code{br_set_model()}: Set model configurations.
-\item \code{br_run()}: Run the regression analysis in batch.
+\value{
+An object of class \code{breg} with input values added to corresponding slot(s).
+For \code{br_run()}, the returned object is a \code{breg} object with results added to
+the slots \verb{@results} and \verb{@results_tidy}, note that \verb{@models} is updated to a list
+of constructed model object (See \link{accessors}).
 }
+\description{
+Provides a set of functions for running batch regression analysis.
+Combines data setup, model configuration, and execution steps into a single workflow.
+Supports both GLM and Cox-PH models with options for focal/control terms and parallel processing.
 }
 \details{
 Please note the difference between \href{https://easystats.github.io/insight/#variables}{variables} and
 \href{https://easystats.github.io/insight/#terms}{terms},
 e.g., \code{x + poly(x, 2)} has \emph{one} variable \code{x}, but \emph{two} terms \code{x} and \code{poly(x, 2)}.
 }
+\section{Functions}{
+\itemize{
+\item \code{br_pipeline()}: All-in-one end to end wrapper to run the regression analysis in batch.
+Which could be splitted into the following steps
+
+\item \code{br_set_data()}: Set data for model construction.
+
+\item \code{br_set_y()}: Set dependent variables for model construction.
+
+\item \code{br_set_x()}: Set focal terms for model construction.
+
+\item \code{br_set_x2()}: Set control terms for model construction (Optional in pipeline).
+
+\item \code{br_set_model()}: Set model configurations.
+
+\item \code{br_run()}: Run the regression analysis in batch.
+
+}}
 \examples{
 library(bregr)
 # 1. Pipeline -------------------------

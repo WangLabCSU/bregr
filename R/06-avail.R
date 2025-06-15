@@ -9,7 +9,7 @@ NULL
 #' @describeIn avails Returns available modeling methods. This correlates
 #' to [br_set_model()].
 #' @export
-br_avail_methods = function() {
+br_avail_methods <- function() {
   c(
     "coxph", "binomial", "gaussian",
     "Gamma", "inverse.gaussian",
@@ -21,6 +21,6 @@ br_avail_methods = function() {
 #' @describeIn avails Returns available modeling methods which
 #' set `exponentiate=TRUE` at default by **bregr**.
 #' @export
-br_avail_methods_use_exp = function() {
+br_avail_methods_use_exp <- function() {
   c("coxph", "binomial")
 }

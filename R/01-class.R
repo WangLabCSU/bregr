@@ -1,15 +1,18 @@
 # Class design
 
-#' New breg-class object
-#' @param y Character vector representing dependent variables.
-#' @param x Character vector representing focal variables.
-#' @param x2 Character vector representing control variables, optional.
-#' @param group_by Character vector representing group by column, optional.
-#' @param data A `data.frame` containing the data for modeling.
-#' @param config Configurations for model construction.
-#' @param models List of model.
-#' @param results A `data.frame` containing the result data of models (from [broom.helpers::tidy_plus_plus()]).
-#' @param results_tidy A `data.frame` containing the tidy result data of models (from [broom::tidy()]).
+#' Creates a new breg-class object
+#'
+#' Constructs a breg-class object containing regression model specifications and results.
+#'
+#' @param y Character vector of dependent variable names.
+#' @param x Character vector of focal independent variable names.
+#' @param x2 Optional character vector of control variable names.
+#' @param group_by Optional character vector specifying grouping column.
+#' @param data A `data.frame` containing modeling data.
+#' @param config List of model configuration parameters.
+#' @param models List containing fitted model objects.
+#' @param results A `data.frame` of model results from [broom.helpers::tidy_plus_plus()].
+#' @param results_tidy A `data.frame` of tidy model results from [broom::tidy()].
 #' @export
 #' @import S7
 #' @rdname breg

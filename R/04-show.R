@@ -5,6 +5,9 @@
 #' Show forest
 #'
 #' Show forest plot with **forestploter** for fullfill the functionality of **bregr** results.
+#' https://cran.r-project.org/web/packages/forestploter/vignettes/forestploter-post.html
+#'
+#' vignette("forestploter-post", "forestploter")
 #'
 #' @param breg An object of class `breg` with results.
 #' @param clean If `TRUE`, remove "Group" or "Focal" variable column when the values in the result table
@@ -160,7 +163,8 @@ br_show_forest <- function(breg, clean = TRUE, ..., subset = NULL, drop = NULL, 
       ci_column = idx_ci,
       xlim = xlim,
       !!!dots
-    ))
+    )
+  )
 }
 
 #' Show forest with `ggstats` interface

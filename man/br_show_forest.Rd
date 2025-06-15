@@ -30,6 +30,10 @@ and reduce repeat values in column "Group", "Focal", and "Variable".}
 }
 \description{
 Show forest plot with \strong{forestploter} for fullfill the functionality of \strong{bregr} results.
+https://cran.r-project.org/web/packages/forestploter/vignettes/forestploter-post.html
+}
+\details{
+vignette("forestploter-post", "forestploter")
 }
 \seealso{
 Other br_show: 

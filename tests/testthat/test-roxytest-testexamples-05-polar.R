@@ -2,7 +2,7 @@
 
 # File R/"05-polar.R": @testexamples
 
-test_that("Function polar_init() @ L145", {
+test_that("Function polar_init() @ L149", {
   
   library(ggplot2)
   # -------------------
