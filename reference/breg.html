@@ -44,11 +44,11 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">breg</span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  y <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  x <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  x2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  group_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  config <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  models <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  results <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -60,7 +60,11 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
+<dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
+<dd><p>A <code>data.frame</code> containing modeling data.</p></dd>
+
+
+<dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
 <dd><p>Character vector of dependent variable names.</p></dd>
 
 
@@ -74,10 +78,6 @@
 
 <dt id="arg-group-by">group_by<a class="anchor" aria-label="anchor" href="#arg-group-by"></a></dt>
 <dd><p>Optional character vector specifying grouping column.</p></dd>
-
-
-<dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
-<dd><p>A <code>data.frame</code> containing modeling data.</p></dd>
 
 
 <dt id="arg-config">config<a class="anchor" aria-label="anchor" href="#arg-config"></a></dt>
@@ -99,14 +99,14 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">obj</span> <span class="op">&lt;-</span> <span class="fu">breg</span><span class="op">(</span><span class="st">"y"</span>, <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="va">LETTERS</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">obj</span> <span class="op">&lt;-</span> <span class="fu">breg</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">obj</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> A object of <span style="color: #0000BB;">&lt;breg&gt;</span> class with slots:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">y</span> (<span style="color: #0000BB;">response</span> variable): <span style="font-style: italic;">y</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">x</span> (<span style="color: #0000BB;">focal</span> terms): <span style="font-style: italic;">a</span>, <span style="font-style: italic;">b</span>, <span style="font-style: italic;">c</span>, <span style="font-style: italic;">d</span>, and <span style="font-style: italic;">e</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">x2</span> (<span style="color: #0000BB;">control</span> terms): <span style="font-style: italic;">A</span>, <span style="font-style: italic;">B</span>, <span style="font-style: italic;">C</span>, <span style="font-style: italic;">D</span>, and <span style="font-style: italic;">E</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">y</span> (<span style="color: #0000BB;">response</span> variable):</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">x</span> (<span style="color: #0000BB;">focal</span> term):</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">x2</span> (<span style="color: #0000BB;">control</span> term):</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">group_by</span>:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">data</span>: <span style="font-style: italic;">&lt;df[,0]&gt;</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">data</span>: <span style="font-style: italic;">&lt;tibble[,0]&gt;</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">config</span>: <span style="font-style: italic;">NULL</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">models</span>: <span style="font-style: italic;">&lt;list: &gt;</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> • <span style="color: #00BB00;">results</span>: <span style="font-style: italic;">&lt;df[,0]&gt;</span> with colnames</span>
@@ -116,17 +116,18 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #555555;">while control term(s) remain constant across all models in the batch.</span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">obj</span>, raw <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bregr::breg&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ y           : chr "y"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ x           : chr [1:5] "a" "b" "c" "d" "e"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ x2          : chr [1:5] "A" "B" "C" "D" "E"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ data        : tibble [0 × 0] (S3: tbl_df/tbl/data.frame)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Named list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ y           : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ x           : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ x2          : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ group_by    : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ data        :'data.frame':	0 obs. of  0 variables</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ config      : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ models      : list()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ results     :'data.frame':	0 obs. of  0 variables</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ results_tidy:'data.frame':	0 obs. of  0 variables</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ n_x         : int 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ n_x2        : int 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ n_x         : int 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ n_x2        : int 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

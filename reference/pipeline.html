@@ -61,8 +61,6 @@ Supports both GLM and Cox-PH models with options for focal/control terms and par
 <span>  run_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">br_set_data</span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span>
-<span></span>
 <span><span class="fu">br_set_y</span><span class="op">(</span><span class="va">obj</span>, <span class="va">y</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">br_set_x</span><span class="op">(</span><span class="va">obj</span>, <span class="va">...</span><span class="op">)</span></span>
@@ -151,7 +149,6 @@ e.g., <code>x + poly(x, 2)</code> has <em>one</em> variable <code>x</code>, but 
 
 <ul><li><p><code>br_pipeline()</code>: All-in-one end to end wrapper to run the regression analysis in batch.
 Which could be splitted into the following steps</p></li>
-<li><p><code>br_set_data()</code>: Set data for model construction.</p></li>
 <li><p><code>br_set_y()</code>: Set dependent variables for model construction.</p></li>
 <li><p><code>br_set_x()</code>: Set focal terms for model construction.</p></li>
 <li><p><code>br_set_x2()</code>: Set control terms for model construction (Optional in pipeline).</p></li>
@@ -168,7 +165,7 @@ Which could be splitted into the following steps</p></li>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/WangLabCSU/bregr" class="external-link">bregr</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># 1. Pipeline -------------------------</span></span></span>
 <span class="r-in"><span><span class="co"># 1.1. A single linear model ----------</span></span></span>
-<span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu">br_set_data</span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># set model data</span></span></span>
+<span class="r-in"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="breg.html">breg</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># set model data</span></span></span>
 <span class="r-in"><span>  <span class="fu">br_set_y</span><span class="op">(</span><span class="st">"mpg"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># set dependent variable</span></span></span>
 <span class="r-in"><span>  <span class="fu">br_set_x</span><span class="op">(</span><span class="st">"qsec"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># set focal variables</span></span></span>
 <span class="r-in"><span>  <span class="fu">br_set_model</span><span class="op">(</span><span class="st">"gaussian"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># set model</span></span></span>
@@ -207,14 +204,14 @@ Which could be splitted into the following steps</p></li>
 <span class="r-in"><span><span class="co"># 1.2. Batch linear model -------------</span></span></span>
 <span class="r-in"><span><span class="co"># control variables are injected in all constructed models</span></span></span>
 <span class="r-in"><span><span class="co"># focal variables are injected in constructed models one by one</span></span></span>
-<span class="r-in"><span><span class="va">m2</span> <span class="op">&lt;-</span> <span class="fu">br_set_data</span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span><span class="va">m2</span> <span class="op">&lt;-</span> <span class="fu"><a href="breg.html">breg</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">br_set_y</span><span class="op">(</span><span class="st">"mpg"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">br_set_x</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># set focal variables</span></span></span>
 <span class="r-in"><span>  <span class="fu">br_set_x2</span><span class="op">(</span><span class="st">"vs"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># set control variables</span></span></span>
 <span class="r-in"><span>  <span class="fu">br_set_model</span><span class="op">(</span><span class="st">"gaussian"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">br_run</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># 1.3. Group by model -------------</span></span></span>
-<span class="r-in"><span><span class="va">m3</span> <span class="op">&lt;-</span> <span class="fu">br_set_data</span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span><span class="va">m3</span> <span class="op">&lt;-</span> <span class="fu"><a href="breg.html">breg</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">br_set_y</span><span class="op">(</span><span class="st">"mpg"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">br_set_x</span><span class="op">(</span><span class="st">"cyl"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>  <span class="fu">br_set_x2</span><span class="op">(</span><span class="st">"wt"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># set control variables</span></span></span>
