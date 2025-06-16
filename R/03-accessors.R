@@ -1,5 +1,5 @@
 #' Accessor functions for `breg` objects
-#' 
+#'
 #' These functions provide access to components of `breg` objects, serving as counterparts
 #' to the `br_set_*()` functions. Some functions include additional arguments for extended
 #' functionality.

@@ -3,7 +3,6 @@
 \name{pipeline}
 \alias{pipeline}
 \alias{br_pipeline}
-\alias{br_set_data}
 \alias{br_set_y}
 \alias{br_set_x}
 \alias{br_set_x2}
@@ -22,8 +21,6 @@ br_pipeline(
   model_args = list(),
   run_args = list()
 )
-
-br_set_data(data)
 
 br_set_y(obj, y)
 
@@ -92,8 +89,6 @@ e.g., \code{x + poly(x, 2)} has \emph{one} variable \code{x}, but \emph{two} ter
 \item \code{br_pipeline()}: All-in-one end to end wrapper to run the regression analysis in batch.
 Which could be splitted into the following steps
 
-\item \code{br_set_data()}: Set data for model construction.
-
 \item \code{br_set_y()}: Set dependent variables for model construction.
 
 \item \code{br_set_x()}: Set focal terms for model construction.
@@ -109,7 +104,7 @@ Which could be splitted into the following steps
 library(bregr)
 # 1. Pipeline -------------------------
 # 1.1. A single linear model ----------
-m <- br_set_data(mtcars) |> # set model data
+m <- breg(mtcars) |> # set model data
   br_set_y("mpg") |> # set dependent variable
   br_set_x("qsec") |> # set focal variables
   br_set_model("gaussian") |> # set model
@@ -124,14 +119,14 @@ lm(mpg ~ qsec, data = mtcars) |> summary()
 # 1.2. Batch linear model -------------
 # control variables are injected in all constructed models
 # focal variables are injected in constructed models one by one
-m2 <- br_set_data(mtcars) |>
+m2 <- breg(mtcars) |>
   br_set_y("mpg") |>
   br_set_x(colnames(mtcars)[2:4]) |> # set focal variables
   br_set_x2("vs") |> # set control variables
   br_set_model("gaussian") |>
   br_run()
 # 1.3. Group by model -------------
-m3 <- br_set_data(mtcars) |>
+m3 <- breg(mtcars) |>
   br_set_y("mpg") |>
   br_set_x("cyl") |>
   br_set_x2("wt") |> # set control variables

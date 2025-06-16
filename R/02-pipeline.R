@@ -8,10 +8,10 @@
 #' Please note the difference between [variables](https://easystats.github.io/insight/#variables) and
 #' [terms](https://easystats.github.io/insight/#terms),
 #' e.g., `x + poly(x, 2)` has *one* variable `x`, but *two* terms `x` and `poly(x, 2)`.
-#' 
-#' @returns 
+#'
+#' @returns
 #' An object of class `breg` with input values added to corresponding slot(s).
-#' For `br_run()`, the returned object is a `breg` object with results added to 
+#' For `br_run()`, the returned object is a `breg` object with results added to
 #' the slots `@results` and `@results_tidy`, note that `@models` is updated to a list
 #' of constructed model object (See [accessors]).
 #'
@@ -42,7 +42,7 @@
 #' library(bregr)
 #' # 1. Pipeline -------------------------
 #' # 1.1. A single linear model ----------
-#' m <- br_set_data(mtcars) |> # set model data
+#' m <- breg(mtcars) |> # set model data
 #'   br_set_y("mpg") |> # set dependent variable
 #'   br_set_x("qsec") |> # set focal variables
 #'   br_set_model("gaussian") |> # set model
@@ -57,14 +57,14 @@
 #' # 1.2. Batch linear model -------------
 #' # control variables are injected in all constructed models
 #' # focal variables are injected in constructed models one by one
-#' m2 <- br_set_data(mtcars) |>
+#' m2 <- breg(mtcars) |>
 #'   br_set_y("mpg") |>
 #'   br_set_x(colnames(mtcars)[2:4]) |> # set focal variables
 #'   br_set_x2("vs") |> # set control variables
 #'   br_set_model("gaussian") |>
 #'   br_run()
 #' # 1.3. Group by model -------------
-#' m3 <- br_set_data(mtcars) |>
+#' m3 <- breg(mtcars) |>
 #'   br_set_y("mpg") |>
 #'   br_set_x("cyl") |>
 #'   br_set_x2("wt") |> # set control variables
@@ -95,7 +95,7 @@ br_pipeline <- function(
     group_by = NULL, run_parallel = 1L,
     model_args = list(),
     run_args = list()) {
-  br_set_data(data) |>
+  breg(data) |>
     br_set_y(y) |>
     br_set_x(x) |>
     br_set_x2(x2) |>
@@ -103,21 +103,21 @@ br_pipeline <- function(
     br_run(group_by = group_by, run_parallel = run_parallel, !!!run_args)
 }
 
-#' @describeIn pipeline Set data for model construction.
-#' @export
-br_set_data <- function(data) {
-  assert_s3_class(data, "data.frame")
-
-  obj <- breg()
-  obj@data <- tibble::as_tibble(data, rownames = ".row_names")
-  obj
-}
-
 #' @describeIn pipeline Set dependent variables for model construction.
 #' @export
 br_set_y <- function(obj, y) {
   assert_breg_obj(obj)
   assert_character(y)
+
+  data = br_get_data(obj)
+  if (nrow(data) == 0) {
+    cli_abort("cannot set {.arg y} for {.arg obj} with void data")
+  } else {
+    .in = y %in% colnames(data)
+    if (!all(.in)) {
+      cli_abort("column(s) {.val {y[!.in]}} specified in {.arg y} not in {.field data} (columns: {.val {colnames(data)}}) of {.arg obj}")
+    }
+  }
 
   obj@y <- y
   obj
@@ -128,11 +128,21 @@ br_set_y <- function(obj, y) {
 br_set_x <- function(obj, ...) {
   assert_breg_obj(obj)
 
-  x <- rlang::list2(...) |> unlist()
+  x <- rlang::list2(...) |> unlist() |> as.character()
   assert_character(x, allow_na = FALSE)
 
-  # drop names if necessary
-  obj@x <- x |> as.character()
+  x_ = get_vars(x)
+  data = br_get_data(obj)
+  if (nrow(data) == 0) {
+    cli_abort("cannot set {.arg x} for {.arg obj} with void data")
+  } else {
+    .in = x_ %in% colnames(data)
+    if (!all(.in)) {
+      cli_abort("column(s) {.val {x_[!.in]}} specified in {.arg x} not in {.field data} (columns: {.val {colnames(data)}}) of {.arg obj}")
+    }
+  }
+
+  obj@x <- x
   obj
 }
 
@@ -140,13 +150,25 @@ br_set_x <- function(obj, ...) {
 #' @export
 br_set_x2 <- function(obj, ...) {
   assert_breg_obj(obj)
-  assert_character(obj@x)
+  x = br_get_x(obj)
+  if (is.null(x)) {
+    cli_abort("{.fn br_set_x2()} should be called after {.fn br_set_x()}")
+  }
 
-  x2 <- rlang::list2(...) |> unlist()
+  x2 <- rlang::list2(...) |> unlist() |> as.character()
   assert_character(x2, allow_na = FALSE, allow_null = TRUE)
-  # drop names if necessary
-  x2 <- as.character(x2)
-  assert_not_overlap(obj@x, x2)
+  assert_not_overlap(x, x2)
+
+  x2_ = get_vars(x2)
+  data = br_get_data(obj)
+  if (nrow(data) == 0) {
+    cli_abort("cannot set {.arg x2} for {.arg obj} with void data")
+  } else {
+    .in = x2_ %in% colnames(data)
+    if (!all(.in)) {
+      cli_abort("column(s) {.val {x2_[!.in]}} specified in {.arg x2} not in {.field data} (columns: {.val {colnames(data)}}) of {.arg obj}")
+    }
+  }
 
   obj@x2 <- x2
   obj
@@ -160,7 +182,7 @@ br_set_model <- function(obj, method, ...) {
   assert_string(method, allow_empty = FALSE)
 
   # TODO: method is a string represent a call
-  # e.g., quasi(variance = "mu", link = "log")
+  # e.g., 'quasi(variance = "mu", link = "log")'
   if (!grepl("\\(", method)) {
     rlang::arg_match0(method, br_avail_methods())
   }
@@ -177,7 +199,7 @@ br_set_model <- function(obj, method, ...) {
     assert_character_len(
       obj@y,
       len = 2,
-      msg = "two dependent variables corresponding to 'time' and 'status' are required for Cox proportional hazards model"
+      msg = "two dependent variables corresponding to {.val time} and {.val status} are required for Cox proportional hazards model"
     )
 
     models <- list()
@@ -235,10 +257,10 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
 
   if (!is.null(group_by)) {
     assert_not_overlap(group_by, obj@x,
-      msg = "group_by variables should not overlap with modeling (focal) variables"
+      msg = "{.arg group_by} variables should not overlap with modeling (focal) variables"
     )
     assert_not_overlap(group_by, obj@x2,
-      msg = "group_by variables should not overlap with modeling (control) variables"
+      msg = "{.arg group_by} variables should not overlap with modeling (control) variables"
     )
   }
 
@@ -251,7 +273,7 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   if (!"exponentiate" %in% names(dots)) {
     if (config$method %in% br_avail_methods_use_exp()) {
       dots[["exponentiate"]] <- TRUE
-      cli_inform("set `exponentiate=TRUE` for model(s) constructed from {.field {config$method}} method at default")
+      cli_inform("set {.code exponentiate=TRUE} for model(s) constructed from {.field {config$method}} method at default")
     } else {
       dots[["exponentiate"]] <- FALSE
     }

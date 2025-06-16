@@ -5,11 +5,11 @@
 \title{Creates a new breg-class object}
 \usage{
 breg(
+  data = NULL,
   y = NULL,
   x = NULL,
   x2 = NULL,
   group_by = NULL,
-  data = NULL,
   config = NULL,
   models = list(),
   results = NULL,
@@ -17,6 +17,8 @@ breg(
 )
 }
 \arguments{
+\item{data}{A \code{data.frame} containing modeling data.}
+
 \item{y}{Character vector of dependent variable names.}
 
 \item{x}{Character vector of focal independent variable names.}
@@ -24,8 +26,6 @@ breg(
 \item{x2}{Optional character vector of control variable names.}
 
 \item{group_by}{Optional character vector specifying grouping column.}
-
-\item{data}{A \code{data.frame} containing modeling data.}
 
 \item{config}{List of model configuration parameters.}
 
@@ -39,7 +39,7 @@ breg(
 Constructs a breg-class object containing regression model specifications and results.
 }
 \examples{
-obj <- breg("y", letters[1:5], LETTERS[1:5])
+obj <- breg()
 obj
 print(obj, raw = TRUE)
 

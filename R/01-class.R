@@ -4,11 +4,11 @@
 #'
 #' Constructs a breg-class object containing regression model specifications and results.
 #'
+#' @param data A `data.frame` containing modeling data.
 #' @param y Character vector of dependent variable names.
 #' @param x Character vector of focal independent variable names.
 #' @param x2 Optional character vector of control variable names.
 #' @param group_by Optional character vector specifying grouping column.
-#' @param data A `data.frame` containing modeling data.
 #' @param config List of model configuration parameters.
 #' @param models List containing fitted model objects.
 #' @param results A `data.frame` of model results from [broom.helpers::tidy_plus_plus()].
@@ -17,17 +17,17 @@
 #' @import S7
 #' @rdname breg
 #' @examples
-#' obj <- breg("y", letters[1:5], LETTERS[1:5])
+#' obj <- breg()
 #' obj
 #' print(obj, raw = TRUE)
 #'
 breg <- new_class("breg",
   properties = list(
+    data = class_data.frame,
     y = NULL | class_character,
     x = NULL | class_character,
     x2 = NULL | class_character,
     group_by = NULL | class_character,
-    data = class_data.frame,
     config = NULL | class_character | class_list,
     models = class_list,
     results = class_data.frame,
@@ -41,19 +41,22 @@ breg <- new_class("breg",
       getter = function(self) length(self@x2)
     )
   ),
-  constructor = function(y = NULL, x = NULL, x2 = NULL, group_by = NULL,
-                         data = NULL,
-                         config = NULL,
-                         models = list(),
-                         results = NULL,
-                         results_tidy = NULL) {
+  constructor = function(
+      data = NULL,
+      y = NULL, x = NULL, x2 = NULL, group_by = NULL,
+      config = NULL,
+      models = list(),
+      results = NULL,
+      results_tidy = NULL) {
+
+    data <- tibble::as_tibble(data, rownames = ".row_names")
     new_object(
       S7_object(),
       y = y,
       x = x,
       x2 = x2,
       group_by = group_by,
-      data = data %||% data.frame(),
+      data = data,
       config = config,
       models = models,
       results = results %||% data.frame(),

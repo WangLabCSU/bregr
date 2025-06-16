@@ -7,7 +7,7 @@ test_that("[unknown alias] @ L88", {
   library(bregr)
   # 1. Pipeline -------------------------
   # 1.1. A single linear model ----------
-  m <- br_set_data(mtcars) |> # set model data
+  m <- breg(mtcars) |> # set model data
     br_set_y("mpg") |> # set dependent variable
     br_set_x("qsec") |> # set focal variables
     br_set_model("gaussian") |> # set model
@@ -22,14 +22,14 @@ test_that("[unknown alias] @ L88", {
   # 1.2. Batch linear model -------------
   # control variables are injected in all constructed models
   # focal variables are injected in constructed models one by one
-  m2 <- br_set_data(mtcars) |>
+  m2 <- breg(mtcars) |>
     br_set_y("mpg") |>
     br_set_x(colnames(mtcars)[2:4]) |> # set focal variables
     br_set_x2("vs") |> # set control variables
     br_set_model("gaussian") |>
     br_run()
   # 1.3. Group by model -------------
-  m3 <- br_set_data(mtcars) |>
+  m3 <- breg(mtcars) |>
     br_set_y("mpg") |>
     br_set_x("cyl") |>
     br_set_x2("wt") |> # set control variables
