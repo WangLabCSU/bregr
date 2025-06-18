@@ -64,6 +64,7 @@ The function uses <code><a href="https://rdrr.io/pkg/forestploter/man/forest.htm
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">br_show_forest</span><span class="op">(</span></span>
 <span>  <span class="va">breg</span>,</span>
 <span>  clean <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  rm_controls <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span>,</span>
 <span>  subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drop <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -84,6 +85,10 @@ The function uses <code><a href="https://rdrr.io/pkg/forestploter/man/forest.htm
 If <code>TRUE</code>, remove "Group" or "Focal" variable column when the values in the result table
 are same (before performing <code>subset</code> and <code>drop</code>),
 and reduce repeat values in column "Group", "Focal", and "Variable".</p></dd>
+
+
+<dt id="arg-rm-controls">rm_controls<a class="anchor" aria-label="anchor" href="#arg-rm-controls"></a></dt>
+<dd><p>If <code>TRUE</code>, remove control terms.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
