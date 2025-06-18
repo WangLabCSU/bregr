@@ -64,7 +64,7 @@ to visualized here, so only length-1 vector is supported as <code>idx</code>.</p
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Arguments passing to <code><a href="http://pbreheny.github.io/visreg/reference/visreg2d.html" class="external-link">visreg::visreg2d()</a></code> excepts <code>fit</code>.</p></dd>
+<dd><p>Arguments passing to <code><a href="http://pbreheny.github.io/visreg/reference/visreg2d.html" class="external-link">visreg::visreg2d()</a></code> excepts <code>fit</code> and <code>data</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -78,6 +78,24 @@ to visualized here, so only length-1 vector is supported as <code>idx</code>.</p
 <code><a href="br_show_table.html">br_show_table</a>()</code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/is_installed.html" class="external-link">is_installed</a></span><span class="op">(</span><span class="st">"visreg"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="pipeline.html">br_pipeline</a></span><span class="op">(</span><span class="va">mtcars</span>,</span></span>
+<span class="r-in"><span>    y <span class="op">=</span> <span class="st">"mpg"</span>,</span></span>
+<span class="r-in"><span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>    x2 <span class="op">=</span> <span class="st">"vs"</span>,</span></span>
+<span class="r-in"><span>    method <span class="op">=</span> <span class="st">"gaussian"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="fu">br_show_fitted_line_2d</span><span class="op">(</span><span class="va">m</span>, xvar <span class="op">=</span> <span class="st">"cyl"</span>, yvar <span class="op">=</span> <span class="st">"mpg"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> model call: stats::glm(formula = mpg ~ cyl + vs, family = gaussian, data =</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> data)</span>
+<span class="r-plt img"><img src="br_show_fitted_line_2d-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
