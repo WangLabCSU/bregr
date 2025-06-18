@@ -7,7 +7,7 @@
 br_show_risk_network(breg, ...)
 }
 \arguments{
-\item{breg}{An object of class \code{breg} with results.}
+\item{breg}{A regression object with results (must pass \code{assert_breg_obj_with_results()}).}
 
 \item{...}{Arguments passing to \code{\link[=br_get_results]{br_get_results()}} for subsetting data table.}
 }
@@ -22,5 +22,10 @@ Other br_show:
 \code{\link{br_show_forest_ggstats}()},
 \code{\link{br_show_forest_ggstatsplot}()},
 \code{\link{br_show_table}()}
+
+Other risk_network: 
+\code{\link{polar_connect}()},
+\code{\link{polar_init}()}
 }
 \concept{br_show}
+\concept{risk_network}

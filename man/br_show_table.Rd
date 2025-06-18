@@ -13,7 +13,7 @@ br_show_table(
 )
 }
 \arguments{
-\item{breg}{An object of class \code{breg} with results.}
+\item{breg}{A regression object with results (must pass \code{assert_breg_obj_with_results()}).}
 
 \item{...}{Arguments passing to \code{\link[=br_get_results]{br_get_results()}} for subsetting table.}
 

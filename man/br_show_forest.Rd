@@ -2,7 +2,7 @@
 % Please edit documentation in R/04-show.R
 \name{br_show_forest}
 \alias{br_show_forest}
-\title{Show forest}
+\title{Show a forest plot for regression results}
 \usage{
 br_show_forest(
   breg,
@@ -14,26 +14,31 @@ br_show_forest(
 )
 }
 \arguments{
-\item{breg}{An object of class \code{breg} with results.}
+\item{breg}{A regression object with results (must pass \code{assert_breg_obj_with_results()}).}
 
-\item{clean}{If \code{TRUE}, remove "Group" or "Focal" variable column when the values in the result table
+\item{clean}{Logical indicating whether to clean/condense redundant group/focal variable labels.
+If \code{TRUE}, remove "Group" or "Focal" variable column when the values in the result table
 are same (before performing \code{subset} and \code{drop}),
 and reduce repeat values in column "Group", "Focal", and "Variable".}
 
-\item{...}{Arguments passing to \code{\link[forestploter:forest]{forestploter::forest()}}.}
+\item{...}{Additional arguments passed to \code{forestploter::forest()}, run \code{vignette("forestploter-post", "forestploter")}
+to see more plot options.}
 
-\item{subset}{A expression to filter the result table rows for visualization.}
+\item{subset}{Expression for subsetting the results data.}
 
-\item{drop}{A integer index for dropping result table columns for compact visualization.}
+\item{drop}{Column indices to drop from the display table.}
 
-\item{tab_headers}{A character vector to replace plotted table.}
+\item{tab_headers}{Character vector of custom column headers (must match number of displayed columns).}
 }
 \description{
-Show forest plot with \strong{forestploter} for fullfill the functionality of \strong{bregr} results.
-https://cran.r-project.org/web/packages/forestploter/vignettes/forestploter-post.html
+This function takes regression results and formats them into a forest plot display. It handles:
+\itemize{
+\item Formatting of estimates, CIs and p-values
+\item Automatic x-axis limits calculation
+\item Cleaning of redundant group/focal variable labels
+\item Custom subsetting and column dropping
+The function uses \code{forestploter::forest()} internally for the actual plotting.
 }
-\details{
-vignette("forestploter-post", "forestploter")
 }
 \seealso{
 Other br_show: 

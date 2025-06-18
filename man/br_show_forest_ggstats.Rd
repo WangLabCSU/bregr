@@ -2,19 +2,19 @@
 % Please edit documentation in R/04-show.R
 \name{br_show_forest_ggstats}
 \alias{br_show_forest_ggstats}
-\title{Show forest with \code{ggstats} interface}
+\title{Show a forest plot with \code{ggstats} interface}
 \usage{
 br_show_forest_ggstats(breg, idx = NULL, ...)
 }
 \arguments{
-\item{breg}{An object of class \code{breg} with results.}
+\item{breg}{A regression object with results (must pass \code{assert_breg_obj_with_results()}).}
 
 \item{idx}{Index or names (focal variables) of the model(s).}
 
 \item{...}{Arguments passing to \code{\link[ggstats:ggcoef_model]{ggstats::ggcoef_table()}} or \code{\link[ggstats:ggcoef_model]{ggstats::ggcoef_compare()}} excepts \code{model}.}
 }
 \description{
-Provide an interface to visualize the model results with \href{https://github.com/larmarange/ggstats/}{\strong{ggstats}} package.
+Provides an interface to visualize the model results with \href{https://github.com/larmarange/ggstats/}{\strong{ggstats}} package.
 Illustration for arguments and examples could be found at \href{https://larmarange.github.io/ggstats/reference/ggcoef_model.html}{\code{ggcoef_model} reference page}, or please check the doc for dynamic dots \code{...}.
 }
 \seealso{

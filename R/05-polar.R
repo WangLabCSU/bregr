@@ -4,6 +4,7 @@
 #' @param ... Arguments passing to [br_get_results()] for subsetting data table.
 #' @export
 #' @family br_show
+#' @family risk_network
 br_show_risk_network <- function(breg, ...) {
   assert_breg_obj_with_results(breg)
   rlang::check_installed("ggnewscale")
@@ -78,15 +79,15 @@ br_show_risk_network <- function(breg, ...) {
 
 #' Init a dot plot in polar system
 #'
-#' @param data a `data.frame` contains all events, e.g., genes.
-#' @param x the column name (without quote) storing event list.
-#' @param ... parameters passing to [ggplot2::geom_point].
+#' @param data A `data.frame` contains all events, e.g., genes.
+#' @param x Column name (without quote) storing event list.
+#' @param ... Arguments passing to [ggplot2::geom_point()].
 #'
 #' @importFrom ggplot2 .pt aes_string alpha coord_polar element_blank
 #' expand_limits geom_point geom_segment ggplot ggproto labs theme
 #' zeroGrob element_text
 #'
-#' @return a `ggplot` object.
+#' @return A `ggplot` object.
 #' @export
 #'
 #' @examples
@@ -146,6 +147,7 @@ br_show_risk_network <- function(breg, ...) {
 #' if (requireNamespace("ggnewscale")) {
 #'   expect_s3_class(p6, "ggplot")
 #' }
+#' @family risk_network
 polar_init <- function(data, x, ...) {
   stopifnot(is.data.frame(data))
   data$y <- 1
@@ -176,13 +178,14 @@ polar_init <- function(data, x, ...) {
 #'
 #' Check [polar_init()] for examples.
 #'
-#' @param data a `data.frame` contains connections of all events.
-#' @param x1,x2 the column names (without quote) storing connected events.
-#' @param ... parameters passing to [ggplot2::geom_segment],
+#' @param data A `data.frame` contains connections of all events.
+#' @param x1,x2 Column names (**without quote in `aes()`**) storing connected events.
+#' @param ... Arguments passing to [ggplot2::geom_segment()],
 #' expect `c(x, xend, y, yend)` these 4 mapping parameters.
 #'
-#' @return a `ggplot` object.
+#' @return A `ggplot` object.
 #' @export
+#' @family risk_network
 polar_connect <- function(data, x1, x2, ...) {
   stopifnot(is.data.frame(data))
   calls <- lapply(as.list(match.call()), function(x) {

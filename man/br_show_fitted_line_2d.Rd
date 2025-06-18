@@ -2,19 +2,21 @@
 % Please edit documentation in R/04-show.R
 \name{br_show_fitted_line_2d}
 \alias{br_show_fitted_line_2d}
-\title{Show fitted regression line with \code{visreg} interface}
+\title{Show 2d fitted regression line with \code{visreg} interface}
 \usage{
 br_show_fitted_line_2d(breg, idx = 1, ...)
 }
 \arguments{
-\item{breg}{An object of class \code{breg} with results.}
+\item{breg}{A regression object with results (must pass \code{assert_breg_obj_with_results()}).}
 
-\item{idx}{Length-1. Index or name (focal variable) of the model.}
+\item{idx}{Length-1 vector. Index or name (focal variable) of the model.
+This is different from \code{idx} in \link{br_show_forest_ggstats}, only one model is supported
+to visualized here, so only length-1 vector is supported as \code{idx}.}
 
 \item{...}{Arguments passing to \code{\link[visreg:visreg2d]{visreg::visreg2d()}} excepts \code{fit}.}
 }
 \description{
-Similar to \code{\link[=br_show_fitted_line]{br_show_fitted_line()}}, but visualize how two variables interact to affect the response in regression models.
+Similar to \code{\link[=br_show_fitted_line]{br_show_fitted_line()}}, but visualize how \emph{two variables} interact to affect the response in regression models.
 Illustration for arguments and examples could be found at \href{https://pbreheny.github.io/visreg/reference/visreg2d.html}{\code{visreg2d} reference page}, or please check the doc for dynamic dots \code{...}.
 }
 \seealso{

@@ -7,14 +7,16 @@
 br_show_fitted_line(breg, idx = 1, ...)
 }
 \arguments{
-\item{breg}{An object of class \code{breg} with results.}
+\item{breg}{A regression object with results (must pass \code{assert_breg_obj_with_results()}).}
 
-\item{idx}{Length-1. Index or name (focal variable) of the model.}
+\item{idx}{Length-1 vector. Index or name (focal variable) of the model.
+This is different from \code{idx} in \link{br_show_forest_ggstats}, only one model is supported
+to visualized here, so only length-1 vector is supported as \code{idx}.}
 
 \item{...}{Arguments passing to \code{\link[visreg:visreg]{visreg::visreg()}} excepts \code{fit}.}
 }
 \description{
-Provide an interface to visualize the model results with \href{https://github.com/larmarange/ggstats/}{\strong{visreg}} package, to show how a predictor variable x affects an outcome y.
+Provides an interface to visualize the model results with \href{https://github.com/larmarange/ggstats/}{\strong{visreg}} package, to show how a predictor variable \code{x} affects an outcome \code{y}.
 Illustration for arguments and examples could be found at \href{https://pbreheny.github.io/visreg/reference/visreg.html}{\code{visreg} reference page}, or please check the doc for dynamic dots \code{...}.
 }
 \seealso{

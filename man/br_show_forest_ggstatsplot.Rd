@@ -2,19 +2,21 @@
 % Please edit documentation in R/04-show.R
 \name{br_show_forest_ggstatsplot}
 \alias{br_show_forest_ggstatsplot}
-\title{Show forest with \code{ggstatsplot} interface}
+\title{Show a forest plot with \code{ggstatsplot} interface}
 \usage{
 br_show_forest_ggstatsplot(breg, idx = 1, ...)
 }
 \arguments{
-\item{breg}{An object of class \code{breg} with results.}
+\item{breg}{A regression object with results (must pass \code{assert_breg_obj_with_results()}).}
 
-\item{idx}{Length-1. Index or name (focal variable) of the model.}
+\item{idx}{Length-1 vector. Index or name (focal variable) of the model.
+This is different from \code{idx} in \link{br_show_forest_ggstats}, only one model is supported
+to visualized here, so only length-1 vector is supported as \code{idx}.}
 
 \item{...}{Arguments passing to \code{\link[ggstatsplot:ggcoefstats]{ggstatsplot::ggcoefstats()}} excepts \code{x}.}
 }
 \description{
-Provide an interface to visualize the model results with \href{https://github.com/IndrajeetPatil/ggstatsplot/}{\strong{ggstatsplot}} package.
+Provides an interface to visualize the model results with \href{https://github.com/IndrajeetPatil/ggstatsplot/}{\strong{ggstatsplot}} package.
 Illustration for arguments and examples could be found at \href{https://indrajeetpatil.github.io/ggstatsplot/reference/ggcoefstats.html}{\code{ggcoefstats} reference page}, or please check the doc for dynamic dots \code{...}.
 }
 \seealso{

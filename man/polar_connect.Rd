@@ -7,16 +7,22 @@
 polar_connect(data, x1, x2, ...)
 }
 \arguments{
-\item{data}{a \code{data.frame} contains connections of all events.}
+\item{data}{A \code{data.frame} contains connections of all events.}
 
-\item{x1, x2}{the column names (without quote) storing connected events.}
+\item{x1, x2}{Column names (\strong{without quote in \code{aes()}}) storing connected events.}
 
-\item{...}{parameters passing to \link[ggplot2:geom_segment]{ggplot2::geom_segment},
+\item{...}{Arguments passing to \code{\link[ggplot2:geom_segment]{ggplot2::geom_segment()}},
 expect \code{c(x, xend, y, yend)} these 4 mapping parameters.}
 }
 \value{
-a \code{ggplot} object.
+A \code{ggplot} object.
 }
 \description{
 Check \code{\link[=polar_init]{polar_init()}} for examples.
 }
+\seealso{
+Other risk_network: 
+\code{\link{br_show_risk_network}()},
+\code{\link{polar_init}()}
+}
+\concept{risk_network}

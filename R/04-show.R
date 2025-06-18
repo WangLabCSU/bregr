@@ -1,25 +1,41 @@
-# Show model results in plots, tables, and some other formats
-# Set a family of functions, instead of including them all into one doc file
+# Visualization and display utilities for model results
+# 
+# Provides functions to display regression model outputs in various formats 
+# including plots, tables, and other visual representations. Organized as 
+# a family of related functions rather than a single monolithic function.
 # =====================
 
-#' Show forest
+
+#' Show a forest plot for regression results
 #'
-#' Show forest plot with **forestploter** for fullfill the functionality of **bregr** results.
-#' https://cran.r-project.org/web/packages/forestploter/vignettes/forestploter-post.html
-#'
-#' vignette("forestploter-post", "forestploter")
-#'
-#' @param breg An object of class `breg` with results.
-#' @param clean If `TRUE`, remove "Group" or "Focal" variable column when the values in the result table
+#' This function takes regression results and formats them into a forest plot display. It handles:
+#' - Formatting of estimates, CIs and p-values
+#' - Automatic x-axis limits calculation
+#' - Cleaning of redundant group/focal variable labels
+#' - Custom subsetting and column dropping
+#' The function uses `forestploter::forest()` internally for the actual plotting.
+#' 
+#' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
+#' @param clean Logical indicating whether to clean/condense redundant group/focal variable labels.
+#' If `TRUE`, remove "Group" or "Focal" variable column when the values in the result table
 #' are same (before performing `subset` and `drop`),
 #' and reduce repeat values in column "Group", "Focal", and "Variable".
-#' @param subset A expression to filter the result table rows for visualization.
-#' @param drop A integer index for dropping result table columns for compact visualization.
-#' @param tab_headers A character vector to replace plotted table.
-#' @param ... Arguments passing to [forestploter::forest()].
+#' @param ... Additional arguments passed to `forestploter::forest()`, run `vignette("forestploter-post", "forestploter")`
+#' to see more plot options. 
+#' @param subset Expression for subsetting the results data.
+#' @param drop Column indices to drop from the display table.
+#' @param tab_headers Character vector of custom column headers (must match number of displayed columns).
+#'
 #' @export
 #' @family br_show
-br_show_forest <- function(breg, clean = TRUE, ..., subset = NULL, drop = NULL, tab_headers = NULL) {
+br_show_forest <- function(
+  breg,
+  clean = TRUE,
+  ...,
+  subset = NULL,
+  drop = NULL,
+  tab_headers = NULL
+) {
   assert_breg_obj_with_results(breg)
 
   # TODO: grouped (compared) forestplot for group_by???
@@ -36,12 +52,13 @@ br_show_forest <- function(breg, clean = TRUE, ..., subset = NULL, drop = NULL, 
       `Estimate (95% CI)` = dplyr::case_when(
         dt$reference_row ~ "Reference",
         is.na(dt$std.error) ~ "",
-        TRUE ~ sprintf(
-          "%.2f (%.2f to %.2f)",
-          estimate,
-          conf.low,
-          conf.high
-        )
+        TRUE ~
+          sprintf(
+            "%.2f (%.2f to %.2f)",
+            estimate,
+            conf.low,
+            conf.high
+          )
       ),
       P = if_else(
         is.na(.data$p.value),
@@ -49,7 +66,11 @@ br_show_forest <- function(breg, clean = TRUE, ..., subset = NULL, drop = NULL, 
         format.pval(.data$p.value, digits = 2, eps = 0.001)
       ),
       conf.low = if_else(is.na(.data$conf.low), .data$estimate, .data$conf.low),
-      conf.high = if_else(is.na(.data$conf.high), .data$estimate, .data$conf.high)
+      conf.high = if_else(
+        is.na(.data$conf.high),
+        .data$estimate,
+        .data$conf.high
+      )
     ) #|> dplyr::mutate_all(~dplyr::if_else(is.na(.), "", as.character(.)))
 
   if (!"xlim" %in% names(dots)) {
@@ -87,7 +108,12 @@ br_show_forest <- function(breg, clean = TRUE, ..., subset = NULL, drop = NULL, 
 
     # Keep unique variable in single model at plotting
     if (!grp_is_null) {
-      dt <- dt |> dplyr::group_by(.data$Group_variable, .data$Focal_variable, .data$variable)
+      dt <- dt |>
+        dplyr::group_by(
+          .data$Group_variable,
+          .data$Focal_variable,
+          .data$variable
+        )
     } else if (!fcl_is_null) {
       dt <- dt |> dplyr::group_by(.data$Focal_variable, .data$variable)
     } else {
@@ -95,7 +121,11 @@ br_show_forest <- function(breg, clean = TRUE, ..., subset = NULL, drop = NULL, 
     }
     dt <- dt |>
       dplyr::mutate(
-        variable = if_else(is.na(.data$reference_row) | !.data$reference_row, .data$variable, "")
+        variable = if_else(
+          is.na(.data$reference_row) | !.data$reference_row,
+          .data$variable,
+          ""
+        )
       ) |>
       dplyr::ungroup()
 
@@ -107,14 +137,26 @@ br_show_forest <- function(breg, clean = TRUE, ..., subset = NULL, drop = NULL, 
         dt <- dt |> dplyr::group_by(.data$Focal_variable)
       }
       dt <- dt |>
-        dplyr::mutate(Focal_variable = if_else(dplyr::row_number() == 1, .data$Focal_variable, "")) |>
+        dplyr::mutate(
+          Focal_variable = if_else(
+            dplyr::row_number() == 1,
+            .data$Focal_variable,
+            ""
+          )
+        ) |>
         dplyr::ungroup()
 
       # Keep unique Group
       if (!grp_is_null) {
         dt <- dt |>
           dplyr::group_by(.data$Group_variable) |>
-          dplyr::mutate(Group_variable = if_else(dplyr::row_number() == 1, .data$Group_variable, "")) |>
+          dplyr::mutate(
+            Group_variable = if_else(
+              dplyr::row_number() == 1,
+              .data$Group_variable,
+              ""
+            )
+          ) |>
           dplyr::ungroup()
       }
     }
@@ -128,8 +170,15 @@ br_show_forest <- function(breg, clean = TRUE, ..., subset = NULL, drop = NULL, 
   sel_cols <- c(
     if (!grp_is_null) "Group_variable" else NULL,
     if (!fcl_is_null) "Focal_variable" else NULL,
-    "variable", "label", "n_obs", " ", "Estimate (95% CI)",
-    "P", "estimate", "conf.low", "conf.high"
+    "variable",
+    "label",
+    "n_obs",
+    " ",
+    "Estimate (95% CI)",
+    "P",
+    "estimate",
+    "conf.low",
+    "conf.high"
   )
   dt <- dt |>
     dplyr::select(dplyr::all_of(sel_cols), dplyr::everything()) |>
@@ -141,9 +190,16 @@ br_show_forest <- function(breg, clean = TRUE, ..., subset = NULL, drop = NULL, 
       "n_obs" = "N"
     ))
 
-  assert_number_whole(drop, min = 1, max = as.numeric(ncol(dt)), allow_null = TRUE)
+  assert_number_whole(
+    drop,
+    min = 1,
+    max = as.numeric(ncol(dt)),
+    allow_null = TRUE
+  )
   if (!is.null(drop)) {
-    for (i in drop) dt[[i]] <- NULL
+    for (i in drop) {
+      dt[[i]] <- NULL
+    }
   }
 
   idx_end <- which(colnames(dt) == "P")
@@ -167,9 +223,9 @@ br_show_forest <- function(breg, clean = TRUE, ..., subset = NULL, drop = NULL, 
   )
 }
 
-#' Show forest with `ggstats` interface
+#' Show a forest plot with `ggstats` interface
 #'
-#' Provide an interface to visualize the model results with [**ggstats**](https://github.com/larmarange/ggstats/) package.
+#' Provides an interface to visualize the model results with [**ggstats**](https://github.com/larmarange/ggstats/) package.
 #' Illustration for arguments and examples could be found at [`ggcoef_model` reference page](https://larmarange.github.io/ggstats/reference/ggcoef_model.html), or please check the doc for dynamic dots `...`.
 #'
 #' @inheritParams br_show_forest
@@ -198,13 +254,15 @@ br_show_forest_ggstats <- function(breg, idx = NULL, ...) {
   do.call(.f, vctrs::vec_c(list(mds), list(...)))
 }
 
-#' Show forest with `ggstatsplot` interface
+#' Show a forest plot with `ggstatsplot` interface
 #'
-#' Provide an interface to visualize the model results with [**ggstatsplot**](https://github.com/IndrajeetPatil/ggstatsplot/) package.
+#' Provides an interface to visualize the model results with [**ggstatsplot**](https://github.com/IndrajeetPatil/ggstatsplot/) package.
 #' Illustration for arguments and examples could be found at [`ggcoefstats` reference page](https://indrajeetpatil.github.io/ggstatsplot/reference/ggcoefstats.html), or please check the doc for dynamic dots `...`.
 #'
 #' @inheritParams br_show_forest
-#' @param idx Length-1. Index or name (focal variable) of the model.
+#' @param idx Length-1 vector. Index or name (focal variable) of the model.
+#' This is different from `idx` in [br_show_forest_ggstats], only one model is supported
+#' to visualized here, so only length-1 vector is supported as `idx`.
 #' @param ... Arguments passing to [ggstatsplot::ggcoefstats()] excepts `x`.
 #' @export
 #' @family br_show
@@ -221,7 +279,7 @@ br_show_forest_ggstatsplot <- function(breg, idx = 1, ...) {
 
 #' Show fitted regression line with `visreg` interface
 #'
-#' Provide an interface to visualize the model results with [**visreg**](https://github.com/larmarange/ggstats/) package, to show how a predictor variable x affects an outcome y.
+#' Provides an interface to visualize the model results with [**visreg**](https://github.com/larmarange/ggstats/) package, to show how a predictor variable `x` affects an outcome `y`.
 #' Illustration for arguments and examples could be found at [`visreg` reference page](https://pbreheny.github.io/visreg/reference/visreg.html), or please check the doc for dynamic dots `...`.
 #'
 #' @inheritParams br_show_forest_ggstatsplot
@@ -239,9 +297,9 @@ br_show_fitted_line <- function(breg, idx = 1, ...) {
   visreg::visreg(mod, ...)
 }
 
-#' Show fitted regression line with `visreg` interface
+#' Show 2d fitted regression line with `visreg` interface
 #'
-#' Similar to [br_show_fitted_line()], but visualize how two variables interact to affect the response in regression models.
+#' Similar to [br_show_fitted_line()], but visualize how *two variables* interact to affect the response in regression models.
 #' Illustration for arguments and examples could be found at [`visreg2d` reference page](https://pbreheny.github.io/visreg/reference/visreg2d.html), or please check the doc for dynamic dots `...`.
 #'
 #' @inheritParams br_show_forest_ggstatsplot

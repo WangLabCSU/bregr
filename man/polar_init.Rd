@@ -7,14 +7,14 @@
 polar_init(data, x, ...)
 }
 \arguments{
-\item{data}{a \code{data.frame} contains all events, e.g., genes.}
+\item{data}{A \code{data.frame} contains all events, e.g., genes.}
 
-\item{x}{the column name (without quote) storing event list.}
+\item{x}{Column name (without quote) storing event list.}
 
-\item{...}{parameters passing to \link[ggplot2:geom_point]{ggplot2::geom_point}.}
+\item{...}{Arguments passing to \code{\link[ggplot2:geom_point]{ggplot2::geom_point()}}.}
 }
 \value{
-a \code{ggplot} object.
+A \code{ggplot} object.
 }
 \description{
 Init a dot plot in polar system
@@ -72,3 +72,9 @@ if (requireNamespace("ggnewscale")) {
   p6 + scale_color_manual(values = c("darkgreen", "magenta"))
 }
 }
+\seealso{
+Other risk_network: 
+\code{\link{br_show_risk_network}()},
+\code{\link{polar_connect}()}
+}
+\concept{risk_network}
