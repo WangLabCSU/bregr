@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# bregr
+# bregr: Easy and Efficient Batch Processing of Regression Models in R
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/bregr)](https://CRAN.R-project.org/package=bregr)
@@ -21,9 +21,31 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/WangLabCSU/bregr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/WangLabCSU/bregr/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of bregr is to ...
+The **bregr** package is designed to simplify and streamline the process of **b**atch processing **reg**ression models in **R**. Whether you're working with univariate or multivariate models, bregr makes it easy to handle multiple analyses at once. The package returns results in a tidy format, ensuring that the output is organized and accessible for further analysis or reporting. Additionally, bregr generates clear visualization plots that aid in the straightforward interpretation of model results. This makes it an invaluable tool for anyone working with regression models in R, allowing you to focus more on deriving insights and less on the mechanics of setting up and processing models.
+
+
+## A overview of regression modeling in batch
+
+Regression modeling in batch involves constructing a series of regression models
+with same or different dependent variables $y_i$ in each model, different independent variables $x_i$
+of interest (focal) in each model, and constant variables (constant) in all models.
+
+$$
+y_1 = \alpha_1 x_1 + \beta_1 c_1 + \gamma_1 c_2 \\
+y_2 = \alpha_2 x_1 + \beta_2 c_1 + \gamma_2 c_2 \\
+y_3 = \alpha_3 x_1 + \beta_3 c_1 + \gamma_3 c_2 \\
+... \\
+y_4 = \alpha_n x_n + \beta_n c_1 + \gamma_4 c_2 \\
+$$
+
 
 ## Installation
+
+You can install the stable version of bregr from CRAN with:
+
+```r
+install.packages("bregr")
+```
 
 You can install the development version of bregr from [GitHub](https://github.com/) with:
 
@@ -32,30 +54,132 @@ You can install the development version of bregr from [GitHub](https://github.co
 pak::pak("WangLabCSU/bregr")
 ```
 
-## Example
+## Usage
 
-This is a basic example which shows you how to solve a common problem:
+Load package(s):
 
-```{r example}
+```{r load-package}
 library(bregr)
-## basic example code
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+Load data:
 
-```{r cars}
-summary(cars)
+```{r load-data}
+lung = survival::lung
+lung$ph.ecog = factor(lung$ph.ecog)
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
+The design and implementation of bregr follow [Tidy design principles](https://design.tidyverse.org/) and [Tidyverse style guide](https://style.tidyverse.org/), which is easy to understand and use.
 
-You can also embed plots, for example:
+### Basics and workflow
 
-```{r pressure, echo = FALSE}
-plot(pressure)
+1. Construct a `breg` object:
+
+```{r}
+breg(lung)
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
+2. Set model response (i.e., dependent) variable(s):
+
+```{r}
+breg(lung) |> 
+  br_set_y(c("time", "status"))
+```
+
+2. Set model predictor (i.e., independent) variables. In batch analysis, this is
+divided into two parts: 1) focal variables and 2) control variables.
+
+Focal variables are injected into constructed models one by one, while
+control variables remain constant across all constructed models.
+
+```{r}
+breg(lung) |> 
+  br_set_y(c("time", "status")) |>
+  br_set_x(colnames(lung)[6:10]) |>   # set focal terms
+  br_set_x2(c("age", "sex"))          # set control terms, this is optional
+```
+> `terms` is desribed in the result object as bregr supports a more broader scope of 
+> predictors. e.g., `x + poly(x, 2)` has one variable x, but two terms `x` and `poly(x, 2)`.
+
+
+3. Set model configuration.
+
+Here, "coxph" (Cox-PH) for survival analysis is given.
+
+```{r}
+mds = breg(lung) |> 
+  br_set_y(c("time", "status")) |>
+  br_set_x(colnames(lung)[6:10]) |>
+  br_set_x2(c("age", "sex")) |> 
+  br_set_model("coxph")
+mds
+```
+We can check constructed model formulas in text format.
+
+```{r}
+br_get_models(mds)
+# or mds@models
+```
+4. The final step is constructing modeling with data and options defined above.
+
+```{r}
+mds = breg(lung) |> 
+  br_set_y(c("time", "status")) |>
+  br_set_x(colnames(lung)[6:10]) |>
+  br_set_x2(c("age", "sex")) |> 
+  br_set_model("coxph") |>
+  br_run()
+mds
+```
+
+Now the `models` slot has been updated to real model objects:
+
+```{r}
+br_get_models(mds)
+```
+
+Tidy and comprehensive modeling results can be obtained from slots `results_tidy` and `results`,
+respectively.
+
+```{r}
+br_get_results(mds, tidy = TRUE)
+br_get_results(mds)
+```
+
+We can see that the whole workflow is easy to read and they are combined by R native operators.
+
+```
+breg(lung) |> 
+  br_set_y(c("time", "status")) |>
+  br_set_x(colnames(lung)[6:10]) |>
+  br_set_x2(c("age", "sex")) |> 
+  br_set_model("coxph") |>
+  br_run()
+```
+
+### Pipeline function
+
+Given the develop experience in [ezcox](https://github.com/ShixiangWang/ezcox/),
+we create a pipeline function for common one-step use.
+
+```r
+br_pipeline(
+  lung,
+  y = c("time", "status"),
+  x = colnames(lung)[6:10],
+  x2 = c("age", "sex"),
+  method = "coxph"
+)
+```
+
+### Visualization
+
+bregr mainly provides `br_show_forest()` for result data.
+
+```{r fig.width=8, fig.height=6}
+br_show_forest(mds)
+```
+
 
 
 ## Coverage

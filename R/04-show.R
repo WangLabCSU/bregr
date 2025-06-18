@@ -20,6 +20,7 @@
 #' If `TRUE`, remove "Group" or "Focal" variable column when the values in the result table
 #' are same (before performing `subset` and `drop`),
 #' and reduce repeat values in column "Group", "Focal", and "Variable".
+#' @param rm_controls If `TRUE`, remove control terms.
 #' @param ... Additional arguments passed to `forestploter::forest()`, run `vignette("forestploter-post", "forestploter")`
 #' to see more plot options.
 #' @param subset Expression for subsetting the results data.
@@ -43,18 +44,23 @@
 br_show_forest <- function(
     breg,
     clean = TRUE,
+    rm_controls = FALSE,
     ...,
     subset = NULL,
     drop = NULL,
     tab_headers = NULL) {
-  assert_breg_obj_with_results(breg)
+  assert_breg_obj_with_results
+  assert_bool(rm_controls)
 
   # TODO: grouped (compared) forestplot for group_by???
   dots <- rlang::list2(...)
 
   dt <- br_get_results(breg)
   x2 <- br_get_x2(breg)
-  dt <- dt
+
+  if (rm_controls) {
+    dt = dt |> dplyr::filter(.data$Focal_variable == .data$variable)
+  }
 
   has_group <- !is.null(br_get_group_by(breg))
   dt <- dt |>

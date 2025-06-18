@@ -7,6 +7,7 @@
 br_show_forest(
   breg,
   clean = TRUE,
+  rm_controls = FALSE,
   ...,
   subset = NULL,
   drop = NULL,
@@ -20,6 +21,8 @@ br_show_forest(
 If \code{TRUE}, remove "Group" or "Focal" variable column when the values in the result table
 are same (before performing \code{subset} and \code{drop}),
 and reduce repeat values in column "Group", "Focal", and "Variable".}
+
+\item{rm_controls}{If \code{TRUE}, remove control terms.}
 
 \item{...}{Additional arguments passed to \code{forestploter::forest()}, run \code{vignette("forestploter-post", "forestploter")}
 to see more plot options.}
