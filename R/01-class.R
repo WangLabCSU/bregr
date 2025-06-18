@@ -41,14 +41,12 @@ breg <- new_class("breg",
       getter = function(self) length(self@x2)
     )
   ),
-  constructor = function(
-      data = NULL,
-      y = NULL, x = NULL, x2 = NULL, group_by = NULL,
-      config = NULL,
-      models = list(),
-      results = NULL,
-      results_tidy = NULL) {
-
+  constructor = function(data = NULL,
+                         y = NULL, x = NULL, x2 = NULL, group_by = NULL,
+                         config = NULL,
+                         models = list(),
+                         results = NULL,
+                         results_tidy = NULL) {
     data <- tibble::as_tibble(data, rownames = ".row_names")
     new_object(
       S7_object(),

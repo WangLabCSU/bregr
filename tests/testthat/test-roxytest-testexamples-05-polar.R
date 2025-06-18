@@ -2,7 +2,24 @@
 
 # File R/"05-polar.R": @testexamples
 
-test_that("Function polar_init() @ L151", {
+test_that("Function br_show_risk_network() @ L22", {
+  
+  lung <- survival::lung
+  # Cox-PH regression
+  mod_surv <- br_pipeline(
+    data = lung,
+    y = c("time", "status"),
+    x = c("age", "ph.ecog", "ph.karno"),
+    x2 = c("factor(sex)"),
+    method = "coxph"
+  )
+  p <- br_show_risk_network(mod_surv)
+  p
+  assert_s3_class(p, "ggplot")
+})
+
+
+test_that("Function polar_init() @ L165", {
   
   library(ggplot2)
   # -------------------

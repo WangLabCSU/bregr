@@ -26,6 +26,20 @@ br_show_table(
 \description{
 Show model tidy results in table format
 }
+\examples{
+m <- br_pipeline(mtcars,
+  y = "mpg",
+  x = colnames(mtcars)[2:4],
+  x2 = "vs",
+  method = "gaussian"
+)
+
+br_show_table(m)
+br_show_table(m, export = TRUE)
+if (interactive()) {
+  br_show_table(m, export = TRUE, args_table_export = list(format = "html"))
+}
+}
 \seealso{
 Other br_show: 
 \code{\link{br_show_fitted_line}()},

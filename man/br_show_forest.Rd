@@ -40,6 +40,17 @@ This function takes regression results and formats them into a forest plot displ
 The function uses \code{forestploter::forest()} internally for the actual plotting.
 }
 }
+\examples{
+m <- br_pipeline(mtcars,
+  y = "mpg",
+  x = colnames(mtcars)[2:4],
+  x2 = "vs",
+  method = "gaussian"
+)
+br_show_forest(m)
+br_show_forest(m, clean = TRUE, drop = 3)
+br_show_forest(m, clean = FALSE)
+}
 \seealso{
 Other br_show: 
 \code{\link{br_show_fitted_line}()},

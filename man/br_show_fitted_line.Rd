@@ -13,11 +13,27 @@ br_show_fitted_line(breg, idx = 1, ...)
 This is different from \code{idx} in \link{br_show_forest_ggstats}, only one model is supported
 to visualized here, so only length-1 vector is supported as \code{idx}.}
 
-\item{...}{Arguments passing to \code{\link[visreg:visreg]{visreg::visreg()}} excepts \code{fit}.}
+\item{...}{Arguments passing to \code{\link[visreg:visreg]{visreg::visreg()}} excepts \code{fit} and \code{data}.}
 }
 \description{
 Provides an interface to visualize the model results with \href{https://github.com/larmarange/ggstats/}{\strong{visreg}} package, to show how a predictor variable \code{x} affects an outcome \code{y}.
 Illustration for arguments and examples could be found at \href{https://pbreheny.github.io/visreg/reference/visreg.html}{\code{visreg} reference page}, or please check the doc for dynamic dots \code{...}.
+}
+\examples{
+if (rlang::is_installed("visreg")) {
+  m <- br_pipeline(mtcars,
+    y = "mpg",
+    x = colnames(mtcars)[2:4],
+    x2 = "vs",
+    method = "gaussian"
+  )
+
+  if (interactive()) {
+    br_show_fitted_line(m)
+  }
+  br_show_fitted_line(m, xvar = "cyl")
+}
+
 }
 \seealso{
 Other br_show: 

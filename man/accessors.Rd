@@ -6,8 +6,8 @@
 \alias{br_get_y}
 \alias{br_get_x}
 \alias{br_get_n_x}
-\alias{br_get_n_x2}
 \alias{br_get_x2}
+\alias{br_get_n_x2}
 \alias{br_get_group_by}
 \alias{br_get_config}
 \alias{br_get_models}
@@ -23,9 +23,9 @@ br_get_x(obj)
 
 br_get_n_x(obj)
 
-br_get_n_x2(obj)
-
 br_get_x2(obj)
+
+br_get_n_x2(obj)
 
 br_get_group_by(obj)
 
@@ -52,6 +52,29 @@ The tidy results are obtained from \code{\link[broom:reexports]{broom::tidy()}} 
 These functions provide access to components of \code{breg} objects, serving as counterparts
 to the \verb{br_set_*()} functions. Some functions include additional arguments for extended
 functionality.
+}
+\examples{
+m <- br_pipeline(mtcars,
+  y = "mpg",
+  x = colnames(mtcars)[2:4],
+  x2 = "vs",
+  method = "gaussian"
+)
+br_get_data(m)
+br_get_y(m)
+br_get_x(m)
+br_get_n_x(m)
+br_get_x2(m)
+br_get_n_x2(m)
+br_get_group_by(m)
+br_get_config(m)
+br_get_models(m)
+br_get_model(m, 1)
+br_get_n_x2(m)
+br_get_results(m)
+br_get_results(m, tidy = TRUE)
+br_get_results(m, tidy = TRUE, term == "cyl")
+
 }
 \seealso{
 \link{pipeline} for building \code{breg} objects.

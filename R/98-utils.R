@@ -52,7 +52,7 @@ assert_breg_obj <- function(obj) {
   if (!rlang::inherits_any(obj, "bregr::breg")) {
     cli_abort("bad input for argument {.arg obj}, a object of class {.cls breg} is required")
   } else {
-    obj
+    TRUE
   }
 }
 
@@ -62,7 +62,7 @@ assert_breg_obj_with_results <- function(obj) {
   if (!is.data.frame(y) || nrow(y) == 0) {
     cli_abort("bad input for argument {.arg obj}, a object of class {.cls breg} with results (obtain from {.code br_run()}) is required")
   } else {
-    obj
+    TRUE
   }
 }
 

@@ -55,3 +55,14 @@ plot(pressure)
 ```
 
 In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
+
+
+## Coverage
+
+```{r}
+covr::package_coverage()
+```
+
+## LICENSE
+
+(GPL-3) Copyright (c) 2025 Shixiang Wang & WangLabCSU team

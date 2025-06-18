@@ -19,6 +19,18 @@ to visualized here, so only length-1 vector is supported as \code{idx}.}
 Provides an interface to visualize the model results with \href{https://github.com/IndrajeetPatil/ggstatsplot/}{\strong{ggstatsplot}} package.
 Illustration for arguments and examples could be found at \href{https://indrajeetpatil.github.io/ggstatsplot/reference/ggcoefstats.html}{\code{ggcoefstats} reference page}, or please check the doc for dynamic dots \code{...}.
 }
+\examples{
+if (rlang::is_installed("ggstats")) {
+  m <- br_pipeline(mtcars,
+    y = "mpg",
+    x = colnames(mtcars)[2:4],
+    x2 = "vs",
+    method = "gaussian"
+  )
+  br_show_forest_ggstatsplot(m)
+}
+
+}
 \seealso{
 Other br_show: 
 \code{\link{br_show_fitted_line}()},

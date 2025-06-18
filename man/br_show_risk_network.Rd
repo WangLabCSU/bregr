@@ -14,6 +14,19 @@ br_show_risk_network(breg, ...)
 \description{
 Show connected risk network plot
 }
+\examples{
+lung <- survival::lung
+# Cox-PH regression
+mod_surv <- br_pipeline(
+  data = lung,
+  y = c("time", "status"),
+  x = c("age", "ph.ecog", "ph.karno"),
+  x2 = c("factor(sex)"),
+  method = "coxph"
+)
+p <- br_show_risk_network(mod_surv)
+p
+}
 \seealso{
 Other br_show: 
 \code{\link{br_show_fitted_line}()},

@@ -54,3 +54,22 @@ You can also embed plots, for example:
 
 In that case, don’t forget to commit and push the resulting figure
 files, so they display on GitHub and CRAN.
+
+## Coverage
+
+``` r
+covr::package_coverage()
+#> bregr Coverage: 82.20%
+#> R/98-utils.R: 41.03%
+#> R/04-show.R: 80.21%
+#> R/03-accessors.R: 82.86%
+#> R/02-pipeline.R: 90.48%
+#> R/99-zzz.R: 90.91%
+#> R/05-polar.R: 97.37%
+#> R/01-class.R: 100.00%
+#> R/06-avail.R: 100.00%
+```
+
+## LICENSE
+
+(GPL-3) Copyright (c) 2025 Shixiang Wang & WangLabCSU team

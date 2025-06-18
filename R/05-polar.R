@@ -5,6 +5,20 @@
 #' @export
 #' @family br_show
 #' @family risk_network
+#' @examples
+#' lung <- survival::lung
+#' # Cox-PH regression
+#' mod_surv <- br_pipeline(
+#'   data = lung,
+#'   y = c("time", "status"),
+#'   x = c("age", "ph.ecog", "ph.karno"),
+#'   x2 = c("factor(sex)"),
+#'   method = "coxph"
+#' )
+#' p <- br_show_risk_network(mod_surv)
+#' p
+#' @testexamples
+#' assert_s3_class(p, "ggplot")
 br_show_risk_network <- function(breg, ...) {
   assert_breg_obj_with_results(breg)
   rlang::check_installed("ggnewscale")

@@ -6,6 +6,30 @@
 #'
 #' @name accessors
 #' @seealso [pipeline] for building `breg` objects.
+#' @examples
+#' m <- br_pipeline(mtcars,
+#'   y = "mpg",
+#'   x = colnames(mtcars)[2:4],
+#'   x2 = "vs",
+#'   method = "gaussian"
+#' )
+#' br_get_data(m)
+#' br_get_y(m)
+#' br_get_x(m)
+#' br_get_n_x(m)
+#' br_get_x2(m)
+#' br_get_n_x2(m)
+#' br_get_group_by(m)
+#' br_get_config(m)
+#' br_get_models(m)
+#' br_get_model(m, 1)
+#' br_get_n_x2(m)
+#' br_get_results(m)
+#' br_get_results(m, tidy = TRUE)
+#' br_get_results(m, tidy = TRUE, term == "cyl")
+#'
+#' @testexamples
+#' assert_breg_obj_with_results(m)
 NULL
 
 #' @rdname accessors
@@ -39,16 +63,16 @@ br_get_n_x <- function(obj) {
 
 #' @rdname accessors
 #' @export
-br_get_n_x2 <- function(obj) {
+br_get_x2 <- function(obj) {
   assert_breg_obj(obj)
-  obj@n_x2
+  obj@x2
 }
 
 #' @rdname accessors
 #' @export
-br_get_x2 <- function(obj) {
+br_get_n_x2 <- function(obj) {
   assert_breg_obj(obj)
-  obj@x2
+  obj@n_x2
 }
 
 #' @rdname accessors

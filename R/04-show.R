@@ -1,7 +1,7 @@
 # Visualization and display utilities for model results
-# 
-# Provides functions to display regression model outputs in various formats 
-# including plots, tables, and other visual representations. Organized as 
+#
+# Provides functions to display regression model outputs in various formats
+# including plots, tables, and other visual representations. Organized as
 # a family of related functions rather than a single monolithic function.
 # =====================
 
@@ -14,28 +14,39 @@
 #' - Cleaning of redundant group/focal variable labels
 #' - Custom subsetting and column dropping
 #' The function uses `forestploter::forest()` internally for the actual plotting.
-#' 
+#'
 #' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
 #' @param clean Logical indicating whether to clean/condense redundant group/focal variable labels.
 #' If `TRUE`, remove "Group" or "Focal" variable column when the values in the result table
 #' are same (before performing `subset` and `drop`),
 #' and reduce repeat values in column "Group", "Focal", and "Variable".
 #' @param ... Additional arguments passed to `forestploter::forest()`, run `vignette("forestploter-post", "forestploter")`
-#' to see more plot options. 
+#' to see more plot options.
 #' @param subset Expression for subsetting the results data.
 #' @param drop Column indices to drop from the display table.
 #' @param tab_headers Character vector of custom column headers (must match number of displayed columns).
 #'
 #' @export
 #' @family br_show
+#' @examples
+#' m <- br_pipeline(mtcars,
+#'   y = "mpg",
+#'   x = colnames(mtcars)[2:4],
+#'   x2 = "vs",
+#'   method = "gaussian"
+#' )
+#' br_show_forest(m)
+#' br_show_forest(m, clean = TRUE, drop = 3)
+#' br_show_forest(m, clean = FALSE)
+#' @testexamples
+#' assert_s3_class(br_show_forest(m), "forestplot")
 br_show_forest <- function(
-  breg,
-  clean = TRUE,
-  ...,
-  subset = NULL,
-  drop = NULL,
-  tab_headers = NULL
-) {
+    breg,
+    clean = TRUE,
+    ...,
+    subset = NULL,
+    drop = NULL,
+    tab_headers = NULL) {
   assert_breg_obj_with_results(breg)
 
   # TODO: grouped (compared) forestplot for group_by???
@@ -233,6 +244,19 @@ br_show_forest <- function(
 #' @param ... Arguments passing to [ggstats::ggcoef_table()] or [ggstats::ggcoef_compare()] excepts `model`.
 #' @export
 #' @family br_show
+#' @examples
+#' if (rlang::is_installed("ggstats")) {
+#'   m <- br_pipeline(mtcars,
+#'     y = "mpg",
+#'     x = colnames(mtcars)[2:4],
+#'     x2 = "vs",
+#'     method = "gaussian"
+#'   )
+#'   br_show_forest_ggstats(m)
+#' }
+#'
+#' @testexamples
+#' expect_true(TRUE)
 br_show_forest_ggstats <- function(breg, idx = NULL, ...) {
   assert_breg_obj_with_results(breg)
   rlang::check_installed("ggstats")
@@ -266,6 +290,19 @@ br_show_forest_ggstats <- function(breg, idx = NULL, ...) {
 #' @param ... Arguments passing to [ggstatsplot::ggcoefstats()] excepts `x`.
 #' @export
 #' @family br_show
+#' @examples
+#' if (rlang::is_installed("ggstats")) {
+#'   m <- br_pipeline(mtcars,
+#'     y = "mpg",
+#'     x = colnames(mtcars)[2:4],
+#'     x2 = "vs",
+#'     method = "gaussian"
+#'   )
+#'   br_show_forest_ggstatsplot(m)
+#' }
+#'
+#' @testexamples
+#' expect_true(TRUE)
 br_show_forest_ggstatsplot <- function(breg, idx = 1, ...) {
   assert_breg_obj_with_results(breg)
   if (length(idx) != 1) {
@@ -283,18 +320,37 @@ br_show_forest_ggstatsplot <- function(breg, idx = 1, ...) {
 #' Illustration for arguments and examples could be found at [`visreg` reference page](https://pbreheny.github.io/visreg/reference/visreg.html), or please check the doc for dynamic dots `...`.
 #'
 #' @inheritParams br_show_forest_ggstatsplot
-#' @param ... Arguments passing to [visreg::visreg()] excepts `fit`.
+#' @param ... Arguments passing to [visreg::visreg()] excepts `fit` and `data`.
 #' @export
 #' @family br_show
+#' @examples
+#' if (rlang::is_installed("visreg")) {
+#'   m <- br_pipeline(mtcars,
+#'     y = "mpg",
+#'     x = colnames(mtcars)[2:4],
+#'     x2 = "vs",
+#'     method = "gaussian"
+#'   )
+#'
+#'   if (interactive()) {
+#'     br_show_fitted_line(m)
+#'   }
+#'   br_show_fitted_line(m, xvar = "cyl")
+#' }
+#'
+#' @testexamples
+#' expect_true(TRUE)
 br_show_fitted_line <- function(breg, idx = 1, ...) {
   assert_breg_obj_with_results(breg)
   if (length(idx) != 1) {
     cli_abort("length-1 {.arg idx} (integer index or a focal variable name) is required")
   }
   rlang::check_installed("visreg")
-
+  cli_inform("subset model list with idx: {.val {idx}}")
   mod <- br_get_model(breg, idx)
-  visreg::visreg(mod, ...)
+  cal <- if (isS4(mod)) mod@call else mod$call
+  cli_inform("model call: {rlang::expr_deparse(cal)}")
+  visreg::visreg(mod, data = broom.helpers::model_get_model_frame(mod), ...)
 }
 
 #' Show 2d fitted regression line with `visreg` interface
@@ -303,9 +359,23 @@ br_show_fitted_line <- function(breg, idx = 1, ...) {
 #' Illustration for arguments and examples could be found at [`visreg2d` reference page](https://pbreheny.github.io/visreg/reference/visreg2d.html), or please check the doc for dynamic dots `...`.
 #'
 #' @inheritParams br_show_forest_ggstatsplot
-#' @param ... Arguments passing to [visreg::visreg2d()] excepts `fit`.
+#' @param ... Arguments passing to [visreg::visreg2d()] excepts `fit` and `data`.
 #' @export
 #' @family br_show
+#' @examples
+#' if (rlang::is_installed("visreg")) {
+#'   m <- br_pipeline(mtcars,
+#'     y = "mpg",
+#'     x = colnames(mtcars)[2:4],
+#'     x2 = "vs",
+#'     method = "gaussian"
+#'   )
+#'
+#'   br_show_fitted_line_2d(m, xvar = "cyl", yvar = "mpg")
+#' }
+#'
+#' @testexamples
+#' expect_true(TRUE)
 br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
   assert_breg_obj_with_results(breg)
   if (length(idx) != 1) {
@@ -314,7 +384,9 @@ br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
   rlang::check_installed("visreg")
 
   mod <- br_get_model(breg, idx)
-  visreg::visreg2d(mod, ...)
+  cal <- if (isS4(mod)) mod@call else mod$call
+  cli_inform("model call: {rlang::expr_deparse(cal)}")
+  visreg::visreg2d(mod, data = broom.helpers::model_get_model_frame(mod), ...)
 }
 
 #' Show model tidy results in table format
@@ -327,6 +399,21 @@ br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
 #' @param args_table_export A list of arguments passing to [insight::export_table()]. Only works when `export` is `TRUE`.
 #' @export
 #' @family br_show
+#' @examples
+#' m <- br_pipeline(mtcars,
+#'   y = "mpg",
+#'   x = colnames(mtcars)[2:4],
+#'   x2 = "vs",
+#'   method = "gaussian"
+#' )
+#'
+#' br_show_table(m)
+#' br_show_table(m, export = TRUE)
+#' if (interactive()) {
+#'   br_show_table(m, export = TRUE, args_table_export = list(format = "html"))
+#' }
+#' @testexamples
+#' expect_true(TRUE)
 br_show_table <- function(breg, ..., args_table_format = list(), export = FALSE, args_table_export = list()) {
   assert_breg_obj_with_results(breg)
 

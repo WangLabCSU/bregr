@@ -13,11 +13,24 @@ br_show_fitted_line_2d(breg, idx = 1, ...)
 This is different from \code{idx} in \link{br_show_forest_ggstats}, only one model is supported
 to visualized here, so only length-1 vector is supported as \code{idx}.}
 
-\item{...}{Arguments passing to \code{\link[visreg:visreg2d]{visreg::visreg2d()}} excepts \code{fit}.}
+\item{...}{Arguments passing to \code{\link[visreg:visreg2d]{visreg::visreg2d()}} excepts \code{fit} and \code{data}.}
 }
 \description{
 Similar to \code{\link[=br_show_fitted_line]{br_show_fitted_line()}}, but visualize how \emph{two variables} interact to affect the response in regression models.
 Illustration for arguments and examples could be found at \href{https://pbreheny.github.io/visreg/reference/visreg2d.html}{\code{visreg2d} reference page}, or please check the doc for dynamic dots \code{...}.
+}
+\examples{
+if (rlang::is_installed("visreg")) {
+  m <- br_pipeline(mtcars,
+    y = "mpg",
+    x = colnames(mtcars)[2:4],
+    x2 = "vs",
+    method = "gaussian"
+  )
+
+  br_show_fitted_line_2d(m, xvar = "cyl", yvar = "mpg")
+}
+
 }
 \seealso{
 Other br_show: 

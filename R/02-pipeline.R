@@ -109,11 +109,11 @@ br_set_y <- function(obj, y) {
   assert_breg_obj(obj)
   assert_character(y)
 
-  data = br_get_data(obj)
+  data <- br_get_data(obj)
   if (nrow(data) == 0) {
     cli_abort("cannot set {.arg y} for {.arg obj} with void data")
   } else {
-    .in = y %in% colnames(data)
+    .in <- y %in% colnames(data)
     if (!all(.in)) {
       cli_abort("column(s) {.val {y[!.in]}} specified in {.arg y} not in {.field data} (columns: {.val {colnames(data)}}) of {.arg obj}")
     }
@@ -128,15 +128,17 @@ br_set_y <- function(obj, y) {
 br_set_x <- function(obj, ...) {
   assert_breg_obj(obj)
 
-  x <- rlang::list2(...) |> unlist() |> as.character()
+  x <- rlang::list2(...) |>
+    unlist() |>
+    as.character()
   assert_character(x, allow_na = FALSE)
 
-  x_ = get_vars(x)
-  data = br_get_data(obj)
+  x_ <- get_vars(x)
+  data <- br_get_data(obj)
   if (nrow(data) == 0) {
     cli_abort("cannot set {.arg x} for {.arg obj} with void data")
   } else {
-    .in = x_ %in% colnames(data)
+    .in <- x_ %in% colnames(data)
     if (!all(.in)) {
       cli_abort("column(s) {.val {x_[!.in]}} specified in {.arg x} not in {.field data} (columns: {.val {colnames(data)}}) of {.arg obj}")
     }
@@ -150,21 +152,23 @@ br_set_x <- function(obj, ...) {
 #' @export
 br_set_x2 <- function(obj, ...) {
   assert_breg_obj(obj)
-  x = br_get_x(obj)
+  x <- br_get_x(obj)
   if (is.null(x)) {
     cli_abort("{.fn br_set_x2()} should be called after {.fn br_set_x()}")
   }
 
-  x2 <- rlang::list2(...) |> unlist() |> as.character()
+  x2 <- rlang::list2(...) |>
+    unlist() |>
+    as.character()
   assert_character(x2, allow_na = FALSE, allow_null = TRUE)
   assert_not_overlap(x, x2)
 
-  x2_ = get_vars(x2)
-  data = br_get_data(obj)
+  x2_ <- get_vars(x2)
+  data <- br_get_data(obj)
   if (nrow(data) == 0) {
     cli_abort("cannot set {.arg x2} for {.arg obj} with void data")
   } else {
-    .in = x2_ %in% colnames(data)
+    .in <- x2_ %in% colnames(data)
     if (!all(.in)) {
       cli_abort("column(s) {.val {x2_[!.in]}} specified in {.arg x2} not in {.field data} (columns: {.val {colnames(data)}}) of {.arg obj}")
     }
@@ -333,9 +337,18 @@ runner <- function(ms, data, dots, x, run_parallel) {
           list(exponentiate = dots[["exponentiate"]])
         } else {
           list()
+        },
+        if ("conf.level" %in% names(dots)) {
+          list(conf.level = dots[["conf.level"]])
+        } else {
+          list()
         }
       )
     )
+
+    if (!("intercept" %in% names(dots) && isTRUE(dots[["intercept"]]))) {
+      result_tidy <- result_tidy |> dplyr::filter(!.data$term %in% "(Intercept)")
+    }
 
     list(model = model, result = result, result_tidy = result_tidy)
   }
