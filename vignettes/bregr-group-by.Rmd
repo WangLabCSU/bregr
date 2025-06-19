@@ -55,7 +55,7 @@ br_get_models(mds)
 
 Now, display the results using a forest plot.
 
-```{r show-forest, fig.width=8, fig.height=4, dpi=150}
+```{r show-forest, fig.width=9, fig.height=5, dpi=150}
 br_show_forest(mds)
 ```
 
