@@ -35,16 +35,19 @@ efficient pipelines.
 Batch regression streamlines analyses where:
 
 - Each model shares **identical control variables** ($c_1$, $c_2$, …).
-- **Focal predictors** ($x_1$, $x_2$, …) or **responses** ($y_1$, $y_2$,
-  …) vary systematically.
+- **Focal predictors** ($x_1$, $x_2$, …) or **response variables**
+  ($y_1$, $y_2$, …) vary systematically.
 
-$$
-y_1 = \alpha_1 x_1 + \beta_1 c_1 + \gamma_1 c_2, \\
-y_2 = \alpha_2 x_2 + \beta_2 c_1 + \gamma_2 c_2, \\
-y_3 = \alpha_3 x_3 + \beta_3 c_1 + \gamma_3 c_2, \\
-\cdots, \\
-y_n = \alpha_n x_n + \beta_n c_1 + \gamma_n c_2 \\
-$$
+<center>
+
+<figure>
+<img src="man/figures/breg_formula.svg"
+alt="batch regression modeling overview, simplified for illustration" />
+<figcaption aria-hidden="true">batch regression modeling overview,
+simplified for illustration</figcaption>
+</figure>
+
+</center>
 
 ## Installation
 
