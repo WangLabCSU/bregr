@@ -1,5 +1,8 @@
 #' Modeling and analysis pipeline
 #'
+#' @description
+#' `r lifecycle::badge('stable')`
+#'
 #' Provides a set of functions for running batch regression analysis.
 #' Combines data setup, model configuration, and execution steps into a single workflow.
 #' Supports both GLM and Cox-PH models with options for focal/control terms and parallel processing.

@@ -8,6 +8,9 @@
 
 #' Show a forest plot for regression results
 #'
+#' @description
+#' `r lifecycle::badge('stable')`
+#'
 #' This function takes regression results and formats them into a forest plot display. It handles:
 #' - Formatting of estimates, CIs and p-values
 #' - Automatic x-axis limits calculation
@@ -254,6 +257,9 @@ br_show_forest <- function(
 
 #' Show a forest plot with `ggstats` interface
 #'
+#' @description
+#' `r lifecycle::badge('stable')`
+#'
 #' Provides an interface to visualize the model results with [**ggstats**](https://github.com/larmarange/ggstats/) package.
 #' Illustration for arguments and examples could be found at [`ggcoef_model` reference page](https://larmarange.github.io/ggstats/reference/ggcoef_model.html), or please check the doc for dynamic dots `...`.
 #'
@@ -298,6 +304,9 @@ br_show_forest_ggstats <- function(breg, idx = NULL, ...) {
 
 #' Show a forest plot with `ggstatsplot` interface
 #'
+#' @description
+#' `r lifecycle::badge('stable')`
+#'
 #' Provides an interface to visualize the model results with [**ggstatsplot**](https://github.com/IndrajeetPatil/ggstatsplot/) package.
 #' Illustration for arguments and examples could be found at [`ggcoefstats` reference page](https://indrajeetpatil.github.io/ggstatsplot/reference/ggcoefstats.html), or please check the doc for dynamic dots `...`.
 #'
@@ -333,6 +342,9 @@ br_show_forest_ggstatsplot <- function(breg, idx = 1, ...) {
 }
 
 #' Show fitted regression line with `visreg` interface
+#'
+#' @description
+#' `r lifecycle::badge('stable')`
 #'
 #' Provides an interface to visualize the model results with [**visreg**](https://github.com/larmarange/ggstats/) package, to show how a predictor variable `x` affects an outcome `y`.
 #' Illustration for arguments and examples could be found at [`visreg` reference page](https://pbreheny.github.io/visreg/reference/visreg.html), or please check the doc for dynamic dots `...`.
@@ -373,6 +385,9 @@ br_show_fitted_line <- function(breg, idx = 1, ...) {
 
 #' Show 2d fitted regression line with `visreg` interface
 #'
+#' @description
+#' `r lifecycle::badge('stable')`
+#'
 #' Similar to [br_show_fitted_line()], but visualize how *two variables* interact to affect the response in regression models.
 #' Illustration for arguments and examples could be found at [`visreg2d` reference page](https://pbreheny.github.io/visreg/reference/visreg2d.html), or please check the doc for dynamic dots `...`.
 #'
@@ -409,7 +424,8 @@ br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
 
 #' Show model tidy results in table format
 #'
-#'
+#' @description
+#' `r lifecycle::badge('stable')`
 #' @inheritParams br_show_forest
 #' @param ... Arguments passing to [br_get_results()] for subsetting table.
 #' @param args_table_format A list of arguments passing to [insight::format_table()].

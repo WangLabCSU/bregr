@@ -17,7 +17,7 @@ polar_init(data, x, ...)
 A \code{ggplot} object.
 }
 \description{
-Init a dot plot in polar system
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 }
 \examples{
 library(ggplot2)

@@ -49,6 +49,8 @@ The tidy results are obtained from \code{\link[broom:reexports]{broom::tidy()}} 
 \item{...}{Subset operations passing to \code{\link[dplyr:filter]{dplyr::filter()}} to filter results.}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+
 These functions provide access to components of \code{breg} objects, serving as counterparts
 to the \verb{br_set_*()} functions. Some functions include additional arguments for extended
 functionality.

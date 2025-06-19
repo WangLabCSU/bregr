@@ -34,6 +34,8 @@ to see more plot options.}
 \item{tab_headers}{Character vector of custom column headers (must match number of displayed columns).}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+
 This function takes regression results and formats them into a forest plot display. It handles:
 \itemize{
 \item Formatting of estimates, CIs and p-values

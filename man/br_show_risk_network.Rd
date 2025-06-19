@@ -12,7 +12,7 @@ br_show_risk_network(breg, ...)
 \item{...}{Arguments passing to \code{\link[=br_get_results]{br_get_results()}} for subsetting data table.}
 }
 \description{
-Show connected risk network plot
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 }
 \examples{
 lung <- survival::lung

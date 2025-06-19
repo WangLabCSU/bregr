@@ -1,5 +1,7 @@
 #' Show connected risk network plot
 #'
+#' @description
+#' `r lifecycle::badge('stable')`
 #' @inheritParams br_show_forest
 #' @param ... Arguments passing to [br_get_results()] for subsetting data table.
 #' @export
@@ -100,6 +102,8 @@ br_show_risk_network <- function(breg, ...) {
 
 #' Init a dot plot in polar system
 #'
+#' @description
+#' `r lifecycle::badge('stable')`
 #' @param data A `data.frame` contains all events, e.g., genes.
 #' @param x Column name (without quote) storing event list.
 #' @param ... Arguments passing to [ggplot2::geom_point()].
@@ -196,6 +200,9 @@ polar_init <- function(data, x, ...) {
 
 
 #' Connects dots
+#'
+#' @description
+#' `r lifecycle::badge('stable')`
 #'
 #' Check [polar_init()] for examples.
 #'

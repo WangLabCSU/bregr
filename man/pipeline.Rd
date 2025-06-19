@@ -75,6 +75,8 @@ the slots \verb{@results} and \verb{@results_tidy}, note that \verb{@models} is 
 of constructed model object (See \link{accessors}).
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+
 Provides a set of functions for running batch regression analysis.
 Combines data setup, model configuration, and execution steps into a single workflow.
 Supports both GLM and Cox-PH models with options for focal/control terms and parallel processing.

@@ -14,6 +14,8 @@ br_show_forest_ggstats(breg, idx = NULL, ...)
 \item{...}{Arguments passing to \code{\link[ggstats:ggcoef_model]{ggstats::ggcoef_table()}} or \code{\link[ggstats:ggcoef_model]{ggstats::ggcoef_compare()}} excepts \code{model}.}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+
 Provides an interface to visualize the model results with \href{https://github.com/larmarange/ggstats/}{\strong{ggstats}} package.
 Illustration for arguments and examples could be found at \href{https://larmarange.github.io/ggstats/reference/ggcoef_model.html}{\code{ggcoef_model} reference page}, or please check the doc for dynamic dots \code{...}.
 }

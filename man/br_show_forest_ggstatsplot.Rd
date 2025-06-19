@@ -16,6 +16,8 @@ to visualized here, so only length-1 vector is supported as \code{idx}.}
 \item{...}{Arguments passing to \code{\link[ggstatsplot:ggcoefstats]{ggstatsplot::ggcoefstats()}} excepts \code{x}.}
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+
 Provides an interface to visualize the model results with \href{https://github.com/IndrajeetPatil/ggstatsplot/}{\strong{ggstatsplot}} package.
 Illustration for arguments and examples could be found at \href{https://indrajeetpatil.github.io/ggstatsplot/reference/ggcoefstats.html}{\code{ggcoefstats} reference page}, or please check the doc for dynamic dots \code{...}.
 }

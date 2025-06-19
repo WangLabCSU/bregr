@@ -2,6 +2,9 @@
 
 #' Creates a new breg-class object
 #'
+#' @description
+#' `r lifecycle::badge('stable')`
+#'
 #' Constructs a breg-class object containing regression model specifications and results.
 #'
 #' @param data A `data.frame` containing modeling data.
@@ -64,8 +67,8 @@ breg <- new_class("breg",
 )
 
 #' Print method for breg object
-#'
-#' Print a breg object.
+#' @description
+#' `r lifecycle::badge('experimental')`
 #' @name print.breg
 #' @param x An object of class `breg`.
 #' @param ... Additional arguments (currently not used).

@@ -18,6 +18,8 @@ expect \code{c(x, xend, y, yend)} these 4 mapping parameters.}
 A \code{ggplot} object.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+
 Check \code{\link[=polar_init]{polar_init()}} for examples.
 }
 \seealso{
