@@ -18,7 +18,7 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/bregr-01-basics.html">01: Basics</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/bregr-group-by.html">Run batch regression analysis by `group_by` variable</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -36,9 +36,26 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="workflow">Workflow<a class="anchor" aria-label="anchor" href="#workflow"></a></h2>
+
+      <div class="section-desc"><p>Core workflow and pipeline wrapper.</p></div>
 
 
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="pipeline.html">br_pipeline()</a></code> <code><a href="pipeline.html">br_set_y()</a></code> <code><a href="pipeline.html">br_set_x()</a></code> <code><a href="pipeline.html">br_set_x2()</a></code> <code><a href="pipeline.html">br_set_model()</a></code> <code><a href="pipeline.html">br_run()</a></code>
+
+        </dt>
+        <dd>Modeling and analysis pipeline</dd>
+      </dl></div><div class="section level2">
+      <h2 id="accessor">Accessor<a class="anchor" aria-label="anchor" href="#accessor"></a></h2>
+
+      <div class="section-desc"><p>Attributes and data accessors from [breg] objects.</p></div>
 
 
     </div><div class="section level2">
@@ -52,30 +69,29 @@
 
         </dt>
         <dd>Accessor functions for <code>breg</code> objects</dd>
-      </dl><dl><dt>
+      </dl></div><div class="section level2">
+      <h2 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a></h2>
 
-          <code><a href="avails.html">br_avail_methods()</a></code> <code><a href="avails.html">br_avail_methods_use_exp()</a></code>
+      <div class="section-desc"><p>Visualize results using forest plots and more.</p></div>
 
-        </dt>
-        <dd>Package availability</dd>
-      </dl><dl><dt>
 
-          <code><a href="br_show_fitted_line.html">br_show_fitted_line()</a></code>
+    </div><div class="section level2">
 
-        </dt>
-        <dd>Show fitted regression line with <code>visreg</code> interface</dd>
-      </dl><dl><dt>
 
-          <code><a href="br_show_fitted_line_2d.html">br_show_fitted_line_2d()</a></code>
 
-        </dt>
-        <dd>Show 2d fitted regression line with <code>visreg</code> interface</dd>
-      </dl><dl><dt>
+
+      <dl><dt>
 
           <code><a href="br_show_forest.html">br_show_forest()</a></code>
 
         </dt>
         <dd>Show a forest plot for regression results</dd>
+      </dl><dl><dt>
+
+          <code><a href="br_show_risk_network.html">br_show_risk_network()</a></code>
+
+        </dt>
+        <dd>Show connected risk network plot</dd>
       </dl><dl><dt>
 
           <code><a href="br_show_forest_ggstats.html">br_show_forest_ggstats()</a></code>
@@ -90,17 +106,45 @@
         <dd>Show a forest plot with <code>ggstatsplot</code> interface</dd>
       </dl><dl><dt>
 
-          <code><a href="br_show_risk_network.html">br_show_risk_network()</a></code>
+          <code><a href="br_show_fitted_line.html">br_show_fitted_line()</a></code>
 
         </dt>
-        <dd>Show connected risk network plot</dd>
+        <dd>Show fitted regression line with <code>visreg</code> interface</dd>
       </dl><dl><dt>
+
+          <code><a href="br_show_fitted_line_2d.html">br_show_fitted_line_2d()</a></code>
+
+        </dt>
+        <dd>Show 2d fitted regression line with <code>visreg</code> interface</dd>
+      </dl></div><div class="section level2">
+      <h2 id="table">Table<a class="anchor" aria-label="anchor" href="#table"></a></h2>
+
+      <div class="section-desc"><p>Output results in table of different formats.</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
 
           <code><a href="br_show_table.html">br_show_table()</a></code>
 
         </dt>
         <dd>Show model tidy results in table format</dd>
-      </dl><dl><dt>
+      </dl></div><div class="section level2">
+      <h2 id="class">Class<a class="anchor" aria-label="anchor" href="#class"></a></h2>
+
+      <div class="section-desc"><p>Class definition.</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
 
           <code><a href="breg.html">breg()</a></code>
 
@@ -108,16 +152,27 @@
         <dd>Creates a new breg-class object</dd>
       </dl><dl><dt>
 
-          <code><a href="pipeline.html">br_pipeline()</a></code> <code><a href="pipeline.html">br_set_y()</a></code> <code><a href="pipeline.html">br_set_x()</a></code> <code><a href="pipeline.html">br_set_x2()</a></code> <code><a href="pipeline.html">br_set_model()</a></code> <code><a href="pipeline.html">br_run()</a></code>
+          <code><a href="print.breg.html">print.breg</a></code>
 
         </dt>
-        <dd>Modeling and analysis pipeline</dd>
-      </dl><dl><dt>
+        <dd>Print method for breg object</dd>
+      </dl></div><div class="section level2">
+      <h2 id="utility">Utility<a class="anchor" aria-label="anchor" href="#utility"></a></h2>
 
-          <code><a href="polar_connect.html">polar_connect()</a></code>
+      <div class="section-desc"><p>Helpers for analysis and visualization.</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="avails.html">br_avail_methods()</a></code> <code><a href="avails.html">br_avail_methods_use_exp()</a></code>
 
         </dt>
-        <dd>Connects dots</dd>
+        <dd>Package availability</dd>
       </dl><dl><dt>
 
           <code><a href="polar_init.html">polar_init()</a></code>
@@ -126,16 +181,17 @@
         <dd>Init a dot plot in polar system</dd>
       </dl><dl><dt>
 
-          <code><a href="print.breg.html">print.breg</a></code>
+          <code><a href="polar_connect.html">polar_connect()</a></code>
 
         </dt>
-        <dd>Print method for breg object</dd>
+        <dd>Connects dots</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Shixiang Wang, Yun Peng, Chenyang Shu.</p>
+  <p>Developed by <a href="https://orcid.org/0000-0003-2801-3332" class="external-link">Shixiang Wang</a>, <a href="https://orcid.org/0000-0002-7736-0077" class="external-link">Yun Peng</a>, Chenyang Shu.</p>
 </div>
 
 <div class="pkgdown-footer-right">
