@@ -2,3 +2,45 @@ url: https://wanglabcsu.github.io/bregr/
 template:
   bootstrap: 5
 
+authors:
+  Shixiang Wang:
+    href: https://orcid.org/0000-0003-2801-3332
+  Yun Peng:
+    href: https://orcid.org/0000-0002-7736-0077
+  Chenyang Shu:
+reference:
+  - title: Workflow
+    desc: Core workflow and pipeline wrapper.
+    contents:
+    - br_pipeline
+  - title: Accessor
+    desc: Attributes and data accessors from [breg] objects.
+    contents:
+    - br_get_data
+  - title: Visualization
+    desc: Visualize results using forest plots and more.
+    contents:
+    - br_show_forest
+    - br_show_risk_network
+    - br_show_forest_ggstats
+    - br_show_forest_ggstatsplot
+    - br_show_fitted_line
+    - br_show_fitted_line_2d
+  - title: Table
+    desc: Output results in table of different formats.
+    contents:
+    - br_show_table
+  - title: Class
+    desc: Class definition.
+    contents:
+    - breg
+    - print.breg
+  - title: Utility
+    desc: Helpers for analysis and visualization.
+    contents:
+    - br_avail_methods
+    - br_avail_methods_use_exp
+    - polar_init
+    - polar_connect
+
+
