@@ -93,9 +93,10 @@ user-friendly.
 
 ### Core workflow
 
+Define and construct batch models:
+
 ``` r
-# Define batch models  
-mds <- breg(lung) |>  
+mds <- breg(lung) |>                          # Init breg object
   br_set_y(c("time", "status")) |>            # Survival outcomes  
   br_set_x(colnames(lung)[6:10]) |>           # Focal predictors  
   br_set_x2(c("age", "sex")) |>               # Controls  
@@ -270,8 +271,8 @@ br_show_forest(
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
-We also provide some interface from other packages for plotting result
-model(s), e.g., `br_show_forest_ggstats()`,
+We also provide some interfaces from other packages for plotting
+constructed model(s), e.g., `br_show_forest_ggstats()`,
 `br_show_forest_ggstatsplot()`, `br_show_fitted_line()`, and
 `br_show_fitted_line_2d()`.
 
@@ -279,12 +280,10 @@ For Cox-PH modeling results (focal variables must be continuous type),
 we provide a risk network plotting function.
 
 ``` r
-lung2 = lung
-lung2$ph.ecog = as.integer(lung2$ph.ecog)
 mds2 = br_pipeline(
-  lung2,
+  survival::lung,
   y = c("time", "status"),
-  x = colnames(lung2)[6:10],
+  x = colnames(survival::lung)[6:10],
   x2 = c("age", "sex"),
   method = "coxph"
 )

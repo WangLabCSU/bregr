@@ -9,6 +9,11 @@ authors:
     href: https://orcid.org/0000-0003-2801-3332
   Chenyang Shu:
 reference:
+  - title: Class
+    desc: Class definition and printing.
+    contents:
+    - breg
+    - print.breg
   - title: Workflow
     desc: Core workflow and pipeline wrapper.
     contents:
@@ -30,11 +35,6 @@ reference:
     desc: Output results in table of different formats.
     contents:
     - br_show_table
-  - title: Class
-    desc: Class definition.
-    contents:
-    - breg
-    - print.breg
   - title: Utility
     desc: Helpers for analysis and visualization.
     contents:
@@ -42,5 +42,3 @@ reference:
     - br_avail_methods_use_exp
     - polar_init
     - polar_connect
-
-

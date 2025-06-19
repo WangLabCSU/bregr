@@ -19,7 +19,7 @@ test_that("Function br_show_risk_network() @ L22", {
 })
 
 
-test_that("Function polar_init() @ L165", {
+test_that("Function polar_init() @ L172", {
   
   library(ggplot2)
   # -------------------
