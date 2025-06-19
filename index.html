@@ -35,7 +35,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/bregr-group-by.html">Run batch regression analysis by `group_by` variable</a></li>
+<li><a class="dropdown-item" href="articles/bregr-group-by.html">Group Analysis and Visualization</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -74,24 +74,26 @@
 </h2>
 <p>Batch regression streamlines analyses where:</p>
 <ul>
-<li>Each model shares <strong>identical control variables</strong> (<code>c₁, c₂...</code>)</li>
+<li>Each model shares <strong>identical control variables</strong> (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mn>1</mn></msub><annotation encoding="application/x-tex">c_1</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mn>2</mn></msub><annotation encoding="application/x-tex">c_2</annotation></semantics></math>, …).</li>
 <li>
-<strong>Focal predictors</strong> (<code>x₁, x₂...</code>) or <strong>responses</strong> (<code>y₁, y₂...</code>) vary systematically</li>
+<strong>Focal predictors</strong> (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>1</mn></msub><annotation encoding="application/x-tex">x_1</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>2</mn></msub><annotation encoding="application/x-tex">x_2</annotation></semantics></math>, …) or <strong>responses</strong> (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">y_1</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">y_2</annotation></semantics></math>, …) vary systematically.</li>
 </ul>
-<pre class="math"><code>y_1 = \alpha_1 x_1 + \beta_1 c_1 + \gamma_1 c_2 \\
-y_2 = \alpha_2 x_1 + \beta_2 c_1 + \gamma_2 c_2 \\
-y_3 = \alpha_3 x_1 + \beta_3 c_1 + \gamma_3 c_2 \\
-... \\
-y_4 = \alpha_n x_n + \beta_n c_1 + \gamma_4 c_2 \\</code></pre>
+<p><span class="math display">$$
+y_1 = \alpha_1 x_1 + \beta_1 c_1 + \gamma_1 c_2, \\
+y_2 = \alpha_2 x_2 + \beta_2 c_1 + \gamma_2 c_2, \\
+y_3 = \alpha_3 x_3 + \beta_3 c_1 + \gamma_3 c_2, \\
+\cdots, \\
+y_n = \alpha_n x_n + \beta_n c_1 + \gamma_n c_2 \\
+$$</span></p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>You can install the stable version of bregr from CRAN with:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"bregr"</span><span class="op">)</span></span></code></pre></div>
 <p>You can install the development version of bregr from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"WangLabCSU/bregr"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -99,7 +101,7 @@ y_4 = \alpha_n x_n + \beta_n c_1 + \gamma_4 c_2 \\</code></pre>
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
 <p>Load package(s):</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/WangLabCSU/bregr" class="external-link">bregr</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Welcome to 'bregr' package!</span></span>
 <span><span class="co">#&gt; =======================================================================</span></span>
@@ -111,14 +113,14 @@ y_4 = \alpha_n x_n + \beta_n c_1 + \gamma_4 c_2 \\</code></pre>
 <span><span class="co">#&gt; =======================================================================</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 <p>Load data:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lung</span> <span class="op">=</span> <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/lung.html" class="external-link">lung</a></span></span>
 <span><span class="va">lung</span><span class="op">$</span><span class="va">ph.ecog</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">lung</span><span class="op">$</span><span class="va">ph.ecog</span><span class="op">)</span></span></code></pre></div>
 <p>bregr is designed and implemented following <a href="https://design.tidyverse.org/" class="external-link">Tidy design principles</a> and <a href="https://style.tidyverse.org/" class="external-link">Tidyverse style guide</a>, making it intuitive and user-friendly.</p>
 <div class="section level3">
 <h3 id="core-workflow">Core workflow<a class="anchor" aria-label="anchor" href="#core-workflow"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Define batch models  </span></span>
 <span><span class="va">mds</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/breg.html">breg</a></span><span class="op">(</span><span class="va">lung</span><span class="op">)</span> <span class="op">|&gt;</span>  </span>
 <span>  <span class="fu"><a href="reference/pipeline.html">br_set_y</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"status"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span>            <span class="co"># Survival outcomes  </span></span>
@@ -131,7 +133,7 @@ y_4 = \alpha_n x_n + \beta_n c_1 + \gamma_4 c_2 \\</code></pre>
 <div class="section level3">
 <h3 id="one-step-pipeline">One-Step Pipeline<a class="anchor" aria-label="anchor" href="#one-step-pipeline"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mds</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pipeline.html">br_pipeline</a></span><span class="op">(</span>  </span>
 <span>  <span class="va">lung</span>,  </span>
 <span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"status"</span><span class="op">)</span>,  </span>
@@ -144,7 +146,7 @@ y_4 = \alpha_n x_n + \beta_n c_1 + \gamma_4 c_2 \\</code></pre>
 <h3 id="output-inspection">Output Inspection<a class="anchor" aria-label="anchor" href="#output-inspection"></a>
 </h3>
 <p>Use <code>br_get_*()</code> function family to access attributes and data of result <code>breg</code> object.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/accessors.html">br_get_models</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span>       <span class="co"># Raw model objects  </span></span>
 <span><span class="co">#&gt; $ph.ecog</span></span>
 <span><span class="co">#&gt; Call:</span></span>
@@ -272,21 +274,21 @@ y_4 = \alpha_n x_n + \beta_n c_1 + \gamma_4 c_2 \\</code></pre>
 <h4 id="forest-plot-key-results">Forest Plot (Key Results)<a class="anchor" aria-label="anchor" href="#forest-plot-key-results"></a>
 </h4>
 <p>bregr mainly provides <code><a href="reference/br_show_forest.html">br_show_forest()</a></code> for plotting data table of modeling results.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_forest.html">br_show_forest</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-4-1.png" width="100%"></p>
+<p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="100%"></p>
 <p>We can tune the plot to only keep focal variables and adjust the limits of x axis.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_forest.html">br_show_forest</a></span><span class="op">(</span>  </span>
 <span>  <span class="va">mds</span>,  </span>
 <span>  rm_controls <span class="op">=</span> <span class="cn">TRUE</span>,    <span class="co"># Focus on focal predictors  </span></span>
 <span>  xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span><span class="op">)</span>,       <span class="co"># Custom axis scaling  </span></span>
 <span>  drop <span class="op">=</span> <span class="fl">1</span>               <span class="co"># Remove redundant columns  </span></span>
 <span><span class="op">)</span>  </span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="100%"></p>
+<p><img src="reference/figures/README-unnamed-chunk-6-1.png" width="100%"></p>
 <p>We also provide some interface from other packages for plotting result model(s), e.g., <code><a href="reference/br_show_forest_ggstats.html">br_show_forest_ggstats()</a></code>, <code><a href="reference/br_show_forest_ggstatsplot.html">br_show_forest_ggstatsplot()</a></code>, <code><a href="reference/br_show_fitted_line.html">br_show_fitted_line()</a></code>, and <code><a href="reference/br_show_fitted_line_2d.html">br_show_fitted_line_2d()</a></code>.</p>
 <p>For Cox-PH modeling results (focal variables must be continuous type), we provide a risk network plotting function.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lung2</span> <span class="op">=</span> <span class="va">lung</span></span>
 <span><span class="va">lung2</span><span class="op">$</span><span class="va">ph.ecog</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">lung2</span><span class="op">$</span><span class="va">ph.ecog</span><span class="op">)</span></span>
 <span><span class="va">mds2</span> <span class="op">=</span> <span class="fu"><a href="reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
@@ -297,17 +299,17 @@ y_4 = \alpha_n x_n + \beta_n c_1 + \gamma_4 c_2 \\</code></pre>
 <span>  method <span class="op">=</span> <span class="st">"coxph"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; set `exponentiate=TRUE` for model(s) constructed from coxph method at default</span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_risk_network.html">br_show_risk_network</a></span><span class="op">(</span><span class="va">mds2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; please note only continuous focal terms analyzed and visualized</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-7-1.png" width="100%"></p>
+<p><img src="reference/figures/README-unnamed-chunk-8-1.png" width="100%"></p>
 </div>
 </div>
 <div class="section level3">
 <h3 id="table">Table<a class="anchor" aria-label="anchor" href="#table"></a>
 </h3>
 <p>Show tidy table result as pretty table:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_table.html">br_show_table</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Focal_variable      term estimate std.error statistic p.value      conf.int</span></span>
 <span><span class="co">#&gt; 1         ph.ecog  ph.ecog1     1.51      0.20      2.05  0.040  [1.02,  2.23]</span></span>
@@ -328,7 +330,7 @@ y_4 = \alpha_n x_n + \beta_n c_1 + \gamma_4 c_2 \\</code></pre>
 <span><span class="co">#&gt; 16        wt.loss       age     1.02  9.66e-03      2.08  0.038  [1.00,  1.04]</span></span>
 <span><span class="co">#&gt; 17        wt.loss       sex     0.59      0.17     -2.99  0.003  [0.42,  0.84]</span></span></code></pre></div>
 <p>As markdown table:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_table.html">br_show_table</a></span><span class="op">(</span><span class="va">mds</span>, export <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Focal_variable |      term | estimate | std.error | statistic | p.value |      conf.int</span></span>
 <span><span class="co">#&gt; ---------------------------------------------------------------------------------------</span></span>
@@ -350,827 +352,8 @@ y_4 = \alpha_n x_n + \beta_n c_1 + \gamma_4 c_2 \\</code></pre>
 <span><span class="co">#&gt; wt.loss        |       age |     1.02 |  9.66e-03 |      2.08 |  0.038  | [1.00,  1.04]</span></span>
 <span><span class="co">#&gt; wt.loss        |       sex |     0.59 |      0.17 |     -2.99 |  0.003  | [0.42,  0.84]</span></span></code></pre></div>
 <p>As HTML table:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_table.html">br_show_table</a></span><span class="op">(</span><span class="va">mds</span>, export <span class="op">=</span> <span class="cn">TRUE</span>, args_table_export <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>format <span class="op">=</span> <span class="st">"html"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div id="sgperlggpv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#sgperlggpv table {
-  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-&#10;#sgperlggpv thead, #sgperlggpv tbody, #sgperlggpv tfoot, #sgperlggpv tr, #sgperlggpv td, #sgperlggpv th {
-  border-style: none;
-}
-&#10;#sgperlggpv p {
-  margin: 0;
-  padding: 0;
-}
-&#10;#sgperlggpv .gt_table {
-  display: table;
-  border-collapse: collapse;
-  line-height: normal;
-  margin-left: auto;
-  margin-right: auto;
-  color: #333333;
-  font-size: 16px;
-  font-weight: normal;
-  font-style: normal;
-  background-color: #FFFFFF;
-  width: auto;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #A8A8A8;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #A8A8A8;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-}
-&#10;#sgperlggpv .gt_caption {
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-&#10;#sgperlggpv .gt_title {
-  color: #333333;
-  font-size: 125%;
-  font-weight: initial;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-color: #FFFFFF;
-  border-bottom-width: 0;
-}
-&#10;#sgperlggpv .gt_subtitle {
-  color: #333333;
-  font-size: 85%;
-  font-weight: initial;
-  padding-top: 3px;
-  padding-bottom: 5px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-color: #FFFFFF;
-  border-top-width: 0;
-}
-&#10;#sgperlggpv .gt_heading {
-  background-color: #FFFFFF;
-  text-align: center;
-  border-bottom-color: #FFFFFF;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-&#10;#sgperlggpv .gt_bottom_border {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-}
-&#10;#sgperlggpv .gt_col_headings {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-}
-&#10;#sgperlggpv .gt_col_heading {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 6px;
-  padding-left: 5px;
-  padding-right: 5px;
-  overflow-x: hidden;
-}
-&#10;#sgperlggpv .gt_column_spanner_outer {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: normal;
-  text-transform: inherit;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 4px;
-  padding-right: 4px;
-}
-&#10;#sgperlggpv .gt_column_spanner_outer:first-child {
-  padding-left: 0;
-}
-&#10;#sgperlggpv .gt_column_spanner_outer:last-child {
-  padding-right: 0;
-}
-&#10;#sgperlggpv .gt_column_spanner {
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: bottom;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  overflow-x: hidden;
-  display: inline-block;
-  width: 100%;
-}
-&#10;#sgperlggpv .gt_spanner_row {
-  border-bottom-style: hidden;
-}
-&#10;#sgperlggpv .gt_group_heading {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-  text-align: left;
-}
-&#10;#sgperlggpv .gt_empty_group_heading {
-  padding: 0.5px;
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  vertical-align: middle;
-}
-&#10;#sgperlggpv .gt_from_md > :first-child {
-  margin-top: 0;
-}
-&#10;#sgperlggpv .gt_from_md > :last-child {
-  margin-bottom: 0;
-}
-&#10;#sgperlggpv .gt_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  margin: 10px;
-  border-top-style: solid;
-  border-top-width: 1px;
-  border-top-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 1px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 1px;
-  border-right-color: #D3D3D3;
-  vertical-align: middle;
-  overflow-x: hidden;
-}
-&#10;#sgperlggpv .gt_stub {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-&#10;#sgperlggpv .gt_stub_row_group {
-  color: #333333;
-  background-color: #FFFFFF;
-  font-size: 100%;
-  font-weight: initial;
-  text-transform: inherit;
-  border-right-style: solid;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-  padding-left: 5px;
-  padding-right: 5px;
-  vertical-align: top;
-}
-&#10;#sgperlggpv .gt_row_group_first td {
-  border-top-width: 2px;
-}
-&#10;#sgperlggpv .gt_row_group_first th {
-  border-top-width: 2px;
-}
-&#10;#sgperlggpv .gt_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-&#10;#sgperlggpv .gt_first_summary_row {
-  border-top-style: solid;
-  border-top-color: #D3D3D3;
-}
-&#10;#sgperlggpv .gt_first_summary_row.thick {
-  border-top-width: 2px;
-}
-&#10;#sgperlggpv .gt_last_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-}
-&#10;#sgperlggpv .gt_grand_summary_row {
-  color: #333333;
-  background-color: #FFFFFF;
-  text-transform: inherit;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-&#10;#sgperlggpv .gt_first_grand_summary_row {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-top-style: double;
-  border-top-width: 6px;
-  border-top-color: #D3D3D3;
-}
-&#10;#sgperlggpv .gt_last_grand_summary_row_top {
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 5px;
-  padding-right: 5px;
-  border-bottom-style: double;
-  border-bottom-width: 6px;
-  border-bottom-color: #D3D3D3;
-}
-&#10;#sgperlggpv .gt_striped {
-  background-color: rgba(128, 128, 128, 0.05);
-}
-&#10;#sgperlggpv .gt_table_body {
-  border-top-style: solid;
-  border-top-width: 2px;
-  border-top-color: #D3D3D3;
-  border-bottom-style: solid;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-}
-&#10;#sgperlggpv .gt_footnotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-&#10;#sgperlggpv .gt_footnote {
-  margin: 0px;
-  font-size: 90%;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-&#10;#sgperlggpv .gt_sourcenotes {
-  color: #333333;
-  background-color: #FFFFFF;
-  border-bottom-style: none;
-  border-bottom-width: 2px;
-  border-bottom-color: #D3D3D3;
-  border-left-style: none;
-  border-left-width: 2px;
-  border-left-color: #D3D3D3;
-  border-right-style: none;
-  border-right-width: 2px;
-  border-right-color: #D3D3D3;
-}
-&#10;#sgperlggpv .gt_sourcenote {
-  font-size: 90%;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-&#10;#sgperlggpv .gt_left {
-  text-align: left;
-}
-&#10;#sgperlggpv .gt_center {
-  text-align: center;
-}
-&#10;#sgperlggpv .gt_right {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-&#10;#sgperlggpv .gt_font_normal {
-  font-weight: normal;
-}
-&#10;#sgperlggpv .gt_font_bold {
-  font-weight: bold;
-}
-&#10;#sgperlggpv .gt_font_italic {
-  font-style: italic;
-}
-&#10;#sgperlggpv .gt_super {
-  font-size: 65%;
-}
-&#10;#sgperlggpv .gt_footnote_marks {
-  font-size: 75%;
-  vertical-align: 0.4em;
-  position: initial;
-}
-&#10;#sgperlggpv .gt_asterisk {
-  font-size: 100%;
-  vertical-align: 0;
-}
-&#10;#sgperlggpv .gt_indent_1 {
-  text-indent: 5px;
-}
-&#10;#sgperlggpv .gt_indent_2 {
-  text-indent: 10px;
-}
-&#10;#sgperlggpv .gt_indent_3 {
-  text-indent: 15px;
-}
-&#10;#sgperlggpv .gt_indent_4 {
-  text-indent: 20px;
-}
-&#10;#sgperlggpv .gt_indent_5 {
-  text-indent: 25px;
-}
-&#10;#sgperlggpv .katex-display {
-  display: inline-flex !important;
-  margin-bottom: 0.75em !important;
-}
-&#10;#sgperlggpv div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
-  height: 0px !important;
-}
-</style>
-<table class="table gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
-<thead><tr class="gt_col_headings">
-<th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Focal_variable">
-Focal_variable
-</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="term">
-term
-</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="estimate">
-estimate
-</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="std.error">
-std.error
-</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="statistic">
-statistic
-</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="p.value">
-p.value
-</th>
-<th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="conf.int">
-conf.int
-</th>
-</tr></thead>
-<tbody class="gt_table_body">
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-ph.ecog
-</td>
-<td headers="term" class="gt_row gt_center">
-ph.ecog1
-</td>
-<td headers="estimate" class="gt_row gt_center">
-1.51
-</td>
-<td headers="std.error" class="gt_row gt_center">
-0.20
-</td>
-<td headers="statistic" class="gt_row gt_center">
-2.05
-</td>
-<td headers="p.value" class="gt_row gt_center">
-0.040
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[1.02, 2.23]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-ph.ecog
-</td>
-<td headers="term" class="gt_row gt_center">
-ph.ecog2
-</td>
-<td headers="estimate" class="gt_row gt_center">
-2.47
-</td>
-<td headers="std.error" class="gt_row gt_center">
-0.23
-</td>
-<td headers="statistic" class="gt_row gt_center">
-3.96
-</td>
-<td headers="p.value" class="gt_row gt_center">
-&lt; .001
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[1.58, 3.86]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-ph.ecog
-</td>
-<td headers="term" class="gt_row gt_center">
-ph.ecog3
-</td>
-<td headers="estimate" class="gt_row gt_center">
-7.06
-</td>
-<td headers="std.error" class="gt_row gt_center">
-1.03
-</td>
-<td headers="statistic" class="gt_row gt_center">
-1.90
-</td>
-<td headers="p.value" class="gt_row gt_center">
-0.058
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[0.94, 53.13]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-ph.ecog
-</td>
-<td headers="term" class="gt_row gt_center">
-age
-</td>
-<td headers="estimate" class="gt_row gt_center">
-1.01
-</td>
-<td headers="std.error" class="gt_row gt_center">
-9.31e-03
-</td>
-<td headers="statistic" class="gt_row gt_center">
-1.16
-</td>
-<td headers="p.value" class="gt_row gt_center">
-0.246
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[0.99, 1.03]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-ph.ecog
-</td>
-<td headers="term" class="gt_row gt_center">
-sex
-</td>
-<td headers="estimate" class="gt_row gt_center">
-0.58
-</td>
-<td headers="std.error" class="gt_row gt_center">
-0.17
-</td>
-<td headers="statistic" class="gt_row gt_center">
--3.24
-</td>
-<td headers="p.value" class="gt_row gt_center">
-0.001
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[0.42, 0.81]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-ph.karno
-</td>
-<td headers="term" class="gt_row gt_center">
-ph.karno
-</td>
-<td headers="estimate" class="gt_row gt_center">
-0.99
-</td>
-<td headers="std.error" class="gt_row gt_center">
-5.88e-03
-</td>
-<td headers="statistic" class="gt_row gt_center">
--2.27
-</td>
-<td headers="p.value" class="gt_row gt_center">
-0.023
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[0.98, 1.00]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-ph.karno
-</td>
-<td headers="term" class="gt_row gt_center">
-age
-</td>
-<td headers="estimate" class="gt_row gt_center">
-1.01
-</td>
-<td headers="std.error" class="gt_row gt_center">
-9.40e-03
-</td>
-<td headers="statistic" class="gt_row gt_center">
-1.32
-</td>
-<td headers="p.value" class="gt_row gt_center">
-0.188
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[0.99, 1.03]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-ph.karno
-</td>
-<td headers="term" class="gt_row gt_center">
-sex
-</td>
-<td headers="estimate" class="gt_row gt_center">
-0.61
-</td>
-<td headers="std.error" class="gt_row gt_center">
-0.17
-</td>
-<td headers="statistic" class="gt_row gt_center">
--2.96
-</td>
-<td headers="p.value" class="gt_row gt_center">
-0.003
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[0.44, 0.84]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-pat.karno
-</td>
-<td headers="term" class="gt_row gt_center">
-pat.karno
-</td>
-<td headers="estimate" class="gt_row gt_center">
-0.98
-</td>
-<td headers="std.error" class="gt_row gt_center">
-5.64e-03
-</td>
-<td headers="statistic" class="gt_row gt_center">
--3.38
-</td>
-<td headers="p.value" class="gt_row gt_center">
-&lt; .001
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[0.97, 0.99]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-pat.karno
-</td>
-<td headers="term" class="gt_row gt_center">
-age
-</td>
-<td headers="estimate" class="gt_row gt_center">
-1.01
-</td>
-<td headers="std.error" class="gt_row gt_center">
-9.33e-03
-</td>
-<td headers="statistic" class="gt_row gt_center">
-1.26
-</td>
-<td headers="p.value" class="gt_row gt_center">
-0.206
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[0.99, 1.03]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-pat.karno
-</td>
-<td headers="term" class="gt_row gt_center">
-sex
-</td>
-<td headers="estimate" class="gt_row gt_center">
-0.59
-</td>
-<td headers="std.error" class="gt_row gt_center">
-0.17
-</td>
-<td headers="statistic" class="gt_row gt_center">
--3.07
-</td>
-<td headers="p.value" class="gt_row gt_center">
-0.002
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[0.43, 0.83]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-meal.cal
-</td>
-<td headers="term" class="gt_row gt_center">
-meal.cal
-</td>
-<td headers="estimate" class="gt_row gt_center">
-1.00
-</td>
-<td headers="std.error" class="gt_row gt_center">
-2.38e-04
-</td>
-<td headers="statistic" class="gt_row gt_center">
--0.56
-</td>
-<td headers="p.value" class="gt_row gt_center">
-0.574
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[1.00, 1.00]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-meal.cal
-</td>
-<td headers="term" class="gt_row gt_center">
-age
-</td>
-<td headers="estimate" class="gt_row gt_center">
-1.02
-</td>
-<td headers="std.error" class="gt_row gt_center">
-0.01
-</td>
-<td headers="statistic" class="gt_row gt_center">
-1.45
-</td>
-<td headers="p.value" class="gt_row gt_center">
-0.147
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[0.99, 1.04]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-meal.cal
-</td>
-<td headers="term" class="gt_row gt_center">
-sex
-</td>
-<td headers="estimate" class="gt_row gt_center">
-0.61
-</td>
-<td headers="std.error" class="gt_row gt_center">
-0.19
-</td>
-<td headers="statistic" class="gt_row gt_center">
--2.57
-</td>
-<td headers="p.value" class="gt_row gt_center">
-0.010
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[0.42, 0.89]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-wt.loss
-</td>
-<td headers="term" class="gt_row gt_center">
-wt.loss
-</td>
-<td headers="estimate" class="gt_row gt_center">
-1.00
-</td>
-<td headers="std.error" class="gt_row gt_center">
-6.19e-03
-</td>
-<td headers="statistic" class="gt_row gt_center">
-0.12
-</td>
-<td headers="p.value" class="gt_row gt_center">
-0.902
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[0.99, 1.01]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-wt.loss
-</td>
-<td headers="term" class="gt_row gt_center">
-age
-</td>
-<td headers="estimate" class="gt_row gt_center">
-1.02
-</td>
-<td headers="std.error" class="gt_row gt_center">
-9.66e-03
-</td>
-<td headers="statistic" class="gt_row gt_center">
-2.08
-</td>
-<td headers="p.value" class="gt_row gt_center">
-0.038
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[1.00, 1.04]
-</td>
-</tr>
-<tr>
-<td headers="Focal_variable" class="gt_row gt_left">
-wt.loss
-</td>
-<td headers="term" class="gt_row gt_center">
-sex
-</td>
-<td headers="estimate" class="gt_row gt_center">
-0.59
-</td>
-<td headers="std.error" class="gt_row gt_center">
-0.17
-</td>
-<td headers="statistic" class="gt_row gt_center">
--2.99
-</td>
-<td headers="p.value" class="gt_row gt_center">
-0.003
-</td>
-<td headers="conf.int" class="gt_row gt_center">
-[0.42, 0.84]
-</td>
-</tr>
-</tbody>
-<tfoot class="gt_sourcenotes"><tr>
-<td class="gt_sourcenote" colspan="7">
-</td>
-</tr></tfoot>
-</table>
-</div>
 </div>
 </div>
 <div class="section level2">
@@ -1181,7 +364,7 @@ sex
 <div class="section level2">
 <h2 id="coverage">Coverage<a class="anchor" aria-label="anchor" href="#coverage"></a>
 </h2>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">covr</span><span class="fu">::</span><span class="fu">package_coverage</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; bregr Coverage: 82.18%</span></span>
 <span><span class="co">#&gt; R/98-utils.R: 41.03%</span></span>
@@ -1227,9 +410,9 @@ sex
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>
-<a href="https://orcid.org/0000-0003-2801-3332" class="external-link">Shixiang Wang</a> <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-9855-7357" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<a href="https://orcid.org/0000-0001-9855-7357" class="external-link">Shixiang Wang</a> <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-9855-7357" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li>
-<a href="https://orcid.org/0000-0002-7736-0077" class="external-link">Yun Peng</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-2801-3332" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<a href="https://orcid.org/0000-0003-2801-3332" class="external-link">Yun Peng</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-2801-3332" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li>Chenyang Shu <br><small class="roles"> Author </small>   </li>
 </ul>
 </div>
@@ -1248,7 +431,7 @@ sex
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by <a href="https://orcid.org/0000-0003-2801-3332" class="external-link">Shixiang Wang</a>, <a href="https://orcid.org/0000-0002-7736-0077" class="external-link">Yun Peng</a>, Chenyang Shu.</p>
+  <p>Developed by <a href="https://orcid.org/0000-0001-9855-7357" class="external-link">Shixiang Wang</a>, <a href="https://orcid.org/0000-0003-2801-3332" class="external-link">Yun Peng</a>, Chenyang Shu.</p>
 </div>
 
 <div class="pkgdown-footer-right">
