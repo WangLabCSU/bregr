@@ -38,6 +38,9 @@ Batch regression streamlines analyses where:
 - **Focal predictors** ($x_1$, $x_2$, …) or **response variables**
   ($y_1$, $y_2$, …) vary systematically.
 
+A simplified overview of batch regression modeling is given below for
+illustration:
+
 <p align="center">
 <img src="man/figures/breg_formula.svg">
 </p>
