@@ -120,9 +120,9 @@ $$</span></p>
 <div class="section level3">
 <h3 id="core-workflow">Core workflow<a class="anchor" aria-label="anchor" href="#core-workflow"></a>
 </h3>
+<p>Define and construct batch models:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Define batch models  </span></span>
-<span><span class="va">mds</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/breg.html">breg</a></span><span class="op">(</span><span class="va">lung</span><span class="op">)</span> <span class="op">|&gt;</span>  </span>
+<code class="sourceCode R"><span><span class="va">mds</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/breg.html">breg</a></span><span class="op">(</span><span class="va">lung</span><span class="op">)</span> <span class="op">|&gt;</span>                          <span class="co"># Init breg object</span></span>
 <span>  <span class="fu"><a href="reference/pipeline.html">br_set_y</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"status"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span>            <span class="co"># Survival outcomes  </span></span>
 <span>  <span class="fu"><a href="reference/pipeline.html">br_set_x</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">lung</span><span class="op">)</span><span class="op">[</span><span class="fl">6</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span>           <span class="co"># Focal predictors  </span></span>
 <span>  <span class="fu"><a href="reference/pipeline.html">br_set_x2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span>               <span class="co"># Controls  </span></span>
@@ -286,15 +286,13 @@ $$</span></p>
 <span>  drop <span class="op">=</span> <span class="fl">1</span>               <span class="co"># Remove redundant columns  </span></span>
 <span><span class="op">)</span>  </span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-6-1.png" width="100%"></p>
-<p>We also provide some interface from other packages for plotting result model(s), e.g., <code><a href="reference/br_show_forest_ggstats.html">br_show_forest_ggstats()</a></code>, <code><a href="reference/br_show_forest_ggstatsplot.html">br_show_forest_ggstatsplot()</a></code>, <code><a href="reference/br_show_fitted_line.html">br_show_fitted_line()</a></code>, and <code><a href="reference/br_show_fitted_line_2d.html">br_show_fitted_line_2d()</a></code>.</p>
+<p>We also provide some interfaces from other packages for plotting constructed model(s), e.g., <code><a href="reference/br_show_forest_ggstats.html">br_show_forest_ggstats()</a></code>, <code><a href="reference/br_show_forest_ggstatsplot.html">br_show_forest_ggstatsplot()</a></code>, <code><a href="reference/br_show_fitted_line.html">br_show_fitted_line()</a></code>, and <code><a href="reference/br_show_fitted_line_2d.html">br_show_fitted_line_2d()</a></code>.</p>
 <p>For Cox-PH modeling results (focal variables must be continuous type), we provide a risk network plotting function.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lung2</span> <span class="op">=</span> <span class="va">lung</span></span>
-<span><span class="va">lung2</span><span class="op">$</span><span class="va">ph.ecog</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">lung2</span><span class="op">$</span><span class="va">ph.ecog</span><span class="op">)</span></span>
-<span><span class="va">mds2</span> <span class="op">=</span> <span class="fu"><a href="reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
-<span>  <span class="va">lung2</span>,</span>
+<code class="sourceCode R"><span><span class="va">mds2</span> <span class="op">=</span> <span class="fu"><a href="reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
+<span>  <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/lung.html" class="external-link">lung</a></span>,</span>
 <span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"status"</span><span class="op">)</span>,</span>
-<span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">lung2</span><span class="op">)</span><span class="op">[</span><span class="fl">6</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>,</span>
+<span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/lung.html" class="external-link">lung</a></span><span class="op">)</span><span class="op">[</span><span class="fl">6</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>,</span>
 <span>  x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"coxph"</span></span>
 <span><span class="op">)</span></span>
