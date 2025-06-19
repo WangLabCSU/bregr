@@ -6,6 +6,8 @@
 \alias{bregr-package}
 \title{bregr: Easy and Efficient Batch Processing of Regression Models in R}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 Easily process batches of univariate or multivariate regression models. Returns results in a tidy format and generates visualization plots for straightforward interpretation.
 }
 \seealso{

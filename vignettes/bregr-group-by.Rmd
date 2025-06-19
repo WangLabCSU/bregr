@@ -27,8 +27,8 @@ Load the package and data.
 ```{r setup}
 library(bregr)
 
-data = survival::lung
-data = data |> 
+data <- survival::lung
+data <- data |>
   dplyr::mutate(
     ph.ecog = factor(ph.ecog),
     sex = ifelse(sex == 1, "Male", "Female")
@@ -38,7 +38,7 @@ data = data |>
 Construct grouped batch survival models to determine if the variable `ph.ecog` has different survival effects under different sex groups.
 
 ```{r groupby-pipeline}
-mds = br_pipeline(
+mds <- br_pipeline(
   data,
   y = c("time", "status"),
   x = "ph.ecog",
@@ -65,7 +65,8 @@ We can optimize the plot for better visualization, for example, by removing the 
 br_show_forest(
   mds,
   drop = 2,
-  subset = !(Group_variable == "2" & variable == "ph.ecog" & label == 3))
+  subset = !(Group_variable == "2" & variable == "ph.ecog" & label == 3)
+)
 ```
 
 To subset the data rows, we can input an R expression using variables from `br_get_results(mds)`. For example, we can use `Group_variable == "Female" & variable == "ph.ecog" & label == 3` to locate the row we want to remove, and then use `!()` to select the negated rows.
@@ -77,6 +78,7 @@ br_show_forest(
   mds,
   drop = 2,
   subset = !((Group_variable == "Female" & variable == "ph.ecog" & label == 3) |
-               (Group_variable == "All")))
+    (Group_variable == "All"))
+)
 ```
 

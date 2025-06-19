@@ -38,6 +38,7 @@ Suggests:
     ggnewscale,
     ggstats,
     ggstatsplot,
+    gtsummary,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),

@@ -19,7 +19,6 @@ to visualized here, so only length-1 vector is supported as \code{idx}.}
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 
 Similar to \code{\link[=br_show_fitted_line]{br_show_fitted_line()}}, but visualize how \emph{two variables} interact to affect the response in regression models.
-Illustration for arguments and examples could be found at \href{https://pbreheny.github.io/visreg/reference/visreg2d.html}{\code{visreg2d} reference page}, or please check the doc for dynamic dots \code{...}.
 }
 \examples{
 if (rlang::is_installed("visreg")) {
@@ -41,6 +40,7 @@ Other br_show:
 \code{\link{br_show_forest_ggstats}()},
 \code{\link{br_show_forest_ggstatsplot}()},
 \code{\link{br_show_risk_network}()},
-\code{\link{br_show_table}()}
+\code{\link{br_show_table}()},
+\code{\link{br_show_table_gt}()}
 }
 \concept{br_show}

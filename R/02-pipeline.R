@@ -293,7 +293,7 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
     obj@group_by <- group_by
     data_split <- obj@data |>
       named_group_split(obj@data[, group_by, drop = FALSE])
-    data_split[["All"]] = obj@data
+    data_split[["All"]] <- obj@data
     res_list <- map(data_split, function(data) {
       runner(ms, data, dots, obj@x, run_parallel)
     })

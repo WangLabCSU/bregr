@@ -17,7 +17,6 @@ br_show_forest_ggstats(breg, idx = NULL, ...)
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 
 Provides an interface to visualize the model results with \href{https://github.com/larmarange/ggstats/}{\strong{ggstats}} package.
-Illustration for arguments and examples could be found at \href{https://larmarange.github.io/ggstats/reference/ggcoef_model.html}{\code{ggcoef_model} reference page}, or please check the doc for dynamic dots \code{...}.
 }
 \examples{
 if (rlang::is_installed("ggstats")) {
@@ -38,6 +37,7 @@ Other br_show:
 \code{\link{br_show_forest}()},
 \code{\link{br_show_forest_ggstatsplot}()},
 \code{\link{br_show_risk_network}()},
-\code{\link{br_show_table}()}
+\code{\link{br_show_table}()},
+\code{\link{br_show_table_gt}()}
 }
 \concept{br_show}

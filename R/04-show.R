@@ -57,16 +57,16 @@ br_show_forest <- function(
 
   # TODO: grouped (compared) forestplot for group_by???
   dots <- rlang::list2(...)
-  exponentiate = attr(breg, "exponentiate")
+  exponentiate <- attr(breg, "exponentiate")
   if (exponentiate) {
-    dots[["x_trans"]] = "log"
+    dots[["x_trans"]] <- "log"
   }
 
   dt <- br_get_results(breg)
   x2 <- br_get_x2(breg)
 
   if (rm_controls) {
-    dt = dt |> dplyr::filter(.data$Focal_variable == .data$variable)
+    dt <- dt |> dplyr::filter(.data$Focal_variable == .data$variable)
   }
   subset <- rlang::enquo(subset)
   if (!rlang::quo_is_null(subset)) {
@@ -122,7 +122,7 @@ br_show_forest <- function(
   grp_is_null <- if (has_group) FALSE else TRUE
   fcl_is_null <- FALSE
   if (clean) {
-    dt = dt |>
+    dt <- dt |>
       dplyr::mutate(
         label = if_else(
           vctrs::vec_equal(.data$variable, .data$label, na_equal = TRUE),
@@ -260,7 +260,6 @@ br_show_forest <- function(
 #' `r lifecycle::badge('stable')`
 #'
 #' Provides an interface to visualize the model results with [**ggstats**](https://github.com/larmarange/ggstats/) package.
-#' Illustration for arguments and examples could be found at [`ggcoef_model` reference page](https://larmarange.github.io/ggstats/reference/ggcoef_model.html), or please check the doc for dynamic dots `...`.
 #'
 #' @inheritParams br_show_forest
 #' @param idx Index or names (focal variables) of the model(s).
@@ -307,7 +306,6 @@ br_show_forest_ggstats <- function(breg, idx = NULL, ...) {
 #' `r lifecycle::badge('stable')`
 #'
 #' Provides an interface to visualize the model results with [**ggstatsplot**](https://github.com/IndrajeetPatil/ggstatsplot/) package.
-#' Illustration for arguments and examples could be found at [`ggcoefstats` reference page](https://indrajeetpatil.github.io/ggstatsplot/reference/ggcoefstats.html), or please check the doc for dynamic dots `...`.
 #'
 #' @inheritParams br_show_forest
 #' @param idx Length-1 vector. Index or name (focal variable) of the model.
@@ -346,7 +344,6 @@ br_show_forest_ggstatsplot <- function(breg, idx = 1, ...) {
 #' `r lifecycle::badge('stable')`
 #'
 #' Provides an interface to visualize the model results with [**visreg**](https://github.com/larmarange/ggstats/) package, to show how a predictor variable `x` affects an outcome `y`.
-#' Illustration for arguments and examples could be found at [`visreg` reference page](https://pbreheny.github.io/visreg/reference/visreg.html), or please check the doc for dynamic dots `...`.
 #'
 #' @inheritParams br_show_forest_ggstatsplot
 #' @param ... Arguments passing to [visreg::visreg()] excepts `fit` and `data`.
@@ -388,7 +385,6 @@ br_show_fitted_line <- function(breg, idx = 1, ...) {
 #' `r lifecycle::badge('stable')`
 #'
 #' Similar to [br_show_fitted_line()], but visualize how *two variables* interact to affect the response in regression models.
-#' Illustration for arguments and examples could be found at [`visreg2d` reference page](https://pbreheny.github.io/visreg/reference/visreg2d.html), or please check the doc for dynamic dots `...`.
 #'
 #' @inheritParams br_show_forest_ggstatsplot
 #' @param ... Arguments passing to [visreg::visreg2d()] excepts `fit` and `data`.
@@ -456,5 +452,64 @@ br_show_table <- function(breg, ..., args_table_format = list(), export = FALSE,
   tbl
 }
 
-# TODO: show table with gtsummary
-# https://github.com/WangLabCSU/bregr/issues/16
+#' Show regression models with `gtsummary` interface
+#'
+#' @description
+#' `r lifecycle::badge('experimental')`
+#'
+#' Provides an interface to visualize the model results with [**gtsummary**](https://github.com/ddsjoberg/gtsummary/) package in table format.
+#' check <https://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html#customize-output> to see possible output customization.
+#'
+#' @inheritParams br_show_forest
+#' @inheritParams gtsummary::tbl_merge
+#' @param idx Index or names (focal variables) of the model(s).
+#' @param ... Arguments passing to [gtsummary::tbl_regression()] excepts `x`.
+#' @export
+#' @family br_show
+#' @examples
+#' if (rlang::is_installed("gtsummary")) {
+#'   m <- br_pipeline(mtcars,
+#'     y = "mpg",
+#'     x = colnames(mtcars)[2:4],
+#'     x2 = "vs",
+#'     method = "gaussian"
+#'   )
+#'   br_show_table_gt(m)
+#' }
+#'
+#' @testexamples
+#' expect_true(TRUE)
+br_show_table_gt <- function(
+    breg, idx = NULL, ...,
+    tab_spanner = NULL) {
+  assert_breg_obj_with_results(breg)
+  rlang::check_installed("gtsummary")
+
+  mds <- if (!is.null(idx)) {
+    br_get_model(breg, idx)
+  } else {
+    br_get_models(breg)
+  }
+  if (length(mds) == 1) {
+    mds <- mds[[1]]
+  }
+
+  if (insight::is_model(mds)) {
+    if (!is.null(tab_spanner)) {
+      cli_warn("{.arg tab_spanner} is not used when only one model selected")
+    }
+    t <- gtsummary::tbl_regression(mds, ...)
+  } else {
+    t <- map(mds, gtsummary::tbl_regression, ...)
+    t <- t |>
+      gtsummary::tbl_merge(
+        tab_spanner = if (is.null(tab_spanner)) {
+          paste0("**", names(mds), "**")
+        } else {
+          tab_spanner
+        },
+        merge_vars = NULL
+      )
+  }
+  t
+}

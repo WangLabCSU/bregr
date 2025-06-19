@@ -35,6 +35,7 @@ reference:
     desc: Output results in table of different formats.
     contents:
     - br_show_table
+    - br_show_table_gt
   - title: Utility
     desc: Helpers for analysis and visualization.
     contents:

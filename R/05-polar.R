@@ -63,7 +63,8 @@ br_show_risk_network <- function(breg, ...) {
   cor_value <- rlang::try_fetch(
     sapply(vars_comb, function(x) {
       cor(data[[x[1]]], data[[x[2]]], use = "pairwise")
-    }), error = function(e) {
+    }),
+    error = function(e) {
       cli_abort("failed due to error: {e$message}, please check your data format")
     }
   )
