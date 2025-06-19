@@ -36,7 +36,7 @@
 #' - `br_set_x()` for passing focal terms as characters.
 #' - `br_set_x2()` for passing control terms as characters.
 #' - `br_set_model()` for passing other configurations for modeling.
-#' - `br_run()` for passing other configurations for obtaining modeling results with [tidy_plus_plus()].
+#' - `br_run()` for passing other configurations for obtaining modeling results with [broom.helpers::tidy_plus_plus()].
 #' e.g., The default value for `exponentiate` is `FALSE` (coefficients are not exponentiated).
 #' For logistic, and Cox-PH regressions models, `exponentiate` is set to `TRUE` at default.
 #' @param model_args A list of arguments passed to `br_set_model()`.

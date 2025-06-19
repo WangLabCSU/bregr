@@ -63,7 +63,7 @@ e.g., 'quasi(variance = "mu", link = "log")'.}
 \item \code{br_set_x()} for passing focal terms as characters.
 \item \code{br_set_x2()} for passing control terms as characters.
 \item \code{br_set_model()} for passing other configurations for modeling.
-\item \code{br_run()} for passing other configurations for obtaining modeling results with \code{\link[=tidy_plus_plus]{tidy_plus_plus()}}.
+\item \code{br_run()} for passing other configurations for obtaining modeling results with \code{\link[broom.helpers:tidy_plus_plus]{broom.helpers::tidy_plus_plus()}}.
 e.g., The default value for \code{exponentiate} is \code{FALSE} (coefficients are not exponentiated).
 For logistic, and Cox-PH regressions models, \code{exponentiate} is set to \code{TRUE} at default.
 }}

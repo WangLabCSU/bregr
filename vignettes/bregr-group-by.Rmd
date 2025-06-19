@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-We are using the same example from the [ezcox package vignette](https://cran.r-project.org/web/packages/ezcox/vignettes/ezgroup.html).
+We are using the same example from the [ezcox package vignette](https://CRAN.R-project.org/package=ezcox/vignettes/ezgroup.html).
 
 Load the package and data.
 
