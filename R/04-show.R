@@ -49,11 +49,15 @@ br_show_forest <- function(
     subset = NULL,
     drop = NULL,
     tab_headers = NULL) {
-  assert_breg_obj_with_results
+  assert_breg_obj_with_results(breg)
   assert_bool(rm_controls)
 
   # TODO: grouped (compared) forestplot for group_by???
   dots <- rlang::list2(...)
+  exponentiate = attr(breg, "exponentiate")
+  if (exponentiate) {
+    dots[["x_trans"]] = "log"
+  }
 
   dt <- br_get_results(breg)
   x2 <- br_get_x2(breg)
@@ -111,6 +115,14 @@ br_show_forest <- function(
   grp_is_null <- if (has_group) FALSE else TRUE
   fcl_is_null <- FALSE
   if (clean) {
+    dt = dt |>
+      dplyr::mutate(
+        label = if_else(
+          vctrs::vec_equal(.data$variable, .data$label, na_equal = TRUE),
+          "", .data$label
+        )
+      )
+
     # Drop Group or Focal column if necessary
     if (!grp_is_null) {
       if (length(unique(dt$Group_variable)) == 1L) {
@@ -139,7 +151,7 @@ br_show_forest <- function(
     dt <- dt |>
       dplyr::mutate(
         variable = if_else(
-          is.na(.data$reference_row) | !.data$reference_row,
+          is.na(.data$reference_row) | .data$reference_row,
           .data$variable,
           ""
         )

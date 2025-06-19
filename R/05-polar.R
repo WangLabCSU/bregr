@@ -54,11 +54,18 @@ br_show_risk_network <- function(breg, ...) {
   data_reg$`-log10(p)` <- -log10(data_reg$p.value)
   data_reg2 <- data_reg[, c("Focal_variable", "n_obs", "estimate", "role", "-log10(p)")]
 
+  # TODO: support factors with model matrix? broom.helpers::model_get_model_matrix(breg@models[[1]])?
+
   # 2. Correlation analysis
   vars_comb <- combn(x |> get_vars(), 2, simplify = FALSE)
-  cor_value <- sapply(vars_comb, function(x) {
-    cor(data[[x[1]]], data[[x[2]]], use = "pairwise")
-  })
+  cor_value <- rlang::try_fetch(
+    sapply(vars_comb, function(x) {
+      cor(data[[x[1]]], data[[x[2]]], use = "pairwise")
+    }), error = function(e) {
+      cli_abort("failed due to error: {e$message}, please check your data format")
+    }
+  )
+
 
   data_cor <- cbind(as.data.frame(t(sapply(vars_comb, function(x) x))), cor_value)
   colnames(data_cor) <- c("var1", "var2", "correlation")
