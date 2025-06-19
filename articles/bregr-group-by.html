@@ -86,8 +86,8 @@ package vignette</a>.</p>
 <span><span class="co">#&gt; =======================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
-<span><span class="va">data</span> <span class="op">=</span> <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/lung.html" class="external-link">lung</a></span></span>
-<span><span class="va">data</span> <span class="op">=</span> <span class="va">data</span> <span class="op">|&gt;</span> </span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/lung.html" class="external-link">lung</a></span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">data</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    ph.ecog <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">ph.ecog</span><span class="op">)</span>,</span>
 <span>    sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="fl">1</span>, <span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span></span>
@@ -96,7 +96,7 @@ package vignette</a>.</p>
 <code>ph.ecog</code> has different survival effects under different sex
 groups.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mds</span> <span class="op">=</span> <span class="fu"><a href="../reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">mds</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"status"</span><span class="op">)</span>,</span>
 <span>  x <span class="op">=</span> <span class="st">"ph.ecog"</span>,</span>
@@ -159,7 +159,8 @@ removing the second column of the table and eliminating the row with
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/br_show_forest.html">br_show_forest</a></span><span class="op">(</span></span>
 <span>  <span class="va">mds</span>,</span>
 <span>  drop <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  subset <span class="op">=</span> <span class="op">!</span><span class="op">(</span><span class="va">Group_variable</span> <span class="op">==</span> <span class="st">"2"</span> <span class="op">&amp;</span> <span class="va">variable</span> <span class="op">==</span> <span class="st">"ph.ecog"</span> <span class="op">&amp;</span> <span class="va">label</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>  subset <span class="op">=</span> <span class="op">!</span><span class="op">(</span><span class="va">Group_variable</span> <span class="op">==</span> <span class="st">"2"</span> <span class="op">&amp;</span> <span class="va">variable</span> <span class="op">==</span> <span class="st">"ph.ecog"</span> <span class="op">&amp;</span> <span class="va">label</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p><img src="bregr-group-by_files/figure-html/show-forest2-1.png" width="100%"></p>
 <p>To subset the data rows, we can input an R expression using variables
 from <code>br_get_results(mds)</code>. For example, we can use
@@ -173,7 +174,8 @@ select the negated rows.</p>
 <span>  <span class="va">mds</span>,</span>
 <span>  drop <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  subset <span class="op">=</span> <span class="op">!</span><span class="op">(</span><span class="op">(</span><span class="va">Group_variable</span> <span class="op">==</span> <span class="st">"Female"</span> <span class="op">&amp;</span> <span class="va">variable</span> <span class="op">==</span> <span class="st">"ph.ecog"</span> <span class="op">&amp;</span> <span class="va">label</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span> <span class="op">|</span></span>
-<span>               <span class="op">(</span><span class="va">Group_variable</span> <span class="op">==</span> <span class="st">"All"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="op">(</span><span class="va">Group_variable</span> <span class="op">==</span> <span class="st">"All"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p><img src="bregr-group-by_files/figure-html/show-forest-rm-all-1.png" width="100%"></p>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
