@@ -26,7 +26,7 @@
 #' @param rm_controls If `TRUE`, remove control terms.
 #' @param ... Additional arguments passed to `forestploter::forest()`, run `vignette("forestploter-post", "forestploter")`
 #' to see more plot options.
-#' @param subset Expression for subsetting the results data.
+#' @param subset Expression for subsetting the results data (`br_get_results(breg)`).
 #' @param drop Column indices to drop from the display table.
 #' @param tab_headers Character vector of custom column headers (must match number of displayed columns).
 #'
@@ -67,6 +67,10 @@ br_show_forest <- function(
 
   if (rm_controls) {
     dt = dt |> dplyr::filter(.data$Focal_variable == .data$variable)
+  }
+  subset <- rlang::enquo(subset)
+  if (!rlang::quo_is_null(subset)) {
+    dt <- dt |> dplyr::filter(!!subset)
   }
 
   has_group <- !is.null(br_get_group_by(breg))
@@ -192,11 +196,6 @@ br_show_forest <- function(
           dplyr::ungroup()
       }
     }
-  }
-
-  subset <- rlang::enquo(subset)
-  if (!rlang::quo_is_null(subset)) {
-    dt <- dt |> dplyr::filter(!!subset)
   }
 
   sel_cols <- c(

@@ -27,7 +27,7 @@ and reduce repeat values in column "Group", "Focal", and "Variable".}
 \item{...}{Additional arguments passed to \code{forestploter::forest()}, run \code{vignette("forestploter-post", "forestploter")}
 to see more plot options.}
 
-\item{subset}{Expression for subsetting the results data.}
+\item{subset}{Expression for subsetting the results data (\code{br_get_results(breg)}).}
 
 \item{drop}{Column indices to drop from the display table.}
 

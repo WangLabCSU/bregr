@@ -8,3 +8,5 @@
 /.quarto/
 inst/doc
 docs
+/doc/
+/Meta/
