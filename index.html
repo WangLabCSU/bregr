@@ -13,6 +13,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Easy and Efficient Batch Processing of Regression Models in R">
 <meta name="description" content="Easily process batches of univariate or multivariate regression models. Returns results in a tidy format and generates visualization plots for straightforward interpretation.">
 <meta property="og:description" content="Easily process batches of univariate or multivariate regression models. Returns results in a tidy format and generates visualization plots for straightforward interpretation.">
+<meta property="og:image" content="https://wanglabcsu.github.io/bregr/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -53,8 +54,11 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="bregr-easy-and-efficient-batch-processing-of-regression-models-in-r">bregr: Easy and Efficient Batch Processing of Regression Models in R<a class="anchor" aria-label="anchor" href="#bregr-easy-and-efficient-batch-processing-of-regression-models-in-r"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="bregr-easy-and-efficient-batch-processing-of-regression-models-in-r-">bregr: Easy and Efficient Batch Processing of Regression Models in R 
+<a class="anchor" aria-label="anchor" href="#bregr-easy-and-efficient-batch-processing-of-regression-models-in-r-"></a>
+</h1>
+</div>
 <!-- badges: start -->
 
 <p>The <strong>bregr</strong> package revolutionizes batch regression modeling in R, enabling you to run <strong>hundreds of models simultaneously</strong> with a clean, intuitive workflow. Designed for both univariate and multivariate analyses, it delivers <strong>tidy-formatted results</strong> and publication-ready visualizations, transforming cumbersome statistical workflows into efficient pipelines.</p>
@@ -364,15 +368,22 @@ $$</span></p>
 </h2>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">covr</span><span class="fu">::</span><span class="fu">package_coverage</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; bregr Coverage: 82.18%</span></span>
+<span><span class="co">#&gt; bregr Coverage: 82.20%</span></span>
 <span><span class="co">#&gt; R/98-utils.R: 41.03%</span></span>
 <span><span class="co">#&gt; R/04-show.R: 80.39%</span></span>
 <span><span class="co">#&gt; R/03-accessors.R: 82.86%</span></span>
-<span><span class="co">#&gt; R/02-pipeline.R: 90.48%</span></span>
+<span><span class="co">#&gt; R/02-pipeline.R: 90.53%</span></span>
 <span><span class="co">#&gt; R/99-zzz.R: 90.91%</span></span>
 <span><span class="co">#&gt; R/05-polar.R: 96.61%</span></span>
 <span><span class="co">#&gt; R/01-class.R: 100.00%</span></span>
 <span><span class="co">#&gt; R/06-avail.R: 100.00%</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="related-projects">Related Project(s)<a class="anchor" aria-label="anchor" href="#related-projects"></a>
+</h2>
+<ul>
+<li><a href="https://github.com/ShixiangWang/ezcox/" class="external-link">ezcox: Easily Process a Batch of Cox Models</a></li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="license">LICENSE<a class="anchor" aria-label="anchor" href="#license"></a>
