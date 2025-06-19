@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# bregr: Easy and Efficient Batch Processing of Regression Models in R
+# bregr: Easy and Efficient Batch Processing of Regression Models in R <a href="https://wanglabcsu.github.io/bregr/"><img src="man/figures/logo.png" align="right" height="139" alt="bregr website" /></a>
 
 <!-- badges: start -->
 
@@ -365,16 +365,21 @@ site](https://wanglabcsu.github.io/bregr/).
 
 ``` r
 covr::package_coverage()
-#> bregr Coverage: 82.18%
+#> bregr Coverage: 82.20%
 #> R/98-utils.R: 41.03%
 #> R/04-show.R: 80.39%
 #> R/03-accessors.R: 82.86%
-#> R/02-pipeline.R: 90.48%
+#> R/02-pipeline.R: 90.53%
 #> R/99-zzz.R: 90.91%
 #> R/05-polar.R: 96.61%
 #> R/01-class.R: 100.00%
 #> R/06-avail.R: 100.00%
 ```
+
+## Related Project(s)
+
+- [ezcox: Easily Process a Batch of Cox
+  Models](https://github.com/ShixiangWang/ezcox/)
 
 ## LICENSE
 

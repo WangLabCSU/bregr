@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# bregr: Easy and Efficient Batch Processing of Regression Models in R
+# bregr: Easy and Efficient Batch Processing of Regression Models in R <a href="https://wanglabcsu.github.io/bregr/"><img src="man/figures/logo.png" align="right" height="139" alt="bregr website" /></a>
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/bregr)](https://CRAN.R-project.org/package=bregr)
@@ -185,6 +185,10 @@ All functions are documented in the [package reference](https://wanglabcsu.githu
 ```{r}
 covr::package_coverage()
 ```
+
+## Related Project(s)
+
+- [ezcox: Easily Process a Batch of Cox Models](https://github.com/ShixiangWang/ezcox/)
 
 ## LICENSE
 
