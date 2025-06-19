@@ -38,9 +38,9 @@ Batch regression streamlines analyses where:
 - Each model shares **identical control variables** ($c_1$, $c_2$, ...).
 - **Focal predictors** ($x_1$, $x_2$, ...) or **response variables** ($y_1$, $y_2$, ...) vary systematically.
 
-<center>
-![batch regression modeling overview, simplified for illustration](man/figures/breg_formula.svg)
-</center>
+<p align="center">
+<img src="man/figures/breg_formula.svg">
+</p>
 
 
 ## Installation
