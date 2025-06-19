@@ -163,7 +163,7 @@ removing the second column of the table and eliminating the row with
 <p><img src="bregr-group-by_files/figure-html/show-forest2-1.png" width="100%"></p>
 <p>To subset the data rows, we can input an R expression using variables
 from <code>br_get_results(mds)</code>. For example, we can use
-<code>Group_variable == "2" &amp; variable == "ph.ecog" &amp; label == 3</code>
+<code>Group_variable == "Female" &amp; variable == "ph.ecog" &amp; label == 3</code>
 to locate the row we want to remove, and then use <code>!()</code> to
 select the negated rows.</p>
 <p>If drop <code>All</code> group is necessary, update the
@@ -172,7 +172,7 @@ select the negated rows.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/br_show_forest.html">br_show_forest</a></span><span class="op">(</span></span>
 <span>  <span class="va">mds</span>,</span>
 <span>  drop <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  subset <span class="op">=</span> <span class="op">!</span><span class="op">(</span><span class="op">(</span><span class="va">Group_variable</span> <span class="op">==</span> <span class="st">"2"</span> <span class="op">&amp;</span> <span class="va">variable</span> <span class="op">==</span> <span class="st">"ph.ecog"</span> <span class="op">&amp;</span> <span class="va">label</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span> <span class="op">|</span></span>
+<span>  subset <span class="op">=</span> <span class="op">!</span><span class="op">(</span><span class="op">(</span><span class="va">Group_variable</span> <span class="op">==</span> <span class="st">"Female"</span> <span class="op">&amp;</span> <span class="va">variable</span> <span class="op">==</span> <span class="st">"ph.ecog"</span> <span class="op">&amp;</span> <span class="va">label</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span> <span class="op">|</span></span>
 <span>               <span class="op">(</span><span class="va">Group_variable</span> <span class="op">==</span> <span class="st">"All"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="bregr-group-by_files/figure-html/show-forest-rm-all-1.png" width="100%"></p>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
