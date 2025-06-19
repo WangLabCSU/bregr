@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Group Analysis and Visualization • bregr</title>
+<title>Group Regression Analysis and Visualization • bregr</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Group Analysis and Visualization">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Group Regression Analysis and Visualization">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -33,7 +33,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/bregr-group-by.html">Group Analysis and Visualization</a></li>
+<li><a class="dropdown-item" href="../articles/bregr-group-by.html">Group Regression Analysis and Visualization</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -56,8 +56,15 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Group Analysis and Visualization</h1>
-            
+      <h1>Group Regression Analysis and Visualization</h1>
+                        <h4 data-toc-skip class="author">Shixiang
+Wang</h4>
+            <address class="author_afil">
+      Central South
+University<br><a class="author_email" href="mailto:#"></a><a href="mailto:wangshx@csu.edu.cn" class="email">wangshx@csu.edu.cn</a>
+      </address>
+                  
+            <h4 data-toc-skip class="date">2025-06-19</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/WangLabCSU/bregr/blob/main/vignettes/bregr-group-by.Rmd" class="external-link"><code>vignettes/bregr-group-by.Rmd</code></a></small>
       <div class="d-none name"><code>bregr-group-by.Rmd</code></div>
@@ -65,6 +72,9 @@
 
     
     
+<p>We are using the same example from the <a href="https://cran.r-project.org/web/packages/ezcox/vignettes/ezgroup.html" class="external-link">ezcox
+package vignette</a>.</p>
+<p>Load the package and data.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/WangLabCSU/bregr" class="external-link">bregr</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Welcome to 'bregr' package!</span></span>
@@ -75,8 +85,99 @@
 <span><span class="co">#&gt; Documentation: https://wanglabcsu.github.io/bregr/</span></span>
 <span><span class="co">#&gt; Cite as      : arXiv:2110.14232</span></span>
 <span><span class="co">#&gt; =======================================================================</span></span>
-<span><span class="co">#&gt; </span></span></code></pre></div>
-  </main>
+<span><span class="co">#&gt; </span></span>
+<span></span>
+<span><span class="va">data</span> <span class="op">=</span> <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/lung.html" class="external-link">lung</a></span></span>
+<span><span class="va">data</span> <span class="op">=</span> <span class="va">data</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    ph.ecog <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">ph.ecog</span><span class="op">)</span>,</span>
+<span>    sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">sex</span> <span class="op">==</span> <span class="fl">1</span>, <span class="st">"Male"</span>, <span class="st">"Female"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<p>Construct grouped batch survival models to determine if the variable
+<code>ph.ecog</code> has different survival effects under different sex
+groups.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mds</span> <span class="op">=</span> <span class="fu"><a href="../reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
+<span>  <span class="va">data</span>,</span>
+<span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"status"</span><span class="op">)</span>,</span>
+<span>  x <span class="op">=</span> <span class="st">"ph.ecog"</span>,</span>
+<span>  group_by <span class="op">=</span> <span class="st">"sex"</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"coxph"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; set `exponentiate=TRUE` for model(s) constructed from <span style="color: #00BB00;">coxph</span></span></span>
+<span><span class="co">#&gt; method at default</span></span></code></pre></div>
+<p>We can examine the constructed models.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/accessors.html">br_get_models</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $Female_ph.ecog</span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; survival::coxph(formula = survival::Surv(time, status) ~ ph.ecog, </span></span>
+<span><span class="co">#&gt;     data = data)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;            coef exp(coef) se(coef)     z       p</span></span>
+<span><span class="co">#&gt; ph.ecog1 0.4162    1.5161   0.3867 1.076 0.28182</span></span>
+<span><span class="co">#&gt; ph.ecog2 1.2190    3.3836   0.4204 2.900 0.00374</span></span>
+<span><span class="co">#&gt; ph.ecog3     NA        NA   0.0000    NA      NA</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Likelihood ratio test=9.23  on 2 df, p=0.009894</span></span>
+<span><span class="co">#&gt; n= 90, number of events= 53 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Male_ph.ecog</span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; survival::coxph(formula = survival::Surv(time, status) ~ ph.ecog, </span></span>
+<span><span class="co">#&gt;     data = data)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;            coef exp(coef) se(coef)     z       p</span></span>
+<span><span class="co">#&gt; ph.ecog1 0.3641    1.4393   0.2358 1.544 0.12251</span></span>
+<span><span class="co">#&gt; ph.ecog2 0.8190    2.2682   0.2696 3.038 0.00238</span></span>
+<span><span class="co">#&gt; ph.ecog3 1.8961    6.6596   1.0345 1.833 0.06682</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Likelihood ratio test=10.46  on 3 df, p=0.01503</span></span>
+<span><span class="co">#&gt; n= 137, number of events= 111 </span></span>
+<span><span class="co">#&gt;    (1 observation deleted due to missingness)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $All_ph.ecog</span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; survival::coxph(formula = survival::Surv(time, status) ~ ph.ecog, </span></span>
+<span><span class="co">#&gt;     data = data)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;            coef exp(coef) se(coef)     z        p</span></span>
+<span><span class="co">#&gt; ph.ecog1 0.3688    1.4461   0.1987 1.857   0.0634</span></span>
+<span><span class="co">#&gt; ph.ecog2 0.9164    2.5002   0.2245 4.081 4.48e-05</span></span>
+<span><span class="co">#&gt; ph.ecog3 2.2080    9.0973   1.0258 2.152   0.0314</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Likelihood ratio test=18.44  on 3 df, p=0.0003561</span></span>
+<span><span class="co">#&gt; n= 227, number of events= 164 </span></span>
+<span><span class="co">#&gt;    (1 observation deleted due to missingness)</span></span></code></pre></div>
+<p>Now, display the results using a forest plot.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/br_show_forest.html">br_show_forest</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span></span></code></pre></div>
+<p><img src="bregr-group-by_files/figure-html/show-forest-1.png" width="100%"></p>
+<p>We can optimize the plot for better visualization, for example, by
+removing the second column of the table and eliminating the row with
+<code>NA</code> results.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/br_show_forest.html">br_show_forest</a></span><span class="op">(</span></span>
+<span>  <span class="va">mds</span>,</span>
+<span>  drop <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  subset <span class="op">=</span> <span class="op">!</span><span class="op">(</span><span class="va">Group_variable</span> <span class="op">==</span> <span class="st">"2"</span> <span class="op">&amp;</span> <span class="va">variable</span> <span class="op">==</span> <span class="st">"ph.ecog"</span> <span class="op">&amp;</span> <span class="va">label</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="bregr-group-by_files/figure-html/show-forest2-1.png" width="100%"></p>
+<p>To subset the data rows, we can input an R expression using variables
+from <code>br_get_results(mds)</code>. For example, we can use
+<code>Group_variable == "2" &amp; variable == "ph.ecog" &amp; label == 3</code>
+to locate the row we want to remove, and then use <code>!()</code> to
+select the negated rows.</p>
+<p>If drop <code>All</code> group is necessary, update the
+<code>subset</code> with:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/br_show_forest.html">br_show_forest</a></span><span class="op">(</span></span>
+<span>  <span class="va">mds</span>,</span>
+<span>  drop <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  subset <span class="op">=</span> <span class="op">!</span><span class="op">(</span><span class="op">(</span><span class="va">Group_variable</span> <span class="op">==</span> <span class="st">"2"</span> <span class="op">&amp;</span> <span class="va">variable</span> <span class="op">==</span> <span class="st">"ph.ecog"</span> <span class="op">&amp;</span> <span class="va">label</span> <span class="op">==</span> <span class="fl">3</span><span class="op">)</span> <span class="op">|</span></span>
+<span>               <span class="op">(</span><span class="va">Group_variable</span> <span class="op">==</span> <span class="st">"All"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="bregr-group-by_files/figure-html/show-forest-rm-all-1.png" width="100%"></p>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
