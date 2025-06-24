@@ -10,6 +10,9 @@ br_avail_methods()
 
 br_avail_methods_use_exp()
 }
+\value{
+A character vector representing the available methods or options.
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 

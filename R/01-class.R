@@ -17,6 +17,7 @@
 #' @param results A `data.frame` of model results from [broom.helpers::tidy_plus_plus()].
 #' @param results_tidy A `data.frame` of tidy model results from [broom::tidy()].
 #' @export
+#' @returns A constructed `breg` object.
 #' @import S7
 #' @rdname breg
 #' @examples

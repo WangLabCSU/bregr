@@ -30,6 +30,7 @@
 #' @param drop Column indices to drop from the display table.
 #' @param tab_headers Character vector of custom column headers (must match number of displayed columns).
 #'
+#' @returns A plot
 #' @export
 #' @family br_show
 #' @examples
@@ -264,6 +265,7 @@ br_show_forest <- function(
 #' @inheritParams br_show_forest
 #' @param idx Index or names (focal variables) of the model(s).
 #' @param ... Arguments passing to [ggstats::ggcoef_table()] or [ggstats::ggcoef_compare()] excepts `model`.
+#' @returns A plot
 #' @export
 #' @family br_show
 #' @examples
@@ -313,6 +315,7 @@ br_show_forest_ggstats <- function(breg, idx = NULL, ...) {
 #' to visualized here, so only length-1 vector is supported as `idx`.
 #' @param ... Arguments passing to [ggstatsplot::ggcoefstats()] excepts `x`.
 #' @export
+#' @returns A plot
 #' @family br_show
 #' @examples
 #' if (rlang::is_installed("ggstats")) {
@@ -348,6 +351,7 @@ br_show_forest_ggstatsplot <- function(breg, idx = 1, ...) {
 #' @inheritParams br_show_forest_ggstatsplot
 #' @param ... Arguments passing to [visreg::visreg()] excepts `fit` and `data`.
 #' @export
+#' @returns A plot
 #' @family br_show
 #' @examples
 #' if (rlang::is_installed("visreg")) {
@@ -389,6 +393,7 @@ br_show_fitted_line <- function(breg, idx = 1, ...) {
 #' @inheritParams br_show_forest_ggstatsplot
 #' @param ... Arguments passing to [visreg::visreg2d()] excepts `fit` and `data`.
 #' @export
+#' @returns A plot
 #' @family br_show
 #' @examples
 #' if (rlang::is_installed("visreg")) {
@@ -427,6 +432,7 @@ br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
 #' @param export Logical. If `TRUE`, show table for export purpose, e.g., present the table in Markdown or HTML format.
 #' @param args_table_export A list of arguments passing to [insight::export_table()]. Only works when `export` is `TRUE`.
 #' @export
+#' @returns A table
 #' @family br_show
 #' @examples
 #' m <- br_pipeline(mtcars,
@@ -465,6 +471,7 @@ br_show_table <- function(breg, ..., args_table_format = list(), export = FALSE,
 #' @param idx Index or names (focal variables) of the model(s).
 #' @param ... Arguments passing to [gtsummary::tbl_regression()] excepts `x`.
 #' @export
+#' @returns A table
 #' @family br_show
 #' @examples
 #' if (rlang::is_installed("gtsummary")) {

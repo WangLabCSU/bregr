@@ -2,7 +2,7 @@
 
 # File R/"05-polar.R": @testexamples
 
-test_that("Function br_show_risk_network() @ L24", {
+test_that("Function br_show_risk_network() @ L25", {
   
   lung <- survival::lung
   # Cox-PH regression
@@ -19,7 +19,7 @@ test_that("Function br_show_risk_network() @ L24", {
 })
 
 
-test_that("Function polar_init() @ L177", {
+test_that("Function polar_init() @ L178", {
   
   library(ggplot2)
   # -------------------

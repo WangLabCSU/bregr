@@ -23,6 +23,9 @@ br_show_table(
 
 \item{args_table_export}{A list of arguments passing to \code{\link[insight:export_table]{insight::export_table()}}. Only works when \code{export} is \code{TRUE}.}
 }
+\value{
+A table
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 }

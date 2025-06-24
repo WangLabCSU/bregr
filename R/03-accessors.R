@@ -7,6 +7,17 @@
 #' to the `br_set_*()` functions. Some functions include additional arguments for extended
 #' functionality.
 #'
+#' @returns
+#' Output depends on the function called:
+#' - `br_get_data()` returns a `data.frame`.
+#' - `br_get_y()`, `br_get_x()`, `br_get_x2()` return modeling terms.
+#' - `br_get_n_x()` and `br_get_n_x2()` return the length of terms `x` and `x2`.
+#' - `br_get_group_by()` returns variable(s) for group analysis.
+#' - `br_get_config()` returns modeling method and extra arguments.
+#' - `br_get_models()` returns all constructed models.
+#' - `br_get_model()` returns a subset of constructed models.
+#' - `br_get_results()` returns modeling result `data.frame`.
+#'
 #' @name accessors
 #' @seealso [pipeline] for building `breg` objects.
 #' @examples

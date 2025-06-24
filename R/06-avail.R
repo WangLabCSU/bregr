@@ -6,6 +6,7 @@
 #' Package resource, definitions ready for use.
 #'
 #' @name avails
+#' @returns A character vector representing the available methods or options.
 #' @seealso [pipeline] for building `breg` objects.
 NULL
 

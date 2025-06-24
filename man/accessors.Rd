@@ -48,6 +48,19 @@ The tidy results are obtained from \code{\link[broom:reexports]{broom::tidy()}} 
 
 \item{...}{Subset operations passing to \code{\link[dplyr:filter]{dplyr::filter()}} to filter results.}
 }
+\value{
+Output depends on the function called:
+\itemize{
+\item \code{br_get_data()} returns a \code{data.frame}.
+\item \code{br_get_y()}, \code{br_get_x()}, \code{br_get_x2()} return modeling terms.
+\item \code{br_get_n_x()} and \code{br_get_n_x2()} return the length of terms \code{x} and \code{x2}.
+\item \code{br_get_group_by()} returns variable(s) for group analysis.
+\item \code{br_get_config()} returns modeling method and extra arguments.
+\item \code{br_get_models()} returns all constructed models.
+\item \code{br_get_model()} returns a subset of constructed models.
+\item \code{br_get_results()} returns modeling result \code{data.frame}.
+}
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 

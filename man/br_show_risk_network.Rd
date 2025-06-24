@@ -11,6 +11,9 @@ br_show_risk_network(breg, ...)
 
 \item{...}{Arguments passing to \code{\link[=br_get_results]{br_get_results()}} for subsetting data table.}
 }
+\value{
+A plot
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 }

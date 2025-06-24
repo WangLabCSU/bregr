@@ -20,6 +20,9 @@ strings are interpreted with \code{gt::md}.
 Must be same length as \code{tbls} argument. Default is \code{NULL}, and places
 a default spanning header. If \code{FALSE}, no header will be placed.}
 }
+\value{
+A table
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 

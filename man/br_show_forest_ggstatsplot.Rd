@@ -15,6 +15,9 @@ to visualized here, so only length-1 vector is supported as \code{idx}.}
 
 \item{...}{Arguments passing to \code{\link[ggstatsplot:ggcoefstats]{ggstatsplot::ggcoefstats()}} excepts \code{x}.}
 }
+\value{
+A plot
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 

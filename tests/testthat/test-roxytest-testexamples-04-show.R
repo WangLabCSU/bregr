@@ -2,7 +2,7 @@
 
 # File R/"04-show.R": @testexamples
 
-test_that("Function br_show_forest() @ L47", {
+test_that("Function br_show_forest() @ L48", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
@@ -17,7 +17,7 @@ test_that("Function br_show_forest() @ L47", {
 })
 
 
-test_that("Function br_show_forest_ggstats() @ L282", {
+test_that("Function br_show_forest_ggstats() @ L284", {
   
   if (rlang::is_installed("ggstats")) {
     m <- br_pipeline(mtcars,
@@ -33,7 +33,7 @@ test_that("Function br_show_forest_ggstats() @ L282", {
 })
 
 
-test_that("Function br_show_forest_ggstatsplot() @ L330", {
+test_that("Function br_show_forest_ggstatsplot() @ L333", {
   
   if (rlang::is_installed("ggstats")) {
     m <- br_pipeline(mtcars,
@@ -49,7 +49,7 @@ test_that("Function br_show_forest_ggstatsplot() @ L330", {
 })
 
 
-test_that("Function br_show_fitted_line() @ L369", {
+test_that("Function br_show_fitted_line() @ L373", {
   
   if (rlang::is_installed("visreg")) {
     m <- br_pipeline(mtcars,
@@ -69,7 +69,7 @@ test_that("Function br_show_fitted_line() @ L369", {
 })
 
 
-test_that("Function br_show_fitted_line_2d() @ L407", {
+test_that("Function br_show_fitted_line_2d() @ L412", {
   
   if (rlang::is_installed("visreg")) {
     m <- br_pipeline(mtcars,
@@ -86,7 +86,7 @@ test_that("Function br_show_fitted_line_2d() @ L407", {
 })
 
 
-test_that("Function br_show_table() @ L446", {
+test_that("Function br_show_table() @ L452", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
@@ -104,7 +104,7 @@ test_that("Function br_show_table() @ L446", {
 })
 
 
-test_that("Function br_show_table_gt() @ L482", {
+test_that("Function br_show_table_gt() @ L489", {
   
   if (rlang::is_installed("gtsummary")) {
     m <- br_pipeline(mtcars,

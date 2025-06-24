@@ -13,6 +13,9 @@ br_show_forest_ggstats(breg, idx = NULL, ...)
 
 \item{...}{Arguments passing to \code{\link[ggstats:ggcoef_model]{ggstats::ggcoef_table()}} or \code{\link[ggstats:ggcoef_model]{ggstats::ggcoef_compare()}} excepts \code{model}.}
 }
+\value{
+A plot
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 

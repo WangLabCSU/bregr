@@ -35,6 +35,9 @@ breg(
 
 \item{results_tidy}{A \code{data.frame} of tidy model results from \code{\link[broom:reexports]{broom::tidy()}}.}
 }
+\value{
+A constructed \code{breg} object.
+}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 

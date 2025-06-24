@@ -5,6 +5,7 @@
 #' @inheritParams br_show_forest
 #' @param ... Arguments passing to [br_get_results()] for subsetting data table.
 #' @export
+#' @returns A plot
 #' @family br_show
 #' @family risk_network
 #' @examples
@@ -113,7 +114,7 @@ br_show_risk_network <- function(breg, ...) {
 #' expand_limits geom_point geom_segment ggplot ggproto labs theme
 #' zeroGrob element_text
 #'
-#' @return A `ggplot` object.
+#' @returns A `ggplot` object.
 #' @export
 #'
 #' @examples
@@ -212,7 +213,7 @@ polar_init <- function(data, x, ...) {
 #' @param ... Arguments passing to [ggplot2::geom_segment()],
 #' expect `c(x, xend, y, yend)` these 4 mapping parameters.
 #'
-#' @return A `ggplot` object.
+#' @returns A `ggplot` object.
 #' @export
 #' @family risk_network
 polar_connect <- function(data, x1, x2, ...) {
