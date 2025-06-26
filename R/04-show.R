@@ -514,8 +514,7 @@ br_show_table_gt <- function(
           paste0("**", names(mds), "**")
         } else {
           tab_spanner
-        },
-        merge_vars = NULL
+        }
       )
   }
   t

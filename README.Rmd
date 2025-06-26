@@ -53,11 +53,17 @@ You can install the stable version of bregr from CRAN with:
 install.packages("bregr")
 ```
 
-You can install the development version of bregr from [GitHub](https://github.com/) with:
+Alternatively, install the development version from [r-universe](https://wanglabcsu.r-universe.dev/bregr) with:
 
 ``` r
-# install.packages("pak")
-pak::pak("WangLabCSU/bregr")
+install.packages('bregr', repos = c('https://wanglabcsu.r-universe.dev', 'https://cloud.r-project.org'))
+```
+
+or from [GitHub](https://github.com/) with:
+
+``` r
+#install.packages("remotes")
+remotes::install_github("WangLabCSU/bregr")
 ```
 
 ## Usage

@@ -53,12 +53,18 @@ You can install the stable version of bregr from CRAN with:
 install.packages("bregr")
 ```
 
-You can install the development version of bregr from
-[GitHub](https://github.com/) with:
+Alternatively, install the development version from
+[r-universe](https://wanglabcsu.r-universe.dev/bregr) with:
 
 ``` r
-# install.packages("pak")
-pak::pak("WangLabCSU/bregr")
+install.packages('bregr', repos = c('https://wanglabcsu.r-universe.dev', 'https://cloud.r-project.org'))
+```
+
+or from [GitHub](https://github.com/) with:
+
+``` r
+#install.packages("remotes")
+remotes::install_github("WangLabCSU/bregr")
 ```
 
 ## Usage
@@ -81,8 +87,8 @@ library(bregr)
 Load data:
 
 ``` r
-lung = survival::lung
-lung$ph.ecog = factor(lung$ph.ecog)
+lung <- survival::lung
+lung$ph.ecog <- factor(lung$ph.ecog)
 ```
 
 bregr is designed and implemented following [Tidy design
@@ -95,25 +101,25 @@ user-friendly.
 Define and construct batch models:
 
 ``` r
-mds <- breg(lung) |>                          # Init breg object
-  br_set_y(c("time", "status")) |>            # Survival outcomes  
-  br_set_x(colnames(lung)[6:10]) |>           # Focal predictors  
-  br_set_x2(c("age", "sex")) |>               # Controls  
-  br_set_model("coxph") |>                    # Cox Proportional Hazards  
-  br_run()                                    # Execute models  
+mds <- breg(lung) |> # Init breg object
+  br_set_y(c("time", "status")) |> # Survival outcomes
+  br_set_x(colnames(lung)[6:10]) |> # Focal predictors
+  br_set_x2(c("age", "sex")) |> # Controls
+  br_set_model("coxph") |> # Cox Proportional Hazards
+  br_run() # Execute models
 #> set `exponentiate=TRUE` for model(s) constructed from coxph method at default
 ```
 
 ### One-Step Pipeline
 
 ``` r
-mds <- br_pipeline(  
-  lung,  
-  y = c("time", "status"),  
-  x = colnames(lung)[6:10],  
-  x2 = c("age", "sex"),  
-  method = "coxph"  
-)  
+mds <- br_pipeline(
+  lung,
+  y = c("time", "status"),
+  x = colnames(lung)[6:10],
+  x2 = c("age", "sex"),
+  method = "coxph"
+)
 ```
 
 ### Output Inspection
@@ -122,7 +128,7 @@ Use `br_get_*()` function family to access attributes and data of result
 `breg` object.
 
 ``` r
-br_get_models(mds)       # Raw model objects  
+br_get_models(mds) # Raw model objects
 #> $ph.ecog
 #> Call:
 #> survival::coxph(formula = survival::Surv(time, status) ~ ph.ecog + 
@@ -194,7 +200,7 @@ br_get_models(mds)       # Raw model objects
 #> Likelihood ratio test=14.67  on 3 df, p=0.002122
 #> n= 214, number of events= 152 
 #>    (14 observations deleted due to missingness)
-br_get_results(mds)       # Comprehensive estimates  
+br_get_results(mds) # Comprehensive estimates
 #> # A tibble: 18 × 21
 #>    Focal_variable term      variable  var_label var_class var_type   var_nlevels
 #>    <chr>          <chr>     <chr>     <chr>     <chr>     <chr>            <int>
@@ -220,7 +226,7 @@ br_get_results(mds)       # Comprehensive estimates
 #> #   reference_row <lgl>, label <chr>, n_obs <dbl>, n_ind <dbl>, n_event <dbl>,
 #> #   exposure <dbl>, estimate <dbl>, std.error <dbl>, statistic <dbl>,
 #> #   p.value <dbl>, conf.low <dbl>, conf.high <dbl>
-br_get_results(mds, tidy = TRUE)  # Tidy-formatted coefficients  
+br_get_results(mds, tidy = TRUE) # Tidy-formatted coefficients
 #> # A tibble: 17 × 8
 #>    Focal_variable term   estimate std.error statistic p.value conf.low conf.high
 #>    <chr>          <chr>     <dbl>     <dbl>     <dbl>   <dbl>    <dbl>     <dbl>
@@ -260,12 +266,12 @@ We can tune the plot to only keep focal variables and adjust the limits
 of x axis.
 
 ``` r
-br_show_forest(  
-  mds,  
-  rm_controls = TRUE,    # Focus on focal predictors  
-  xlim = c(0, 10),       # Custom axis scaling  
-  drop = 1               # Remove redundant columns  
-)  
+br_show_forest(
+  mds,
+  rm_controls = TRUE, # Focus on focal predictors
+  xlim = c(0, 10), # Custom axis scaling
+  drop = 1 # Remove redundant columns
+)
 ```
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
@@ -279,7 +285,7 @@ For Cox-PH modeling results (focal variables must be continuous type),
 we provide a risk network plotting function.
 
 ``` r
-mds2 = br_pipeline(
+mds2 <- br_pipeline(
   survival::lung,
   y = c("time", "status"),
   x = colnames(survival::lung)[6:10],
@@ -364,13 +370,13 @@ site](https://wanglabcsu.github.io/bregr/).
 
 ``` r
 covr::package_coverage()
-#> bregr Coverage: 82.20%
+#> bregr Coverage: 81.94%
 #> R/98-utils.R: 41.03%
-#> R/04-show.R: 80.39%
+#> R/04-show.R: 79.74%
 #> R/03-accessors.R: 82.86%
 #> R/02-pipeline.R: 90.53%
 #> R/99-zzz.R: 90.91%
-#> R/05-polar.R: 96.61%
+#> R/05-polar.R: 96.64%
 #> R/01-class.R: 100.00%
 #> R/06-avail.R: 100.00%
 ```
