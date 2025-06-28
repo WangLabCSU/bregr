@@ -24,7 +24,7 @@ and reduce repeat values in column "Group", "Focal", and "Variable".}
 
 \item{rm_controls}{If \code{TRUE}, remove control terms.}
 
-\item{...}{Additional arguments passed to \code{forestploter::forest()}, run \code{vignette("forestploter-post", "forestploter")}
+\item{...}{Additional arguments passed to \code{\link[forestploter:forest]{forestploter::forest()}}, run \code{vignette("forestploter-post", "forestploter")}
 to see more plot options.}
 
 \item{subset}{Expression for subsetting the results data (\code{br_get_results(breg)}).}
@@ -45,7 +45,7 @@ This function takes regression results and formats them into a forest plot displ
 \item Automatic x-axis limits calculation
 \item Cleaning of redundant group/focal variable labels
 \item Custom subsetting and column dropping
-The function uses \code{forestploter::forest()} internally for the actual plotting.
+The function uses \code{\link[forestploter:forest]{forestploter::forest()}} internally for the actual plotting.
 }
 }
 \examples{

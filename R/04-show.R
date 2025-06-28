@@ -16,7 +16,7 @@
 #' - Automatic x-axis limits calculation
 #' - Cleaning of redundant group/focal variable labels
 #' - Custom subsetting and column dropping
-#' The function uses `forestploter::forest()` internally for the actual plotting.
+#' The function uses [forestploter::forest()] internally for the actual plotting.
 #'
 #' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
 #' @param clean Logical indicating whether to clean/condense redundant group/focal variable labels.
@@ -24,7 +24,7 @@
 #' are same (before performing `subset` and `drop`),
 #' and reduce repeat values in column "Group", "Focal", and "Variable".
 #' @param rm_controls If `TRUE`, remove control terms.
-#' @param ... Additional arguments passed to `forestploter::forest()`, run `vignette("forestploter-post", "forestploter")`
+#' @param ... Additional arguments passed to [forestploter::forest()], run `vignette("forestploter-post", "forestploter")`
 #' to see more plot options.
 #' @param subset Expression for subsetting the results data (`br_get_results(breg)`).
 #' @param drop Column indices to drop from the display table.
