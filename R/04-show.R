@@ -222,16 +222,16 @@ br_show_forest <- function(
       "n_obs" = "N"
     ))
 
-  assert_number_whole(
-    drop,
-    min = 1,
-    max = as.numeric(ncol(dt)),
-    allow_null = TRUE
-  )
   if (!is.null(drop)) {
     for (i in drop) {
-      dt[[i]] <- NULL
+      assert_number_whole(
+        i,
+        min = 1,
+        max = as.numeric(ncol(dt)),
+        allow_null = TRUE
+      )
     }
+    dt[, drop] <- NULL
   }
 
   idx_end <- which(colnames(dt) == "P")
