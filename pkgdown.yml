@@ -3,7 +3,7 @@ pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   bregr-group-by: bregr-group-by.html
-last_built: 2025-06-28T01:57Z
+last_built: 2025-06-28T02:36Z
 urls:
   reference: https://wanglabcsu.github.io/bregr/reference
   article: https://wanglabcsu.github.io/bregr/articles
