@@ -5,14 +5,14 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Easy and Efficient Batch Processing of Regression Models • bregr</title>
+<title>Easy and Efficient Batch Processing of Regression Models in R • bregr</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Easy and Efficient Batch Processing of Regression Models">
-<meta name="description" content="Easily process batches of univariate or multivariate regression models. Returns results in a tidy format and generates visualization plots for straightforward interpretation (Wang, Shixiang, et al. (2021) &lt;DOI:10.48550/arXiv.2110.14232&gt;).">
-<meta property="og:description" content="Easily process batches of univariate or multivariate regression models. Returns results in a tidy format and generates visualization plots for straightforward interpretation (Wang, Shixiang, et al. (2021) &lt;DOI:10.48550/arXiv.2110.14232&gt;).">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Easy and Efficient Batch Processing of Regression Models in R">
+<meta name="description" content="Easily process batches of univariate or multivariate regression models. Returns results in a tidy format and generates visualization plots for straightforward interpretation.">
+<meta property="og:description" content="Easily process batches of univariate or multivariate regression models. Returns results in a tidy format and generates visualization plots for straightforward interpretation.">
 <meta property="og:image" content="https://wanglabcsu.github.io/bregr/logo.png">
 </head>
 <body>
@@ -92,19 +92,16 @@
 <p>You can install the stable version of bregr from CRAN with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"bregr"</span><span class="op">)</span></span></code></pre></div>
-<p>Alternatively, install the development version from <a href="https://wanglabcsu.r-universe.dev/bregr" class="external-link">r-universe</a> with:</p>
+<p>You can install the development version of bregr from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'bregr'</span>, repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'https://wanglabcsu.r-universe.dev'</span>, <span class="st">'https://cloud.r-project.org'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>or from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"WangLabCSU/bregr"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"WangLabCSU/bregr"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
 <p>Load package(s):</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/WangLabCSU/bregr" class="external-link">bregr</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Welcome to 'bregr' package!</span></span>
 <span><span class="co">#&gt; =======================================================================</span></span>
@@ -116,41 +113,41 @@
 <span><span class="co">#&gt; =======================================================================</span></span>
 <span><span class="co">#&gt; </span></span></code></pre></div>
 <p>Load data:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lung</span> <span class="op">&lt;-</span> <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/lung.html" class="external-link">lung</a></span></span>
-<span><span class="va">lung</span><span class="op">$</span><span class="va">ph.ecog</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">lung</span><span class="op">$</span><span class="va">ph.ecog</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">lung</span> <span class="op">=</span> <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/lung.html" class="external-link">lung</a></span></span>
+<span><span class="va">lung</span><span class="op">$</span><span class="va">ph.ecog</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">lung</span><span class="op">$</span><span class="va">ph.ecog</span><span class="op">)</span></span></code></pre></div>
 <p>bregr is designed and implemented following <a href="https://design.tidyverse.org/" class="external-link">Tidy design principles</a> and <a href="https://style.tidyverse.org/" class="external-link">Tidyverse style guide</a>, making it intuitive and user-friendly.</p>
 <div class="section level3">
 <h3 id="core-workflow">Core workflow<a class="anchor" aria-label="anchor" href="#core-workflow"></a>
 </h3>
 <p>Define and construct batch models:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mds</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/breg.html">breg</a></span><span class="op">(</span><span class="va">lung</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># Init breg object</span></span>
-<span>  <span class="fu"><a href="reference/pipeline.html">br_set_y</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"status"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># Survival outcomes</span></span>
-<span>  <span class="fu"><a href="reference/pipeline.html">br_set_x</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">lung</span><span class="op">)</span><span class="op">[</span><span class="fl">6</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># Focal predictors</span></span>
-<span>  <span class="fu"><a href="reference/pipeline.html">br_set_x2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># Controls</span></span>
-<span>  <span class="fu"><a href="reference/pipeline.html">br_set_model</a></span><span class="op">(</span><span class="st">"coxph"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># Cox Proportional Hazards</span></span>
-<span>  <span class="fu"><a href="reference/pipeline.html">br_run</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Execute models</span></span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mds</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/breg.html">breg</a></span><span class="op">(</span><span class="va">lung</span><span class="op">)</span> <span class="op">|&gt;</span>                          <span class="co"># Init breg object</span></span>
+<span>  <span class="fu"><a href="reference/pipeline.html">br_set_y</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"status"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span>            <span class="co"># Survival outcomes  </span></span>
+<span>  <span class="fu"><a href="reference/pipeline.html">br_set_x</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">lung</span><span class="op">)</span><span class="op">[</span><span class="fl">6</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span>           <span class="co"># Focal predictors  </span></span>
+<span>  <span class="fu"><a href="reference/pipeline.html">br_set_x2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span>               <span class="co"># Controls  </span></span>
+<span>  <span class="fu"><a href="reference/pipeline.html">br_set_model</a></span><span class="op">(</span><span class="st">"coxph"</span><span class="op">)</span> <span class="op">|&gt;</span>                    <span class="co"># Cox Proportional Hazards  </span></span>
+<span>  <span class="fu"><a href="reference/pipeline.html">br_run</a></span><span class="op">(</span><span class="op">)</span>                                    <span class="co"># Execute models  </span></span>
 <span><span class="co">#&gt; set `exponentiate=TRUE` for model(s) constructed from coxph method at default</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="one-step-pipeline">One-Step Pipeline<a class="anchor" aria-label="anchor" href="#one-step-pipeline"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mds</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
-<span>  <span class="va">lung</span>,</span>
-<span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"status"</span><span class="op">)</span>,</span>
-<span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">lung</span><span class="op">)</span><span class="op">[</span><span class="fl">6</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>,</span>
-<span>  x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span>,</span>
-<span>  method <span class="op">=</span> <span class="st">"coxph"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mds</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pipeline.html">br_pipeline</a></span><span class="op">(</span>  </span>
+<span>  <span class="va">lung</span>,  </span>
+<span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"status"</span><span class="op">)</span>,  </span>
+<span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">lung</span><span class="op">)</span><span class="op">[</span><span class="fl">6</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>,  </span>
+<span>  x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span>,  </span>
+<span>  method <span class="op">=</span> <span class="st">"coxph"</span>  </span>
+<span><span class="op">)</span>  </span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="output-inspection">Output Inspection<a class="anchor" aria-label="anchor" href="#output-inspection"></a>
 </h3>
 <p>Use <code>br_get_*()</code> function family to access attributes and data of result <code>breg</code> object.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/accessors.html">br_get_models</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span> <span class="co"># Raw model objects</span></span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/accessors.html">br_get_models</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span>       <span class="co"># Raw model objects  </span></span>
 <span><span class="co">#&gt; $ph.ecog</span></span>
 <span><span class="co">#&gt; Call:</span></span>
 <span><span class="co">#&gt; survival::coxph(formula = survival::Surv(time, status) ~ ph.ecog + </span></span>
@@ -222,7 +219,7 @@
 <span><span class="co">#&gt; Likelihood ratio test=14.67  on 3 df, p=0.002122</span></span>
 <span><span class="co">#&gt; n= 214, number of events= 152 </span></span>
 <span><span class="co">#&gt;    (14 observations deleted due to missingness)</span></span>
-<span><span class="fu"><a href="reference/accessors.html">br_get_results</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span> <span class="co"># Comprehensive estimates</span></span>
+<span><span class="fu"><a href="reference/accessors.html">br_get_results</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span>       <span class="co"># Comprehensive estimates  </span></span>
 <span><span class="co">#&gt; # A tibble: 18 × 21</span></span>
 <span><span class="co">#&gt;    Focal_variable term      variable  var_label var_class var_type   var_nlevels</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;            &lt;int&gt;</span></span>
@@ -248,7 +245,7 @@
 <span><span class="co">#&gt; #   reference_row &lt;lgl&gt;, label &lt;chr&gt;, n_obs &lt;dbl&gt;, n_ind &lt;dbl&gt;, n_event &lt;dbl&gt;,</span></span>
 <span><span class="co">#&gt; #   exposure &lt;dbl&gt;, estimate &lt;dbl&gt;, std.error &lt;dbl&gt;, statistic &lt;dbl&gt;,</span></span>
 <span><span class="co">#&gt; #   p.value &lt;dbl&gt;, conf.low &lt;dbl&gt;, conf.high &lt;dbl&gt;</span></span>
-<span><span class="fu"><a href="reference/accessors.html">br_get_results</a></span><span class="op">(</span><span class="va">mds</span>, tidy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># Tidy-formatted coefficients</span></span>
+<span><span class="fu"><a href="reference/accessors.html">br_get_results</a></span><span class="op">(</span><span class="va">mds</span>, tidy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>  <span class="co"># Tidy-formatted coefficients  </span></span>
 <span><span class="co">#&gt; # A tibble: 17 × 8</span></span>
 <span><span class="co">#&gt;    Focal_variable term   estimate std.error statistic p.value conf.low conf.high</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;</span></span>
@@ -277,22 +274,22 @@
 <h4 id="forest-plot-key-results">Forest Plot (Key Results)<a class="anchor" aria-label="anchor" href="#forest-plot-key-results"></a>
 </h4>
 <p>bregr mainly provides <code><a href="reference/br_show_forest.html">br_show_forest()</a></code> for plotting data table of modeling results.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_forest.html">br_show_forest</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="100%"></p>
 <p>We can tune the plot to only keep focal variables and adjust the limits of x axis.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_forest.html">br_show_forest</a></span><span class="op">(</span></span>
-<span>  <span class="va">mds</span>,</span>
-<span>  rm_controls <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co"># Focus on focal predictors</span></span>
-<span>  xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span><span class="op">)</span>, <span class="co"># Custom axis scaling</span></span>
-<span>  drop <span class="op">=</span> <span class="fl">1</span> <span class="co"># Remove redundant columns</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_forest.html">br_show_forest</a></span><span class="op">(</span>  </span>
+<span>  <span class="va">mds</span>,  </span>
+<span>  rm_controls <span class="op">=</span> <span class="cn">TRUE</span>,    <span class="co"># Focus on focal predictors  </span></span>
+<span>  xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span><span class="op">)</span>,       <span class="co"># Custom axis scaling  </span></span>
+<span>  drop <span class="op">=</span> <span class="fl">1</span>               <span class="co"># Remove redundant columns  </span></span>
+<span><span class="op">)</span>  </span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-6-1.png" width="100%"></p>
 <p>We also provide some interfaces from other packages for plotting constructed model(s), e.g., <code><a href="reference/br_show_forest_ggstats.html">br_show_forest_ggstats()</a></code>, <code><a href="reference/br_show_forest_ggstatsplot.html">br_show_forest_ggstatsplot()</a></code>, <code><a href="reference/br_show_fitted_line.html">br_show_fitted_line()</a></code>, and <code><a href="reference/br_show_fitted_line_2d.html">br_show_fitted_line_2d()</a></code>.</p>
 <p>For Cox-PH modeling results (focal variables must be continuous type), we provide a risk network plotting function.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mds2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mds2</span> <span class="op">=</span> <span class="fu"><a href="reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
 <span>  <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/lung.html" class="external-link">lung</a></span>,</span>
 <span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"status"</span><span class="op">)</span>,</span>
 <span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/lung.html" class="external-link">lung</a></span><span class="op">)</span><span class="op">[</span><span class="fl">6</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>,</span>
@@ -300,7 +297,7 @@
 <span>  method <span class="op">=</span> <span class="st">"coxph"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; set `exponentiate=TRUE` for model(s) constructed from coxph method at default</span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_risk_network.html">br_show_risk_network</a></span><span class="op">(</span><span class="va">mds2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; please note only continuous focal terms analyzed and visualized</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-8-1.png" width="100%"></p>
@@ -310,7 +307,7 @@
 <h3 id="table">Table<a class="anchor" aria-label="anchor" href="#table"></a>
 </h3>
 <p>Show tidy table result as pretty table:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_table.html">br_show_table</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Focal_variable      term estimate std.error statistic p.value      conf.int</span></span>
 <span><span class="co">#&gt; 1         ph.ecog  ph.ecog1     1.51      0.20      2.05  0.040  [1.02,  2.23]</span></span>
@@ -331,7 +328,7 @@
 <span><span class="co">#&gt; 16        wt.loss       age     1.02  9.66e-03      2.08  0.038  [1.00,  1.04]</span></span>
 <span><span class="co">#&gt; 17        wt.loss       sex     0.59      0.17     -2.99  0.003  [0.42,  0.84]</span></span></code></pre></div>
 <p>As markdown table:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_table.html">br_show_table</a></span><span class="op">(</span><span class="va">mds</span>, export <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Focal_variable |      term | estimate | std.error | statistic | p.value |      conf.int</span></span>
 <span><span class="co">#&gt; ---------------------------------------------------------------------------------------</span></span>
@@ -353,7 +350,7 @@
 <span><span class="co">#&gt; wt.loss        |       age |     1.02 |  9.66e-03 |      2.08 |  0.038  | [1.00,  1.04]</span></span>
 <span><span class="co">#&gt; wt.loss        |       sex |     0.59 |      0.17 |     -2.99 |  0.003  | [0.42,  0.84]</span></span></code></pre></div>
 <p>As HTML table:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_table.html">br_show_table</a></span><span class="op">(</span><span class="va">mds</span>, export <span class="op">=</span> <span class="cn">TRUE</span>, args_table_export <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>format <span class="op">=</span> <span class="st">"html"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -365,15 +362,15 @@
 <div class="section level2">
 <h2 id="coverage">Coverage<a class="anchor" aria-label="anchor" href="#coverage"></a>
 </h2>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">covr</span><span class="fu">::</span><span class="fu">package_coverage</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; bregr Coverage: 81.94%</span></span>
+<span><span class="co">#&gt; bregr Coverage: 82.20%</span></span>
 <span><span class="co">#&gt; R/98-utils.R: 41.03%</span></span>
-<span><span class="co">#&gt; R/04-show.R: 79.74%</span></span>
+<span><span class="co">#&gt; R/04-show.R: 80.39%</span></span>
 <span><span class="co">#&gt; R/03-accessors.R: 82.86%</span></span>
 <span><span class="co">#&gt; R/02-pipeline.R: 90.53%</span></span>
 <span><span class="co">#&gt; R/99-zzz.R: 90.91%</span></span>
-<span><span class="co">#&gt; R/05-polar.R: 96.64%</span></span>
+<span><span class="co">#&gt; R/05-polar.R: 96.61%</span></span>
 <span><span class="co">#&gt; R/01-class.R: 100.00%</span></span>
 <span><span class="co">#&gt; R/06-avail.R: 100.00%</span></span></code></pre></div>
 </div>
@@ -393,6 +390,7 @@
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
+<li><a href="https://cloud.r-project.org/package=bregr" class="external-link">View on CRAN</a></li>
 <li><a href="https://github.com/WangLabCSU/bregr/" class="external-link">Browse source code</a></li>
 <li><a href="https://github.com/WangLabCSU/bregr/issues" class="external-link">Report a bug</a></li>
 </ul>
