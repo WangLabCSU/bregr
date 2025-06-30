@@ -13,7 +13,7 @@ functionality."><meta property="og:image" content="https://wanglabcsu.github.io/
 
     <a class="navbar-brand me-2" href="../index.html">bregr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@ functionality."><meta property="og:image" content="https://wanglabcsu.github.io/
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Accessor functions for <code>breg</code> objects</h1>
-      <small class="dont-index">Source: <a href="https://github.com/WangLabCSU/bregr/blob/v1.0.0/R/03-accessors.R" class="external-link"><code>R/03-accessors.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/WangLabCSU/bregr/blob/main/R/03-accessors.R" class="external-link"><code>R/03-accessors.R</code></a></small>
       <div class="d-none name"><code>accessors.Rd</code></div>
     </div>
 
@@ -96,6 +96,17 @@ The tidy results are obtained from <code><a href="https://broom.tidymodels.org/r
 <dd><p>Subset operations passing to <code><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">dplyr::filter()</a></code> to filter results.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>Output depends on the function called:</p><ul><li><p><code>br_get_data()</code> returns a <code>data.frame</code>.</p></li>
+<li><p><code>br_get_y()</code>, <code>br_get_x()</code>, <code>br_get_x2()</code> return modeling terms.</p></li>
+<li><p><code>br_get_n_x()</code> and <code>br_get_n_x2()</code> return the length of terms <code>x</code> and <code>x2</code>.</p></li>
+<li><p><code>br_get_group_by()</code> returns variable(s) for group analysis.</p></li>
+<li><p><code>br_get_config()</code> returns modeling method and extra arguments.</p></li>
+<li><p><code>br_get_models()</code> returns all constructed models.</p></li>
+<li><p><code>br_get_model()</code> returns a subset of constructed models.</p></li>
+<li><p><code>br_get_results()</code> returns modeling result <code>data.frame</code>.</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><a href="pipeline.html">pipeline</a> for building <code>breg</code> objects.</p></div>
