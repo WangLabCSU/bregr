@@ -41,5 +41,6 @@ reference:
     contents:
     - br_avail_methods
     - br_avail_methods_use_exp
+    - br_avail_method_config
     - polar_init
     - polar_connect

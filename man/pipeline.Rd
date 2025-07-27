@@ -43,8 +43,11 @@ For Cox-PH models, it should be a length-2 vector in the format \code{c("time", 
 \item{x}{Character vector specifying focal independent terms (predictors).}
 
 \item{method}{Method for model construction.
+A name or a list specifying custom model setting.
 A string representing a complex method setting is acceptable,
-e.g., 'quasi(variance = "mu", link = "log")'.}
+e.g., 'quasi(variance = "mu", link = "log")'.
+Or a list with 4 elements, see \code{\link[=br_avail_method_config]{br_avail_method_config()}}
+for examples.}
 
 \item{x2}{Character vector specifying control independent terms (predictor, optional).}
 
@@ -142,6 +145,15 @@ m4 <- br_pipeline(mtcars,
   x2 = "vs",
   method = "gaussian"
 )
+
+# 3. Customized model -----------
+dt = data.frame(x = rnorm(100))
+dt$y = rpois(100, exp(1+dt$x))
+m5 <- breg(dt) |>
+  br_set_y("y") |>
+  br_set_x("x") |>
+  br_set_model(method = 'quasi(variance = "mu", link = "log")') |>
+  br_run()
 
 }
 \seealso{

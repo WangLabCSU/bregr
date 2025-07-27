@@ -4,11 +4,18 @@
 \alias{avails}
 \alias{br_avail_methods}
 \alias{br_avail_methods_use_exp}
+\alias{br_avail_method_config}
 \title{Package availability}
 \usage{
 br_avail_methods()
 
 br_avail_methods_use_exp()
+
+br_avail_method_config(method)
+}
+\arguments{
+\item{method}{Method for model construction. See \code{\link[=br_avail_methods]{br_avail_methods()}}
+for available options.}
 }
 \value{
 A character vector representing the available methods or options.
@@ -25,6 +32,9 @@ to \code{\link[=br_set_model]{br_set_model()}}.
 
 \item \code{br_avail_methods_use_exp()}: Returns available modeling methods which
 set \code{exponentiate=TRUE} at default by \strong{bregr}.
+
+\item \code{br_avail_method_config()}: Returns model configs for specified method to
+generate modeling templates.
 
 }}
 \seealso{

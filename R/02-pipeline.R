@@ -28,8 +28,11 @@
 #' @param x Character vector specifying focal independent terms (predictors).
 #' @param x2 Character vector specifying control independent terms (predictor, optional).
 #' @param method Method for model construction.
+#' A name or a list specifying custom model setting.
 #' A string representing a complex method setting is acceptable,
 #' e.g., 'quasi(variance = "mu", link = "log")'.
+#' Or a list with 4 elements, see [br_avail_method_config()]
+#' for examples.
 #' @param group_by A string specifying the group by column.
 #' @param run_parallel Integer, indicating cores to run the task, default is `1`.
 #' @param ... Additional arguments depending on the called function.
@@ -82,11 +85,21 @@
 #'   method = "gaussian"
 #' )
 #'
+#' # 3. Customized model -----------
+#' dt = data.frame(x = rnorm(100))
+#' dt$y = rpois(100, exp(1+dt$x))
+#' m5 <- breg(dt) |>
+#'   br_set_y("y") |>
+#'   br_set_x("x") |>
+#'   br_set_model(method = 'quasi(variance = "mu", link = "log")') |>
+#'   br_run()
+#'
 #' @testexamples
 #' assert_breg_obj(m)
 #' assert_breg_obj(m2)
 #' assert_breg_obj(m3)
 #' assert_breg_obj(m4)
+#' assert_breg_obj(m5)
 #' @seealso [accessors] for accessing `breg` object properties.
 NULL
 
@@ -186,12 +199,21 @@ br_set_x2 <- function(obj, ...) {
 #' @export
 br_set_model <- function(obj, method, ...) {
   assert_breg_obj(obj)
-  assert_string(method, allow_empty = FALSE)
+  if (!rlang::is_list(method)) {
+    assert_string(method, allow_empty = FALSE)
 
-  # TODO: method is a string represent a call
-  # e.g., 'quasi(variance = "mu", link = "log")'
-  if (!grepl("\\(", method)) {
-    rlang::arg_match0(method, br_avail_methods())
+    # e.g., 'quasi(variance = "mu", link = "log")'
+    if (!grepl("\\(", method)) {
+      rlang::arg_match0(method, br_avail_methods())
+    }
+
+    # mapped to predefined model setting
+    method2 <- br_avail_method_config(method)
+  } else {
+    if (!rlang::is_list(method, n = 4)) {
+      cli::cli_abort("{.arg method} should be a list with 4 elements: {.field f_call}, {.field f_cnst_y}, {.field args_method}, and {.field args_data}, check {.fn br_avail_method_config} for examples")
+    }
+    method2 <- method
   }
 
   config <- rlang::list2(...)
@@ -202,40 +224,25 @@ br_set_model <- function(obj, method, ...) {
     )
   )
 
-  if (method == "coxph") {
-    assert_character_len(
-      obj@y,
-      len = 2,
-      msg = "two dependent variables corresponding to {.val time} and {.val status} are required for Cox proportional hazards model"
-    )
-
-    models <- list()
-    for (i in seq_len(obj@n_x)) {
-      recipe <- glue::glue("survival::Surv({paste(obj@y, collapse = ', ')}) ~ {paste(vctrs::vec_c(obj@x[i], obj@x2), collapse = ' + ')}")
-      if (identical(config, list())) {
-        models[[i]] <- glue::glue("survival::coxph({recipe}, data = data)")
-      } else {
-        models[[i]] <- glue::glue("survival::coxph({recipe}, data = data, {config_text})")
-      }
-    }
-  } else {
-    assert_character_len(
-      obj@y,
-      len = 1,
-      msg = "only one dependent variable is allowed for non-Cox proportional hazards models"
-    )
-
-    models <- list()
-    for (i in seq_len(obj@n_x)) {
-      recipe <- glue::glue("{paste(obj@y, collapse = ', ')} ~ {paste(vctrs::vec_c(obj@x[i], obj@x2), collapse = ' + ')}")
-
-      if (identical(config, list())) {
-        models[[i]] <- glue::glue("stats::glm({recipe}, data = data, family = {method})")
-      } else {
-        models[[i]] <- glue::glue("stats::glm({recipe}, data = data, family = {method}, {config_text})")
-      }
-    }
+  if (rlang::is_function(method2$f_call)) {
+    method2$f_call <- rlang::call_match()$method |>
+      deparse(width.cutoff = 500) |>
+      str_replace(".*f_call\\s*=\\s*([^,]+).*", "\\1")
+    method$f_call <- method2$f_call
   }
+
+  models <- gen_template(
+    obj@y, obj@x, obj@x2,
+    method2$f_call,
+    method2$f_cnst_y,
+    method2$args_method,
+    paste0(
+      method2$args_data,
+      ", ",
+      config_text
+    )
+  ) |>
+    as.list()
 
   names(models) <- obj@x
   obj@config <- list(method = method, extra = config_text)
@@ -278,7 +285,7 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   # For logistic, and Cox-PH regressions models, `exponentiate` is typically set to `TRUE`.
   exponentiate <- FALSE
   if (!"exponentiate" %in% names(dots)) {
-    if (config$method %in% br_avail_methods_use_exp()) {
+    if (rlang::is_string(config$method) && config$method %in% br_avail_methods_use_exp()) {
       dots[["exponentiate"]] <- TRUE
       cli_inform("set {.code exponentiate=TRUE} for model(s) constructed from {.field {config$method}} method at default")
     } else {
