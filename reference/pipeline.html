@@ -95,8 +95,11 @@ For Cox-PH models, it should be a length-2 vector in the format <code>c("time", 
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>Method for model construction.
+A name or a list specifying custom model setting.
 A string representing a complex method setting is acceptable,
-e.g., 'quasi(variance = "mu", link = "log")'.</p></dd>
+e.g., 'quasi(variance = "mu", link = "log")'.
+Or a list with 4 elements, see <code><a href="avails.html">br_avail_method_config()</a></code>
+for examples.</p></dd>
 
 
 <dt id="arg-x-">x2<a class="anchor" aria-label="anchor" href="#arg-x-"></a></dt>
@@ -226,6 +229,16 @@ Which could be splitted into the following steps</p></li>
 <span class="r-in"><span>  x2 <span class="op">=</span> <span class="st">"vs"</span>,</span></span>
 <span class="r-in"><span>  method <span class="op">=</span> <span class="st">"gaussian"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 3. Customized model -----------</span></span></span>
+<span class="r-in"><span><span class="va">dt</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dt</span><span class="op">$</span><span class="va">y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="va">dt</span><span class="op">$</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">m5</span> <span class="op">&lt;-</span> <span class="fu"><a href="breg.html">breg</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">br_set_y</span><span class="op">(</span><span class="st">"y"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">br_set_x</span><span class="op">(</span><span class="st">"x"</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">br_set_model</span><span class="op">(</span>method <span class="op">=</span> <span class="st">'quasi(variance = "mu", link = "log")'</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">br_run</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>nonstandard `method` passed to `stats::glm()`, double-check if it's correct</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
