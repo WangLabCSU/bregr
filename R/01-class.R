@@ -112,3 +112,46 @@ method(print, breg) <- function(x, ..., raw = FALSE) {
 
   invisible(x)
 }
+
+# gen_template(y = c("time", "status"),
+#              x = colnames(survival::lung)[6:10],
+#              x2 = c("age", "sex"),
+#              f_call = "survival::coxph",
+#              f_cnst_y = function(y) {
+#                glue::glue("survival::Surv({paste(y, collapse = ', ')})")
+#              }, config = "weights = c(1, 2, 3)")
+
+
+gen_template = function(y, x, x2,
+                        f_call, f_cnst_y = NULL,
+                        config = NULL) {
+
+
+  expr_y = "{y}"
+  recipe = "{y} ~ {x}"
+  model = "{f}({recipe}, data = data)"
+  model2 = "{f}({recipe}, data = data, {config})"
+
+  if (is.null(f_cnst_y)) {
+    y = glue::glue(expr_y, y = y)
+  } else {
+    y = glue::glue(expr_y, y = f_cnst_y(y))
+  }
+
+  f_cnst_x = function(x1, x2) {
+    paste(vctrs::vec_c(x1, x2), collapse = ' + ')
+  }
+
+  recp = sapply(x, function(x1, x2) {
+    glue::glue(recipe, y = y, x = f_cnst_x(x1, x2))
+  }, x2 = x2)
+
+
+  if (is.null(config)) {
+    rv = glue::glue(model, f = f_call, recipe = recp)
+  } else {
+    rv = glue::glue(model2, f = f_call, recipe = recp, config = config)
+  }
+
+  rv
+}
