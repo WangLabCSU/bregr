@@ -9,6 +9,8 @@
 status](https://www.r-pkg.org/badges/version/bregr)](https://CRAN.R-project.org/package=bregr)
 [![](https://cranlogs.r-pkg.org/badges/grand-total/bregr?color=blue)](https://cran.r-project.org/package=bregr)
 [![R-CMD-check](https://github.com/WangLabCSU/bregr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/WangLabCSU/bregr/actions/workflows/R-CMD-check.yaml)
+[![Ask
+DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/WangLabCSU/bregr)
 <!-- badges: end -->
 
 The **bregr** package revolutionizes batch regression modeling in R,
@@ -75,7 +77,7 @@ Load package(s):
 library(bregr)
 #> Welcome to 'bregr' package!
 #> =======================================================================
-#> You are using bregr version 1.0.0
+#> You are using bregr version 1.0.0.9000
 #> 
 #> Project home : https://github.com/WangLabCSU/bregr
 #> Documentation: https://wanglabcsu.github.io/bregr/
@@ -370,14 +372,14 @@ site](https://wanglabcsu.github.io/bregr/).
 
 ``` r
 covr::package_coverage()
-#> bregr Coverage: 81.94%
+#> bregr Coverage: 79.88%
 #> R/98-utils.R: 41.03%
+#> R/01-class.R: 43.33%
 #> R/04-show.R: 79.74%
 #> R/03-accessors.R: 82.86%
 #> R/02-pipeline.R: 90.53%
 #> R/99-zzz.R: 90.91%
 #> R/05-polar.R: 96.64%
-#> R/01-class.R: 100.00%
 #> R/06-avail.R: 100.00%
 ```
 

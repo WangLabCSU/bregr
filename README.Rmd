@@ -19,6 +19,7 @@ knitr::opts_chunk$set(
 [![CRAN status](https://www.r-pkg.org/badges/version/bregr)](https://CRAN.R-project.org/package=bregr)
 [![](https://cranlogs.r-pkg.org/badges/grand-total/bregr?color=blue)](https://cran.r-project.org/package=bregr)
 [![R-CMD-check](https://github.com/WangLabCSU/bregr/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/WangLabCSU/bregr/actions/workflows/R-CMD-check.yaml)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/WangLabCSU/bregr)
 <!-- badges: end -->
 
 The **bregr** package revolutionizes batch regression modeling in R, enabling you to run **hundreds of models simultaneously** with a clean, intuitive workflow. Designed for both univariate and multivariate analyses, it delivers **tidy-formatted results** and publication-ready visualizations, transforming cumbersome statistical workflows into efficient pipelines.
