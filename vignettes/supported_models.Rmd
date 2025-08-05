@@ -1,5 +1,10 @@
 ---
 title: "Supported Models"
+author: 
+  - name: Shixiang Wang
+    affiliation: Central South University
+    email: wangshx@csu.edu.cn
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Supported Models}
@@ -37,7 +42,7 @@ br_avail_methods()
 For illustrative purposes, we will utilize the pipeline function instead
 of a piped workflow to maintain simplicity.
 
-### Linear models
+### Linear Models
 
 ```{r}
 rv = br_pipeline(
@@ -90,7 +95,7 @@ br_pipeline(
   dplyr::filter(Focal_variable == term)
 ```
 
-### Cox-PH model
+### Cox-PH Models
 
 ```{r}
 br_pipeline(
@@ -155,7 +160,7 @@ For example, to configure a linear mixed model:
 ```{r}
 if (requireNamespace("lme4")) {
   md_config = list(
-    f_call = "lme4::lmer",   # function to generate model
+    f_call = "lme4::lmer",
     f_cnst_y = NULL,
     args_method = NULL,
     args_data = "data = data"

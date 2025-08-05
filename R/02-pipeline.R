@@ -214,6 +214,10 @@ br_set_model <- function(obj, method, ...) {
       cli::cli_abort("{.arg method} should be a list with 4 elements: {.field f_call}, {.field f_cnst_y}, {.field args_method}, and {.field args_data}, check {.fn br_avail_method_config} for examples")
     }
     assert_string(method$f_call, allow_empty = FALSE)
+    if (grepl("::", method$f_call)) {
+      pkg <- str_remove(method$f_call, "::.*")
+      rlang::check_installed(pkg)
+    }
     method2 <- method
   }
 
