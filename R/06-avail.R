@@ -49,14 +49,14 @@ br_avail_method_config <- function(method) {
       f_call = glue::glue("stats::{method}"),
       f_cnst_y = NULL,
       args_method = NULL,
-      args_data = "data = data"
+      args_data = glue::glue("data = data")
     )
   } else if (method %in% "clogit") {
     list(
       f_call = "survival::clogit",
       f_cnst_y = NULL,
       args_method = NULL,
-      args_data = "data = data"
+      args_data = glue::glue("data = data")
     )
   } else if (method %in% c("coxph", "survreg", "cch")) {
     list(
@@ -65,7 +65,7 @@ br_avail_method_config <- function(method) {
         glue::glue("survival::Surv({paste(y, collapse = ', ')})")
       },
       args_method = NULL,
-      args_data = "data = data"
+      args_data = glue::glue("data = data")
     )
   } else if (method %in% c(
     "binomial", "gaussian",
@@ -77,7 +77,7 @@ br_avail_method_config <- function(method) {
       f_call = "stats::glm",
       f_cnst_y = NULL,
       args_method = glue::glue("family = stats::{method}"),
-      args_data = "data = data"
+      args_data = glue::glue("data = data")
     )
   } else {
     cli::cli_warn("nonstandard {.arg method} passed to {.fn stats::glm}, double-check if it's correct")
@@ -85,7 +85,7 @@ br_avail_method_config <- function(method) {
       f_call = "stats::glm",
       f_cnst_y = NULL,
       args_method = glue::glue("family = stats::{method}"),
-      args_data = "data = data"
+      args_data = glue::glue("data = data")
     )
   }
 }

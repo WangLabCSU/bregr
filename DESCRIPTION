@@ -45,7 +45,10 @@ Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
-    visreg
+    visreg,
+    lme4,
+    broom.mixed,
+    merDeriv
 VignetteBuilder: 
     knitr
 Config/testthat/edition: 3
