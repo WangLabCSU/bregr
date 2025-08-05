@@ -15,7 +15,8 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  out.width = "100%"
 )
 ```
 
@@ -45,19 +46,19 @@ br_get_results(rv, tidy = TRUE)
 
 Visualize the results:
 
-```{r}
+```{r fig.width=7, fig.height=3, dpi=150}
 br_show_forest(rv)
 ```
 
 Additionally, specified models can be visualized using the functions provided by **bregr**:
 
-```{r}
+```{r fig.width=7, fig.height=3}
 br_show_forest_ggstats(rv, idx = 2)
 ```
 
 Or compare them:
 
-```{r}
+```{r fig.width=7, fig.height=4}
 br_show_forest_ggstats(rv)
 ```
 
