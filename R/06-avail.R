@@ -53,7 +53,7 @@ br_avail_method_config <- function(method) {
     )
   } else if (method %in% "clogit") {
     list(
-      f_call = "survival::clogit",
+      f_call = glue::glue("survival::clogit"),
       f_cnst_y = NULL,
       args_method = NULL,
       args_data = glue::glue("data = data")
@@ -74,7 +74,7 @@ br_avail_method_config <- function(method) {
     "quasipoisson"
   )) {
     list(
-      f_call = "stats::glm",
+      f_call = glue::glue("stats::glm"),
       f_cnst_y = NULL,
       args_method = glue::glue("family = stats::{method}"),
       args_data = glue::glue("data = data")
@@ -82,7 +82,7 @@ br_avail_method_config <- function(method) {
   } else {
     cli::cli_warn("nonstandard {.arg method} passed to {.fn stats::glm}, double-check if it's correct")
     list(
-      f_call = "stats::glm",
+      f_call = glue::glue("stats::glm"),
       f_cnst_y = NULL,
       args_method = glue::glue("family = stats::{method}"),
       args_data = glue::glue("data = data")
