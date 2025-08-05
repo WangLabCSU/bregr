@@ -333,7 +333,13 @@ runner <- function(ms, data, dots, x, run_parallel) {
     # Get comprehensive result for models
     result <- do.call(
       broom.helpers::tidy_plus_plus,
-      args = vctrs::vec_c(list(model), dots)
+      args = vctrs::vec_c(
+        list(model), dots,
+        if ("interaction_sep" %in% names(dots)) {
+          list(interaction_sep = dots[["interaction_sep"]])
+        } else {
+          list(interaction_sep = ":")
+        })
     )
 
     # Get tidy result for models
