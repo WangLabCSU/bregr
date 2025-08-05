@@ -1,0 +1,96 @@
+---
+title: "Model Configurations"
+author: 
+  - name: Shixiang Wang
+    affiliation: Central South University
+    email: wangshx@csu.edu.cn
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Model Configurations}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(bregr)
+```
+
+## Interaction Terms
+
+The **bregr** package provides comprehensive support for the processing and visualization of interaction terms in regression models, provided that the interaction term is inherently supported by the model.
+
+Below is an illustrative example using a linear model:
+
+```{r}
+rv = br_pipeline(
+  data = mtcars,
+  y = "mpg", x = c("cyl", "disp*hp"), x2 = "am",
+  method = "lm"
+)
+```
+
+Examine the results:
+
+```{r}
+br_get_results(rv, tidy = TRUE)
+```
+
+Visualize the results:
+
+```{r}
+br_show_forest(rv)
+```
+
+Additionally, specified models can be visualized using the functions provided by **bregr**:
+
+```{r}
+br_show_forest_ggstats(rv, idx = 2)
+```
+
+Or compare them:
+
+```{r}
+br_show_forest_ggstats(rv)
+```
+
+## Customized GLM Family
+
+For GLM models, the family object can be further customized with various arguments. By default, **bregr** directly supports GLM family functions with their default arguments, which can be viewed using:\
+
+```{r}
+br_avail_methods()
+```
+
+However, for alternative GLM configurations, modifications can be made directly. For instance, consider the following example using a quasi-family with specified variance and link functions:
+
+```{r}
+data = data.frame(
+  x = rnorm(100)
+)
+data$y = rpois(100, exp(1+data$x))
+head(data)
+```
+
+```{r}
+rv = br_pipeline(
+  data = data,
+  y = "y", x = "x",
+  method = 'quasi(variance = "mu", link = "log")'
+)
+br_get_results(rv, tidy = TRUE)
+```
+
+This is equivalent to:
+
+```{r}
+glm(y ~ x, data = data, family = quasi(variance = "mu", link = "log")) |> 
+  summary()
+```

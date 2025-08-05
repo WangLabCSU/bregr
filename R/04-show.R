@@ -299,7 +299,7 @@ br_show_forest_ggstats <- function(breg, idx = NULL, ...) {
     ggstats::ggcoef_table
   }
 
-  do.call(.f, vctrs::vec_c(list(mds), list(...)))
+  do.call(.f, vctrs::vec_c(list(mds), list(..., interaction_sep = ":")))
 }
 
 #' Show a forest plot with `ggstatsplot` interface
