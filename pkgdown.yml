@@ -3,9 +3,8 @@ pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   bregr-group-by: bregr-group-by.html
-  default_supported_models: default_supported_models.html
-  extended_supported_models: extended_supported_models.html
-last_built: 2025-08-05T02:09Z
+  supported_models: supported_models.html
+last_built: 2025-08-05T08:53Z
 urls:
   reference: https://wanglabcsu.github.io/bregr/reference
   article: https://wanglabcsu.github.io/bregr/articles
