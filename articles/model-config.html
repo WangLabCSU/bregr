@@ -66,7 +66,7 @@ Wang</h4>
 University<br><a class="author_email" href="mailto:#"></a><a href="mailto:wangshx@csu.edu.cn" class="email">wangshx@csu.edu.cn</a>
       </address>
                   
-            <h4 data-toc-skip class="date">2025-08-05</h4>
+            <h4 data-toc-skip class="date">2025-08-06</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/WangLabCSU/bregr/blob/main/vignettes/model-config.Rmd" class="external-link"><code>vignettes/model-config.Rmd</code></a></small>
       <div class="d-none name"><code>model-config.Rmd</code></div>
@@ -94,7 +94,7 @@ models, provided that the interaction term is inherently supported by
 the model.</p>
 <p>Below is an illustrative example using a linear model:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">rv</span> <span class="op">=</span> <span class="fu"><a href="../reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">rv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">mtcars</span>,</span>
 <span>  y <span class="op">=</span> <span class="st">"mpg"</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cyl"</span>, <span class="st">"disp*hp"</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="st">"am"</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"lm"</span></span>
@@ -142,10 +142,10 @@ using:<br></p>
 made directly. For instance, consider the following example using a
 quasi-family with specified variance and link functions:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">data</span><span class="op">$</span><span class="va">y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">1</span><span class="op">+</span><span class="va">data</span><span class="op">$</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">data</span><span class="op">$</span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">data</span><span class="op">$</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span>
 <span><span class="co">#&gt;              x  y</span></span>
 <span><span class="co">#&gt; 1 -1.400043517  0</span></span>
@@ -155,7 +155,7 @@ quasi-family with specified variance and link functions:</p>
 <span><span class="co">#&gt; 5  0.621552721  3</span></span>
 <span><span class="co">#&gt; 6  1.148411606 12</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">rv</span> <span class="op">=</span> <span class="fu"><a href="../reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">rv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">data</span>,</span>
 <span>  y <span class="op">=</span> <span class="st">"y"</span>, x <span class="op">=</span> <span class="st">"x"</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">'quasi(variance = "mu", link = "log")'</span></span>
@@ -169,7 +169,7 @@ quasi-family with specified variance and link functions:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> x              x        0.952    0.044<span style="text-decoration: underline;">6</span>      21.4 1.14<span style="color: #949494;">e</span><span style="color: #BB0000;">-38</span>    0.865      1.04</span></span></code></pre></div>
 <p>This is equivalent to:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x</span>, data <span class="op">=</span> <span class="va">data</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">quasi</a></span><span class="op">(</span>variance <span class="op">=</span> <span class="st">"mu"</span>, link <span class="op">=</span> <span class="st">"log"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x</span>, data <span class="op">=</span> <span class="va">data</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html" class="external-link">quasi</a></span><span class="op">(</span>variance <span class="op">=</span> <span class="st">"mu"</span>, link <span class="op">=</span> <span class="st">"log"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>

@@ -120,7 +120,8 @@
 <span><span class="co">#&gt; </span></span></code></pre></div>
 <p>Load data:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lung</span> <span class="op">&lt;-</span> <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/lung.html" class="external-link">lung</a></span></span>
+<code class="sourceCode R"><span><span class="va">lung</span> <span class="op">&lt;-</span> <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/lung.html" class="external-link">lung</a></span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ph.ecog</span> <span class="op">!=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="va">lung</span><span class="op">$</span><span class="va">ph.ecog</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">lung</span><span class="op">$</span><span class="va">ph.ecog</span><span class="op">)</span></span></code></pre></div>
 <p>bregr is designed and implemented following <a href="https://design.tidyverse.org/" class="external-link">Tidy design principles</a> and <a href="https://style.tidyverse.org/" class="external-link">Tidyverse style guide</a>, making it intuitive and user-friendly.</p>
 <div class="section level3">
@@ -134,7 +135,7 @@
 <span>  <span class="fu"><a href="reference/pipeline.html">br_set_x2</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># Controls</span></span>
 <span>  <span class="fu"><a href="reference/pipeline.html">br_set_model</a></span><span class="op">(</span><span class="st">"coxph"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="co"># Cox Proportional Hazards</span></span>
 <span>  <span class="fu"><a href="reference/pipeline.html">br_run</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># Execute models</span></span>
-<span><span class="co">#&gt; set `exponentiate=TRUE` for model(s) constructed from coxph method at default</span></span></code></pre></div>
+<span><span class="co">#&gt; exponentiate estimates of model(s) constructed from coxph method at default</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="one-step-pipeline">One-Step Pipeline<a class="anchor" aria-label="anchor" href="#one-step-pipeline"></a>
@@ -160,15 +161,13 @@
 <span><span class="co">#&gt;     age + sex, data = data)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;               coef exp(coef)  se(coef)      z        p</span></span>
-<span><span class="co">#&gt; ph.ecog1  0.410048  1.506890  0.199604  2.054  0.03995</span></span>
-<span><span class="co">#&gt; ph.ecog2  0.903303  2.467741  0.228078  3.960 7.48e-05</span></span>
-<span><span class="co">#&gt; ph.ecog3  1.954543  7.060694  1.029701  1.898  0.05767</span></span>
-<span><span class="co">#&gt; age       0.010795  1.010853  0.009312  1.159  0.24637</span></span>
-<span><span class="co">#&gt; sex      -0.545831  0.579360  0.168228 -3.245  0.00118</span></span>
+<span><span class="co">#&gt; ph.ecog1  0.409836  1.506571  0.199606  2.053  0.04005</span></span>
+<span><span class="co">#&gt; ph.ecog2  0.902321  2.465318  0.228092  3.956 7.62e-05</span></span>
+<span><span class="co">#&gt; age       0.010777  1.010836  0.009312  1.157  0.24713</span></span>
+<span><span class="co">#&gt; sex      -0.545631  0.579476  0.168229 -3.243  0.00118</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Likelihood ratio test=30.87  on 5 df, p=9.952e-06</span></span>
-<span><span class="co">#&gt; n= 227, number of events= 164 </span></span>
-<span><span class="co">#&gt;    (1 observation deleted due to missingness)</span></span>
+<span><span class="co">#&gt; Likelihood ratio test=28.94  on 4 df, p=8.052e-06</span></span>
+<span><span class="co">#&gt; n= 226, number of events= 163 </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $ph.karno</span></span>
 <span><span class="co">#&gt; Call:</span></span>
@@ -176,12 +175,12 @@
 <span><span class="co">#&gt;     age + sex, data = data)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;               coef exp(coef)  se(coef)      z       p</span></span>
-<span><span class="co">#&gt; ph.karno -0.013322  0.986767  0.005880 -2.266 0.02348</span></span>
-<span><span class="co">#&gt; age       0.012375  1.012452  0.009405  1.316 0.18821</span></span>
-<span><span class="co">#&gt; sex      -0.497170  0.608249  0.167713 -2.964 0.00303</span></span>
+<span><span class="co">#&gt; ph.karno -0.012238  0.987837  0.005946 -2.058 0.03957</span></span>
+<span><span class="co">#&gt; age       0.012615  1.012695  0.009462  1.333 0.18244</span></span>
+<span><span class="co">#&gt; sex      -0.485116  0.615626  0.168170 -2.885 0.00392</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Likelihood ratio test=18.81  on 3 df, p=0.0002987</span></span>
-<span><span class="co">#&gt; n= 227, number of events= 164 </span></span>
+<span><span class="co">#&gt; Likelihood ratio test=17.21  on 3 df, p=0.0006413</span></span>
+<span><span class="co">#&gt; n= 225, number of events= 162 </span></span>
 <span><span class="co">#&gt;    (1 observation deleted due to missingness)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $pat.karno</span></span>
@@ -190,12 +189,12 @@
 <span><span class="co">#&gt;     age + sex, data = data)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                coef exp(coef)  se(coef)      z        p</span></span>
-<span><span class="co">#&gt; pat.karno -0.019061  0.981120  0.005638 -3.381 0.000722</span></span>
-<span><span class="co">#&gt; age        0.011793  1.011863  0.009331  1.264 0.206269</span></span>
-<span><span class="co">#&gt; sex       -0.519262  0.594959  0.168967 -3.073 0.002118</span></span>
+<span><span class="co">#&gt; pat.karno -0.018736  0.981439  0.005676 -3.301 0.000964</span></span>
+<span><span class="co">#&gt; age        0.011672  1.011740  0.009381  1.244 0.213436</span></span>
+<span><span class="co">#&gt; sex       -0.505205  0.603382  0.169452 -2.981 0.002869</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Likelihood ratio test=24.33  on 3 df, p=2.133e-05</span></span>
-<span><span class="co">#&gt; n= 225, number of events= 162 </span></span>
+<span><span class="co">#&gt; Likelihood ratio test=23.07  on 3 df, p=3.896e-05</span></span>
+<span><span class="co">#&gt; n= 223, number of events= 160 </span></span>
 <span><span class="co">#&gt;    (3 observations deleted due to missingness)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $meal.cal</span></span>
@@ -203,13 +202,13 @@
 <span><span class="co">#&gt; survival::coxph(formula = survival::Surv(time, status) ~ meal.cal + </span></span>
 <span><span class="co">#&gt;     age + sex, data = data)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                coef  exp(coef)   se(coef)      z     p</span></span>
-<span><span class="co">#&gt; meal.cal -0.0001341  0.9998659  0.0002383 -0.563 0.574</span></span>
-<span><span class="co">#&gt; age       0.0152942  1.0154117  0.0105352  1.452 0.147</span></span>
-<span><span class="co">#&gt; sex      -0.4914187  0.6117579  0.1908601 -2.575 0.010</span></span>
+<span><span class="co">#&gt;                coef  exp(coef)   se(coef)      z      p</span></span>
+<span><span class="co">#&gt; meal.cal -0.0001535  0.9998465  0.0002409 -0.637 0.5239</span></span>
+<span><span class="co">#&gt; age       0.0149375  1.0150496  0.0106016  1.409 0.1588</span></span>
+<span><span class="co">#&gt; sex      -0.4775830  0.6202808  0.1914559 -2.494 0.0126</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Likelihood ratio test=10.65  on 3 df, p=0.01376</span></span>
-<span><span class="co">#&gt; n= 181, number of events= 134 </span></span>
+<span><span class="co">#&gt; Likelihood ratio test=10.1  on 3 df, p=0.0177</span></span>
+<span><span class="co">#&gt; n= 179, number of events= 132 </span></span>
 <span><span class="co">#&gt;    (47 observations deleted due to missingness)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $wt.loss</span></span>
@@ -217,61 +216,59 @@
 <span><span class="co">#&gt; survival::coxph(formula = survival::Surv(time, status) ~ wt.loss + </span></span>
 <span><span class="co">#&gt;     age + sex, data = data)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;               coef  exp(coef)   se(coef)      z      p</span></span>
-<span><span class="co">#&gt; wt.loss  0.0007596  1.0007599  0.0061934  0.123 0.9024</span></span>
-<span><span class="co">#&gt; age      0.0200882  1.0202913  0.0096644  2.079 0.0377</span></span>
-<span><span class="co">#&gt; sex     -0.5210319  0.5939074  0.1743541 -2.988 0.0028</span></span>
+<span><span class="co">#&gt;               coef  exp(coef)   se(coef)      z       p</span></span>
+<span><span class="co">#&gt; wt.loss -0.0002676  0.9997324  0.0062908 -0.043 0.96607</span></span>
+<span><span class="co">#&gt; age      0.0199314  1.0201314  0.0097178  2.051 0.04027</span></span>
+<span><span class="co">#&gt; sex     -0.5067253  0.6024652  0.1748697 -2.898 0.00376</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Likelihood ratio test=14.67  on 3 df, p=0.002122</span></span>
-<span><span class="co">#&gt; n= 214, number of events= 152 </span></span>
+<span><span class="co">#&gt; Likelihood ratio test=13.87  on 3 df, p=0.003086</span></span>
+<span><span class="co">#&gt; n= 212, number of events= 150 </span></span>
 <span><span class="co">#&gt;    (14 observations deleted due to missingness)</span></span>
 <span><span class="fu"><a href="reference/accessors.html">br_get_results</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span> <span class="co"># Comprehensive estimates</span></span>
-<span><span class="co">#&gt; # A tibble: 18 × 21</span></span>
+<span><span class="co">#&gt; # A tibble: 17 × 21</span></span>
 <span><span class="co">#&gt;    Focal_variable term      variable  var_label var_class var_type   var_nlevels</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;            &lt;int&gt;</span></span>
-<span><span class="co">#&gt;  1 ph.ecog        ph.ecog0  ph.ecog   ph.ecog   factor    categoric…           4</span></span>
-<span><span class="co">#&gt;  2 ph.ecog        ph.ecog1  ph.ecog   ph.ecog   factor    categoric…           4</span></span>
-<span><span class="co">#&gt;  3 ph.ecog        ph.ecog2  ph.ecog   ph.ecog   factor    categoric…           4</span></span>
-<span><span class="co">#&gt;  4 ph.ecog        ph.ecog3  ph.ecog   ph.ecog   factor    categoric…           4</span></span>
-<span><span class="co">#&gt;  5 ph.ecog        age       age       age       numeric   continuous          NA</span></span>
-<span><span class="co">#&gt;  6 ph.ecog        sex       sex       sex       numeric   continuous          NA</span></span>
-<span><span class="co">#&gt;  7 ph.karno       ph.karno  ph.karno  ph.karno  numeric   continuous          NA</span></span>
-<span><span class="co">#&gt;  8 ph.karno       age       age       age       numeric   continuous          NA</span></span>
-<span><span class="co">#&gt;  9 ph.karno       sex       sex       sex       numeric   continuous          NA</span></span>
-<span><span class="co">#&gt; 10 pat.karno      pat.karno pat.karno pat.karno numeric   continuous          NA</span></span>
-<span><span class="co">#&gt; 11 pat.karno      age       age       age       numeric   continuous          NA</span></span>
-<span><span class="co">#&gt; 12 pat.karno      sex       sex       sex       numeric   continuous          NA</span></span>
-<span><span class="co">#&gt; 13 meal.cal       meal.cal  meal.cal  meal.cal  numeric   continuous          NA</span></span>
-<span><span class="co">#&gt; 14 meal.cal       age       age       age       numeric   continuous          NA</span></span>
-<span><span class="co">#&gt; 15 meal.cal       sex       sex       sex       numeric   continuous          NA</span></span>
-<span><span class="co">#&gt; 16 wt.loss        wt.loss   wt.loss   wt.loss   numeric   continuous          NA</span></span>
-<span><span class="co">#&gt; 17 wt.loss        age       age       age       numeric   continuous          NA</span></span>
-<span><span class="co">#&gt; 18 wt.loss        sex       sex       sex       numeric   continuous          NA</span></span>
+<span><span class="co">#&gt;  1 ph.ecog        ph.ecog0  ph.ecog   ph.ecog   factor    categoric…           3</span></span>
+<span><span class="co">#&gt;  2 ph.ecog        ph.ecog1  ph.ecog   ph.ecog   factor    categoric…           3</span></span>
+<span><span class="co">#&gt;  3 ph.ecog        ph.ecog2  ph.ecog   ph.ecog   factor    categoric…           3</span></span>
+<span><span class="co">#&gt;  4 ph.ecog        age       age       age       numeric   continuous          NA</span></span>
+<span><span class="co">#&gt;  5 ph.ecog        sex       sex       sex       numeric   continuous          NA</span></span>
+<span><span class="co">#&gt;  6 ph.karno       ph.karno  ph.karno  ph.karno  numeric   continuous          NA</span></span>
+<span><span class="co">#&gt;  7 ph.karno       age       age       age       numeric   continuous          NA</span></span>
+<span><span class="co">#&gt;  8 ph.karno       sex       sex       sex       numeric   continuous          NA</span></span>
+<span><span class="co">#&gt;  9 pat.karno      pat.karno pat.karno pat.karno numeric   continuous          NA</span></span>
+<span><span class="co">#&gt; 10 pat.karno      age       age       age       numeric   continuous          NA</span></span>
+<span><span class="co">#&gt; 11 pat.karno      sex       sex       sex       numeric   continuous          NA</span></span>
+<span><span class="co">#&gt; 12 meal.cal       meal.cal  meal.cal  meal.cal  numeric   continuous          NA</span></span>
+<span><span class="co">#&gt; 13 meal.cal       age       age       age       numeric   continuous          NA</span></span>
+<span><span class="co">#&gt; 14 meal.cal       sex       sex       sex       numeric   continuous          NA</span></span>
+<span><span class="co">#&gt; 15 wt.loss        wt.loss   wt.loss   wt.loss   numeric   continuous          NA</span></span>
+<span><span class="co">#&gt; 16 wt.loss        age       age       age       numeric   continuous          NA</span></span>
+<span><span class="co">#&gt; 17 wt.loss        sex       sex       sex       numeric   continuous          NA</span></span>
 <span><span class="co">#&gt; # ℹ 14 more variables: contrasts &lt;chr&gt;, contrasts_type &lt;chr&gt;,</span></span>
 <span><span class="co">#&gt; #   reference_row &lt;lgl&gt;, label &lt;chr&gt;, n_obs &lt;dbl&gt;, n_ind &lt;dbl&gt;, n_event &lt;dbl&gt;,</span></span>
 <span><span class="co">#&gt; #   exposure &lt;dbl&gt;, estimate &lt;dbl&gt;, std.error &lt;dbl&gt;, statistic &lt;dbl&gt;,</span></span>
 <span><span class="co">#&gt; #   p.value &lt;dbl&gt;, conf.low &lt;dbl&gt;, conf.high &lt;dbl&gt;</span></span>
 <span><span class="fu"><a href="reference/accessors.html">br_get_results</a></span><span class="op">(</span><span class="va">mds</span>, tidy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># Tidy-formatted coefficients</span></span>
-<span><span class="co">#&gt; # A tibble: 17 × 8</span></span>
+<span><span class="co">#&gt; # A tibble: 16 × 8</span></span>
 <span><span class="co">#&gt;    Focal_variable term   estimate std.error statistic p.value conf.low conf.high</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1 ph.ecog        ph.ec…    1.51   0.200        2.05  3.99e-2    1.02      2.23 </span></span>
-<span><span class="co">#&gt;  2 ph.ecog        ph.ec…    2.47   0.228        3.96  7.48e-5    1.58      3.86 </span></span>
-<span><span class="co">#&gt;  3 ph.ecog        ph.ec…    7.06   1.03         1.90  5.77e-2    0.938    53.1  </span></span>
-<span><span class="co">#&gt;  4 ph.ecog        age       1.01   0.00931      1.16  2.46e-1    0.993     1.03 </span></span>
-<span><span class="co">#&gt;  5 ph.ecog        sex       0.579  0.168       -3.24  1.18e-3    0.417     0.806</span></span>
-<span><span class="co">#&gt;  6 ph.karno       ph.ka…    0.987  0.00588     -2.27  2.35e-2    0.975     0.998</span></span>
-<span><span class="co">#&gt;  7 ph.karno       age       1.01   0.00940      1.32  1.88e-1    0.994     1.03 </span></span>
-<span><span class="co">#&gt;  8 ph.karno       sex       0.608  0.168       -2.96  3.03e-3    0.438     0.845</span></span>
-<span><span class="co">#&gt;  9 pat.karno      pat.k…    0.981  0.00564     -3.38  7.22e-4    0.970     0.992</span></span>
-<span><span class="co">#&gt; 10 pat.karno      age       1.01   0.00933      1.26  2.06e-1    0.994     1.03 </span></span>
-<span><span class="co">#&gt; 11 pat.karno      sex       0.595  0.169       -3.07  2.12e-3    0.427     0.829</span></span>
-<span><span class="co">#&gt; 12 meal.cal       meal.…    1.00   0.000238    -0.563 5.74e-1    0.999     1.00 </span></span>
-<span><span class="co">#&gt; 13 meal.cal       age       1.02   0.0105       1.45  1.47e-1    0.995     1.04 </span></span>
-<span><span class="co">#&gt; 14 meal.cal       sex       0.612  0.191       -2.57  1.00e-2    0.421     0.889</span></span>
-<span><span class="co">#&gt; 15 wt.loss        wt.lo…    1.00   0.00619      0.123 9.02e-1    0.989     1.01 </span></span>
-<span><span class="co">#&gt; 16 wt.loss        age       1.02   0.00966      2.08  3.77e-2    1.00      1.04 </span></span>
-<span><span class="co">#&gt; 17 wt.loss        sex       0.594  0.174       -2.99  2.80e-3    0.422     0.836</span></span></code></pre></div>
+<span><span class="co">#&gt;  1 ph.ecog        ph.ec…    1.51   0.200       2.05   4.01e-2    1.02      2.23 </span></span>
+<span><span class="co">#&gt;  2 ph.ecog        ph.ec…    2.47   0.228       3.96   7.62e-5    1.58      3.86 </span></span>
+<span><span class="co">#&gt;  3 ph.ecog        age       1.01   0.00931     1.16   2.47e-1    0.993     1.03 </span></span>
+<span><span class="co">#&gt;  4 ph.ecog        sex       0.579  0.168      -3.24   1.18e-3    0.417     0.806</span></span>
+<span><span class="co">#&gt;  5 ph.karno       ph.ka…    0.988  0.00595    -2.06   3.96e-2    0.976     0.999</span></span>
+<span><span class="co">#&gt;  6 ph.karno       age       1.01   0.00946     1.33   1.82e-1    0.994     1.03 </span></span>
+<span><span class="co">#&gt;  7 ph.karno       sex       0.616  0.168      -2.88   3.92e-3    0.443     0.856</span></span>
+<span><span class="co">#&gt;  8 pat.karno      pat.k…    0.981  0.00568    -3.30   9.64e-4    0.971     0.992</span></span>
+<span><span class="co">#&gt;  9 pat.karno      age       1.01   0.00938     1.24   2.13e-1    0.993     1.03 </span></span>
+<span><span class="co">#&gt; 10 pat.karno      sex       0.603  0.169      -2.98   2.87e-3    0.433     0.841</span></span>
+<span><span class="co">#&gt; 11 meal.cal       meal.…    1.000  0.000241   -0.637  5.24e-1    0.999     1.00 </span></span>
+<span><span class="co">#&gt; 12 meal.cal       age       1.02   0.0106      1.41   1.59e-1    0.994     1.04 </span></span>
+<span><span class="co">#&gt; 13 meal.cal       sex       0.620  0.191      -2.49   1.26e-2    0.426     0.903</span></span>
+<span><span class="co">#&gt; 14 wt.loss        wt.lo…    1.000  0.00629    -0.0425 9.66e-1    0.987     1.01 </span></span>
+<span><span class="co">#&gt; 15 wt.loss        age       1.02   0.00972     2.05   4.03e-2    1.00      1.04 </span></span>
+<span><span class="co">#&gt; 16 wt.loss        sex       0.602  0.175      -2.90   3.76e-3    0.428     0.849</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a>
@@ -288,7 +285,10 @@
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_forest.html">br_show_forest</a></span><span class="op">(</span></span>
 <span>  <span class="va">mds</span>,</span>
 <span>  rm_controls <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co"># Focus on focal predictors</span></span>
-<span>  xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span><span class="op">)</span>, <span class="co"># Custom axis scaling</span></span>
+<span>  xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span><span class="op">)</span>, <span class="co"># Custom axis scaling</span></span>
+<span>  <span class="co">#   Use x_trans = "log" to transform the axis</span></span>
+<span>  <span class="co">#   Use log_first = TRUE to transform both</span></span>
+<span>  <span class="co">#       the axis and estimate table</span></span>
 <span>  drop <span class="op">=</span> <span class="fl">1</span> <span class="co"># Remove redundant columns</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-unnamed-chunk-6-1.png" width="100%"></p>
@@ -302,7 +302,7 @@
 <span>  x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"coxph"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; set `exponentiate=TRUE` for model(s) constructed from coxph method at default</span></span></code></pre></div>
+<span><span class="co">#&gt; exponentiate estimates of model(s) constructed from coxph method at default</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_risk_network.html">br_show_risk_network</a></span><span class="op">(</span><span class="va">mds2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; please note only continuous focal terms analyzed and visualized</span></span></code></pre></div>
@@ -315,46 +315,44 @@
 <p>Show tidy table result as pretty table:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_table.html">br_show_table</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    Focal_variable      term estimate std.error statistic p.value      conf.int</span></span>
-<span><span class="co">#&gt; 1         ph.ecog  ph.ecog1     1.51      0.20      2.05  0.040  [1.02,  2.23]</span></span>
-<span><span class="co">#&gt; 2         ph.ecog  ph.ecog2     2.47      0.23      3.96  &lt; .001 [1.58,  3.86]</span></span>
-<span><span class="co">#&gt; 3         ph.ecog  ph.ecog3     7.06      1.03      1.90  0.058  [0.94, 53.13]</span></span>
-<span><span class="co">#&gt; 4         ph.ecog       age     1.01  9.31e-03      1.16  0.246  [0.99,  1.03]</span></span>
-<span><span class="co">#&gt; 5         ph.ecog       sex     0.58      0.17     -3.24  0.001  [0.42,  0.81]</span></span>
-<span><span class="co">#&gt; 6        ph.karno  ph.karno     0.99  5.88e-03     -2.27  0.023  [0.98,  1.00]</span></span>
-<span><span class="co">#&gt; 7        ph.karno       age     1.01  9.40e-03      1.32  0.188  [0.99,  1.03]</span></span>
-<span><span class="co">#&gt; 8        ph.karno       sex     0.61      0.17     -2.96  0.003  [0.44,  0.84]</span></span>
-<span><span class="co">#&gt; 9       pat.karno pat.karno     0.98  5.64e-03     -3.38  &lt; .001 [0.97,  0.99]</span></span>
-<span><span class="co">#&gt; 10      pat.karno       age     1.01  9.33e-03      1.26  0.206  [0.99,  1.03]</span></span>
-<span><span class="co">#&gt; 11      pat.karno       sex     0.59      0.17     -3.07  0.002  [0.43,  0.83]</span></span>
-<span><span class="co">#&gt; 12       meal.cal  meal.cal     1.00  2.38e-04     -0.56  0.574  [1.00,  1.00]</span></span>
-<span><span class="co">#&gt; 13       meal.cal       age     1.02      0.01      1.45  0.147  [0.99,  1.04]</span></span>
-<span><span class="co">#&gt; 14       meal.cal       sex     0.61      0.19     -2.57  0.010  [0.42,  0.89]</span></span>
-<span><span class="co">#&gt; 15        wt.loss   wt.loss     1.00  6.19e-03      0.12  0.902  [0.99,  1.01]</span></span>
-<span><span class="co">#&gt; 16        wt.loss       age     1.02  9.66e-03      2.08  0.038  [1.00,  1.04]</span></span>
-<span><span class="co">#&gt; 17        wt.loss       sex     0.59      0.17     -2.99  0.003  [0.42,  0.84]</span></span></code></pre></div>
+<span><span class="co">#&gt;    Focal_variable      term estimate std.error statistic p.value     conf.int</span></span>
+<span><span class="co">#&gt; 1         ph.ecog  ph.ecog1     1.51      0.20      2.05  0.040  [1.02, 2.23]</span></span>
+<span><span class="co">#&gt; 2         ph.ecog  ph.ecog2     2.47      0.23      3.96  &lt; .001 [1.58, 3.86]</span></span>
+<span><span class="co">#&gt; 3         ph.ecog       age     1.01  9.31e-03      1.16  0.247  [0.99, 1.03]</span></span>
+<span><span class="co">#&gt; 4         ph.ecog       sex     0.58      0.17     -3.24  0.001  [0.42, 0.81]</span></span>
+<span><span class="co">#&gt; 5        ph.karno  ph.karno     0.99  5.95e-03     -2.06  0.040  [0.98, 1.00]</span></span>
+<span><span class="co">#&gt; 6        ph.karno       age     1.01  9.46e-03      1.33  0.182  [0.99, 1.03]</span></span>
+<span><span class="co">#&gt; 7        ph.karno       sex     0.62      0.17     -2.88  0.004  [0.44, 0.86]</span></span>
+<span><span class="co">#&gt; 8       pat.karno pat.karno     0.98  5.68e-03     -3.30  &lt; .001 [0.97, 0.99]</span></span>
+<span><span class="co">#&gt; 9       pat.karno       age     1.01  9.38e-03      1.24  0.213  [0.99, 1.03]</span></span>
+<span><span class="co">#&gt; 10      pat.karno       sex     0.60      0.17     -2.98  0.003  [0.43, 0.84]</span></span>
+<span><span class="co">#&gt; 11       meal.cal  meal.cal     1.00  2.41e-04     -0.64  0.524  [1.00, 1.00]</span></span>
+<span><span class="co">#&gt; 12       meal.cal       age     1.02      0.01      1.41  0.159  [0.99, 1.04]</span></span>
+<span><span class="co">#&gt; 13       meal.cal       sex     0.62      0.19     -2.49  0.013  [0.43, 0.90]</span></span>
+<span><span class="co">#&gt; 14        wt.loss   wt.loss     1.00  6.29e-03     -0.04  0.966  [0.99, 1.01]</span></span>
+<span><span class="co">#&gt; 15        wt.loss       age     1.02  9.72e-03      2.05  0.040  [1.00, 1.04]</span></span>
+<span><span class="co">#&gt; 16        wt.loss       sex     0.60      0.17     -2.90  0.004  [0.43, 0.85]</span></span></code></pre></div>
 <p>As markdown table:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_table.html">br_show_table</a></span><span class="op">(</span><span class="va">mds</span>, export <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Focal_variable |      term | estimate | std.error | statistic | p.value |      conf.int</span></span>
-<span><span class="co">#&gt; ---------------------------------------------------------------------------------------</span></span>
-<span><span class="co">#&gt; ph.ecog        |  ph.ecog1 |     1.51 |      0.20 |      2.05 |  0.040  | [1.02,  2.23]</span></span>
-<span><span class="co">#&gt; ph.ecog        |  ph.ecog2 |     2.47 |      0.23 |      3.96 |  &lt; .001 | [1.58,  3.86]</span></span>
-<span><span class="co">#&gt; ph.ecog        |  ph.ecog3 |     7.06 |      1.03 |      1.90 |  0.058  | [0.94, 53.13]</span></span>
-<span><span class="co">#&gt; ph.ecog        |       age |     1.01 |  9.31e-03 |      1.16 |  0.246  | [0.99,  1.03]</span></span>
-<span><span class="co">#&gt; ph.ecog        |       sex |     0.58 |      0.17 |     -3.24 |  0.001  | [0.42,  0.81]</span></span>
-<span><span class="co">#&gt; ph.karno       |  ph.karno |     0.99 |  5.88e-03 |     -2.27 |  0.023  | [0.98,  1.00]</span></span>
-<span><span class="co">#&gt; ph.karno       |       age |     1.01 |  9.40e-03 |      1.32 |  0.188  | [0.99,  1.03]</span></span>
-<span><span class="co">#&gt; ph.karno       |       sex |     0.61 |      0.17 |     -2.96 |  0.003  | [0.44,  0.84]</span></span>
-<span><span class="co">#&gt; pat.karno      | pat.karno |     0.98 |  5.64e-03 |     -3.38 |  &lt; .001 | [0.97,  0.99]</span></span>
-<span><span class="co">#&gt; pat.karno      |       age |     1.01 |  9.33e-03 |      1.26 |  0.206  | [0.99,  1.03]</span></span>
-<span><span class="co">#&gt; pat.karno      |       sex |     0.59 |      0.17 |     -3.07 |  0.002  | [0.43,  0.83]</span></span>
-<span><span class="co">#&gt; meal.cal       |  meal.cal |     1.00 |  2.38e-04 |     -0.56 |  0.574  | [1.00,  1.00]</span></span>
-<span><span class="co">#&gt; meal.cal       |       age |     1.02 |      0.01 |      1.45 |  0.147  | [0.99,  1.04]</span></span>
-<span><span class="co">#&gt; meal.cal       |       sex |     0.61 |      0.19 |     -2.57 |  0.010  | [0.42,  0.89]</span></span>
-<span><span class="co">#&gt; wt.loss        |   wt.loss |     1.00 |  6.19e-03 |      0.12 |  0.902  | [0.99,  1.01]</span></span>
-<span><span class="co">#&gt; wt.loss        |       age |     1.02 |  9.66e-03 |      2.08 |  0.038  | [1.00,  1.04]</span></span>
-<span><span class="co">#&gt; wt.loss        |       sex |     0.59 |      0.17 |     -2.99 |  0.003  | [0.42,  0.84]</span></span></code></pre></div>
+<span><span class="co">#&gt; Focal_variable |      term | estimate | std.error | statistic | p.value |     conf.int</span></span>
+<span><span class="co">#&gt; --------------------------------------------------------------------------------------</span></span>
+<span><span class="co">#&gt; ph.ecog        |  ph.ecog1 |     1.51 |      0.20 |      2.05 |  0.040  | [1.02, 2.23]</span></span>
+<span><span class="co">#&gt; ph.ecog        |  ph.ecog2 |     2.47 |      0.23 |      3.96 |  &lt; .001 | [1.58, 3.86]</span></span>
+<span><span class="co">#&gt; ph.ecog        |       age |     1.01 |  9.31e-03 |      1.16 |  0.247  | [0.99, 1.03]</span></span>
+<span><span class="co">#&gt; ph.ecog        |       sex |     0.58 |      0.17 |     -3.24 |  0.001  | [0.42, 0.81]</span></span>
+<span><span class="co">#&gt; ph.karno       |  ph.karno |     0.99 |  5.95e-03 |     -2.06 |  0.040  | [0.98, 1.00]</span></span>
+<span><span class="co">#&gt; ph.karno       |       age |     1.01 |  9.46e-03 |      1.33 |  0.182  | [0.99, 1.03]</span></span>
+<span><span class="co">#&gt; ph.karno       |       sex |     0.62 |      0.17 |     -2.88 |  0.004  | [0.44, 0.86]</span></span>
+<span><span class="co">#&gt; pat.karno      | pat.karno |     0.98 |  5.68e-03 |     -3.30 |  &lt; .001 | [0.97, 0.99]</span></span>
+<span><span class="co">#&gt; pat.karno      |       age |     1.01 |  9.38e-03 |      1.24 |  0.213  | [0.99, 1.03]</span></span>
+<span><span class="co">#&gt; pat.karno      |       sex |     0.60 |      0.17 |     -2.98 |  0.003  | [0.43, 0.84]</span></span>
+<span><span class="co">#&gt; meal.cal       |  meal.cal |     1.00 |  2.41e-04 |     -0.64 |  0.524  | [1.00, 1.00]</span></span>
+<span><span class="co">#&gt; meal.cal       |       age |     1.02 |      0.01 |      1.41 |  0.159  | [0.99, 1.04]</span></span>
+<span><span class="co">#&gt; meal.cal       |       sex |     0.62 |      0.19 |     -2.49 |  0.013  | [0.43, 0.90]</span></span>
+<span><span class="co">#&gt; wt.loss        |   wt.loss |     1.00 |  6.29e-03 |     -0.04 |  0.966  | [0.99, 1.01]</span></span>
+<span><span class="co">#&gt; wt.loss        |       age |     1.02 |  9.72e-03 |      2.05 |  0.040  | [1.00, 1.04]</span></span>
+<span><span class="co">#&gt; wt.loss        |       sex |     0.60 |      0.17 |     -2.90 |  0.004  | [0.43, 0.85]</span></span></code></pre></div>
 <p>As HTML table:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_table.html">br_show_table</a></span><span class="op">(</span><span class="va">mds</span>, export <span class="op">=</span> <span class="cn">TRUE</span>, args_table_export <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>format <span class="op">=</span> <span class="st">"html"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -370,15 +368,15 @@
 </h2>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">covr</span><span class="fu">::</span><span class="fu">package_coverage</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; bregr Coverage: 79.88%</span></span>
-<span><span class="co">#&gt; R/98-utils.R: 41.03%</span></span>
-<span><span class="co">#&gt; R/01-class.R: 43.33%</span></span>
-<span><span class="co">#&gt; R/04-show.R: 79.74%</span></span>
+<span><span class="co">#&gt; bregr Coverage: 79.57%</span></span>
+<span><span class="co">#&gt; R/98-utils.R: 37.18%</span></span>
+<span><span class="co">#&gt; R/04-show.R: 78.15%</span></span>
+<span><span class="co">#&gt; R/06-avail.R: 78.57%</span></span>
 <span><span class="co">#&gt; R/03-accessors.R: 82.86%</span></span>
-<span><span class="co">#&gt; R/02-pipeline.R: 90.53%</span></span>
+<span><span class="co">#&gt; R/02-pipeline.R: 87.36%</span></span>
+<span><span class="co">#&gt; R/01-class.R: 90.70%</span></span>
 <span><span class="co">#&gt; R/99-zzz.R: 90.91%</span></span>
-<span><span class="co">#&gt; R/05-polar.R: 96.64%</span></span>
-<span><span class="co">#&gt; R/06-avail.R: 100.00%</span></span></code></pre></div>
+<span><span class="co">#&gt; R/05-polar.R: 95.19%</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="related-projects">Related Project(s)<a class="anchor" aria-label="anchor" href="#related-projects"></a>

@@ -73,7 +73,8 @@ The function uses <code><a href="https://rdrr.io/pkg/forestploter/man/forest.htm
 <span>  <span class="va">...</span>,</span>
 <span>  subset <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  drop <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  tab_headers <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  tab_headers <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  log_first <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -98,7 +99,9 @@ and reduce repeat values in column "Group", "Focal", and "Variable".</p></dd>
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments passed to <code><a href="https://rdrr.io/pkg/forestploter/man/forest.html" class="external-link">forestploter::forest()</a></code>, run <code><a href="https://cran.rstudio.com/web/packages/forestploter/vignettes/forestploter-post.html" class="external-link">vignette("forestploter-post", "forestploter")</a></code>
-to see more plot options.</p></dd>
+to see more plot options.
+For example, use <code>ticks_at</code> to specify
+custom ticks, generally a vector of 4-5 elements.</p></dd>
 
 
 <dt id="arg-subset">subset<a class="anchor" aria-label="anchor" href="#arg-subset"></a></dt>
@@ -111,6 +114,11 @@ to see more plot options.</p></dd>
 
 <dt id="arg-tab-headers">tab_headers<a class="anchor" aria-label="anchor" href="#arg-tab-headers"></a></dt>
 <dd><p>Character vector of custom column headers (must match number of displayed columns).</p></dd>
+
+
+<dt id="arg-log-first">log_first<a class="anchor" aria-label="anchor" href="#arg-log-first"></a></dt>
+<dd><p>Log transformed the estimates and their confident intervals.
+For only log scaled axis of the forest, use <code>x_trans = "log"</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

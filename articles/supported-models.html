@@ -66,7 +66,7 @@ Wang</h4>
 University<br><a class="author_email" href="mailto:#"></a><a href="mailto:wangshx@csu.edu.cn" class="email">wangshx@csu.edu.cn</a>
       </address>
                   
-            <h4 data-toc-skip class="date">2025-08-05</h4>
+            <h4 data-toc-skip class="date">2025-08-06</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/WangLabCSU/bregr/blob/main/vignettes/supported-models.Rmd" class="external-link"><code>vignettes/supported-models.Rmd</code></a></small>
       <div class="d-none name"><code>supported-models.Rmd</code></div>
@@ -107,7 +107,7 @@ instead of a piped workflow to maintain simplicity.</p>
 <h3 id="linear-models">Linear Models<a class="anchor" aria-label="anchor" href="#linear-models"></a>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">rv</span> <span class="op">=</span> <span class="fu"><a href="../reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">rv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">mtcars</span>,</span>
 <span>  y <span class="op">=</span> <span class="st">"mpg"</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cyl"</span>, <span class="st">"disp"</span>, <span class="st">"hp"</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="st">"am"</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"lm"</span></span>
@@ -125,7 +125,7 @@ instead of a piped workflow to maintain simplicity.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> hp             am      5.28     1.08         4.89   3.46<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span>   3.07      7.48</span></span></code></pre></div>
 <p>To focus on the results of focal variables:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/accessors.html">br_get_results</a></span><span class="op">(</span><span class="va">rv</span>, tidy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/accessors.html">br_get_results</a></span><span class="op">(</span><span class="va">rv</span>, tidy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Focal_variable</span> <span class="op">==</span> <span class="va">term</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 8</span></span></span>
 <span><span class="co">#&gt;   Focal_variable term  estimate std.error statistic   p.value conf.low conf.high</span></span>
@@ -140,8 +140,8 @@ linear models.</p>
 <span>  data <span class="op">=</span> <span class="va">mtcars</span>,</span>
 <span>  y <span class="op">=</span> <span class="st">"mpg"</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cyl"</span>, <span class="st">"disp"</span>, <span class="st">"hp"</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="st">"am"</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"gaussian"</span></span>
-<span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="../reference/accessors.html">br_get_results</a></span><span class="op">(</span>tidy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/accessors.html">br_get_results</a></span><span class="op">(</span>tidy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Focal_variable</span> <span class="op">==</span> <span class="va">term</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 8</span></span></span>
 <span><span class="co">#&gt;   Focal_variable term  estimate std.error statistic   p.value conf.low conf.high</span></span>
@@ -162,12 +162,12 @@ appropriate data.</p>
 <span>  data <span class="op">=</span> <span class="va">mtcars</span>,</span>
 <span>  y <span class="op">=</span> <span class="st">"vs"</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"cyl"</span>, <span class="st">"disp"</span>, <span class="st">"hp"</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="st">"am"</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"binomial"</span></span>
-<span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="../reference/accessors.html">br_get_results</a></span><span class="op">(</span>tidy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/accessors.html">br_get_results</a></span><span class="op">(</span>tidy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Focal_variable</span> <span class="op">==</span> <span class="va">term</span><span class="op">)</span></span>
-<span><span class="co">#&gt; set `exponentiate=TRUE` for model(s) constructed from <span style="color: #00BB00;">binomial</span> method at</span></span>
-<span><span class="co">#&gt; default</span></span>
+<span><span class="co">#&gt; exponentiate estimates of model(s) constructed from <span style="color: #00BB00;">binomial</span></span></span>
+<span><span class="co">#&gt; method at default</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 8</span></span></span>
 <span><span class="co">#&gt;   Focal_variable term  estimate std.error statistic p.value conf.low conf.high</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
@@ -184,12 +184,12 @@ appropriate data.</p>
 <span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"status"</span><span class="op">)</span>,</span>
 <span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ph.ecog"</span>, <span class="st">"ph.karno"</span>, <span class="st">"pat.karno"</span>, <span class="st">"meal.cal"</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"coxph"</span></span>
-<span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="../reference/accessors.html">br_get_results</a></span><span class="op">(</span>tidy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/accessors.html">br_get_results</a></span><span class="op">(</span>tidy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Focal_variable</span> <span class="op">==</span> <span class="va">term</span><span class="op">)</span></span>
-<span><span class="co">#&gt; set `exponentiate=TRUE` for model(s) constructed from <span style="color: #00BB00;">coxph</span></span></span>
-<span><span class="co">#&gt; method at default</span></span>
+<span><span class="co">#&gt; exponentiate estimates of model(s) constructed from <span style="color: #00BB00;">coxph</span> method</span></span>
+<span><span class="co">#&gt; at default</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4 × 8</span></span></span>
 <span><span class="co">#&gt;   Focal_variable term    estimate std.error statistic p.value conf.low conf.high</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
@@ -456,8 +456,8 @@ within the package and can be inspected using:</p>
 <span><span class="co">#&gt; {</span></span>
 <span><span class="co">#&gt;     glue::glue("survival::Surv({paste(y, collapse = ', ')})")</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x5555f1f5f308&gt;</span></span>
-<span><span class="co">#&gt; &lt;environment: 0x5555f77658d8&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x55b39038d878&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: 0x55b395837d30&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $args_method</span></span>
 <span><span class="co">#&gt; NULL</span></span>
@@ -499,7 +499,7 @@ data”.</p></li>
 <p>For example, to configure a linear mixed model:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"lme4"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">md_config</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="va">md_config</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    f_call <span class="op">=</span> <span class="st">"lme4::lmer"</span>,</span>
 <span>    f_cnst_y <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>    args_method <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -515,8 +515,8 @@ data”.</p></li>
 <span>    y <span class="op">=</span> <span class="st">"Reaction"</span>,</span>
 <span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Days"</span>, <span class="st">"Subject"</span><span class="op">)</span>, x2 <span class="op">=</span> <span class="st">"(Days | Subject)"</span>,</span>
 <span>    method <span class="op">=</span> <span class="va">md_config</span></span>
-<span>  <span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>    <span class="co">#br_get_results(tidy = TRUE)</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="co"># br_get_results(tidy = TRUE)</span></span>
 <span>    <span class="fu"><a href="../reference/br_show_table.html">br_show_table</a></span><span class="op">(</span>export <span class="op">=</span> <span class="cn">TRUE</span>, args_table_export <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>format <span class="op">=</span> <span class="st">"html"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="co">#&gt; Loading required namespace: merDeriv</span></span>
