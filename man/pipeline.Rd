@@ -147,8 +147,8 @@ m4 <- br_pipeline(mtcars,
 )
 
 # 3. Customized model -----------
-dt = data.frame(x = rnorm(100))
-dt$y = rpois(100, exp(1+dt$x))
+dt <- data.frame(x = rnorm(100))
+dt$y <- rpois(100, exp(1 + dt$x))
 m5 <- breg(dt) |>
   br_set_y("y") |>
   br_set_x("x") |>

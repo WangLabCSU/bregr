@@ -89,7 +89,8 @@ library(bregr)
 Load data:
 
 ``` r
-lung <- survival::lung
+lung <- survival::lung |>
+  dplyr::filter(ph.ecog != 3)
 lung$ph.ecog <- factor(lung$ph.ecog)
 ```
 
@@ -109,7 +110,7 @@ mds <- breg(lung) |> # Init breg object
   br_set_x2(c("age", "sex")) |> # Controls
   br_set_model("coxph") |> # Cox Proportional Hazards
   br_run() # Execute models
-#> set `exponentiate=TRUE` for model(s) constructed from coxph method at default
+#> exponentiate estimates of model(s) constructed from coxph method at default
 ```
 
 ### One-Step Pipeline
@@ -137,15 +138,13 @@ br_get_models(mds) # Raw model objects
 #>     age + sex, data = data)
 #> 
 #>               coef exp(coef)  se(coef)      z        p
-#> ph.ecog1  0.410048  1.506890  0.199604  2.054  0.03995
-#> ph.ecog2  0.903303  2.467741  0.228078  3.960 7.48e-05
-#> ph.ecog3  1.954543  7.060694  1.029701  1.898  0.05767
-#> age       0.010795  1.010853  0.009312  1.159  0.24637
-#> sex      -0.545831  0.579360  0.168228 -3.245  0.00118
+#> ph.ecog1  0.409836  1.506571  0.199606  2.053  0.04005
+#> ph.ecog2  0.902321  2.465318  0.228092  3.956 7.62e-05
+#> age       0.010777  1.010836  0.009312  1.157  0.24713
+#> sex      -0.545631  0.579476  0.168229 -3.243  0.00118
 #> 
-#> Likelihood ratio test=30.87  on 5 df, p=9.952e-06
-#> n= 227, number of events= 164 
-#>    (1 observation deleted due to missingness)
+#> Likelihood ratio test=28.94  on 4 df, p=8.052e-06
+#> n= 226, number of events= 163 
 #> 
 #> $ph.karno
 #> Call:
@@ -153,12 +152,12 @@ br_get_models(mds) # Raw model objects
 #>     age + sex, data = data)
 #> 
 #>               coef exp(coef)  se(coef)      z       p
-#> ph.karno -0.013322  0.986767  0.005880 -2.266 0.02348
-#> age       0.012375  1.012452  0.009405  1.316 0.18821
-#> sex      -0.497170  0.608249  0.167713 -2.964 0.00303
+#> ph.karno -0.012238  0.987837  0.005946 -2.058 0.03957
+#> age       0.012615  1.012695  0.009462  1.333 0.18244
+#> sex      -0.485116  0.615626  0.168170 -2.885 0.00392
 #> 
-#> Likelihood ratio test=18.81  on 3 df, p=0.0002987
-#> n= 227, number of events= 164 
+#> Likelihood ratio test=17.21  on 3 df, p=0.0006413
+#> n= 225, number of events= 162 
 #>    (1 observation deleted due to missingness)
 #> 
 #> $pat.karno
@@ -167,12 +166,12 @@ br_get_models(mds) # Raw model objects
 #>     age + sex, data = data)
 #> 
 #>                coef exp(coef)  se(coef)      z        p
-#> pat.karno -0.019061  0.981120  0.005638 -3.381 0.000722
-#> age        0.011793  1.011863  0.009331  1.264 0.206269
-#> sex       -0.519262  0.594959  0.168967 -3.073 0.002118
+#> pat.karno -0.018736  0.981439  0.005676 -3.301 0.000964
+#> age        0.011672  1.011740  0.009381  1.244 0.213436
+#> sex       -0.505205  0.603382  0.169452 -2.981 0.002869
 #> 
-#> Likelihood ratio test=24.33  on 3 df, p=2.133e-05
-#> n= 225, number of events= 162 
+#> Likelihood ratio test=23.07  on 3 df, p=3.896e-05
+#> n= 223, number of events= 160 
 #>    (3 observations deleted due to missingness)
 #> 
 #> $meal.cal
@@ -180,13 +179,13 @@ br_get_models(mds) # Raw model objects
 #> survival::coxph(formula = survival::Surv(time, status) ~ meal.cal + 
 #>     age + sex, data = data)
 #> 
-#>                coef  exp(coef)   se(coef)      z     p
-#> meal.cal -0.0001341  0.9998659  0.0002383 -0.563 0.574
-#> age       0.0152942  1.0154117  0.0105352  1.452 0.147
-#> sex      -0.4914187  0.6117579  0.1908601 -2.575 0.010
+#>                coef  exp(coef)   se(coef)      z      p
+#> meal.cal -0.0001535  0.9998465  0.0002409 -0.637 0.5239
+#> age       0.0149375  1.0150496  0.0106016  1.409 0.1588
+#> sex      -0.4775830  0.6202808  0.1914559 -2.494 0.0126
 #> 
-#> Likelihood ratio test=10.65  on 3 df, p=0.01376
-#> n= 181, number of events= 134 
+#> Likelihood ratio test=10.1  on 3 df, p=0.0177
+#> n= 179, number of events= 132 
 #>    (47 observations deleted due to missingness)
 #> 
 #> $wt.loss
@@ -194,61 +193,59 @@ br_get_models(mds) # Raw model objects
 #> survival::coxph(formula = survival::Surv(time, status) ~ wt.loss + 
 #>     age + sex, data = data)
 #> 
-#>               coef  exp(coef)   se(coef)      z      p
-#> wt.loss  0.0007596  1.0007599  0.0061934  0.123 0.9024
-#> age      0.0200882  1.0202913  0.0096644  2.079 0.0377
-#> sex     -0.5210319  0.5939074  0.1743541 -2.988 0.0028
+#>               coef  exp(coef)   se(coef)      z       p
+#> wt.loss -0.0002676  0.9997324  0.0062908 -0.043 0.96607
+#> age      0.0199314  1.0201314  0.0097178  2.051 0.04027
+#> sex     -0.5067253  0.6024652  0.1748697 -2.898 0.00376
 #> 
-#> Likelihood ratio test=14.67  on 3 df, p=0.002122
-#> n= 214, number of events= 152 
+#> Likelihood ratio test=13.87  on 3 df, p=0.003086
+#> n= 212, number of events= 150 
 #>    (14 observations deleted due to missingness)
 br_get_results(mds) # Comprehensive estimates
-#> # A tibble: 18 × 21
+#> # A tibble: 17 × 21
 #>    Focal_variable term      variable  var_label var_class var_type   var_nlevels
 #>    <chr>          <chr>     <chr>     <chr>     <chr>     <chr>            <int>
-#>  1 ph.ecog        ph.ecog0  ph.ecog   ph.ecog   factor    categoric…           4
-#>  2 ph.ecog        ph.ecog1  ph.ecog   ph.ecog   factor    categoric…           4
-#>  3 ph.ecog        ph.ecog2  ph.ecog   ph.ecog   factor    categoric…           4
-#>  4 ph.ecog        ph.ecog3  ph.ecog   ph.ecog   factor    categoric…           4
-#>  5 ph.ecog        age       age       age       numeric   continuous          NA
-#>  6 ph.ecog        sex       sex       sex       numeric   continuous          NA
-#>  7 ph.karno       ph.karno  ph.karno  ph.karno  numeric   continuous          NA
-#>  8 ph.karno       age       age       age       numeric   continuous          NA
-#>  9 ph.karno       sex       sex       sex       numeric   continuous          NA
-#> 10 pat.karno      pat.karno pat.karno pat.karno numeric   continuous          NA
-#> 11 pat.karno      age       age       age       numeric   continuous          NA
-#> 12 pat.karno      sex       sex       sex       numeric   continuous          NA
-#> 13 meal.cal       meal.cal  meal.cal  meal.cal  numeric   continuous          NA
-#> 14 meal.cal       age       age       age       numeric   continuous          NA
-#> 15 meal.cal       sex       sex       sex       numeric   continuous          NA
-#> 16 wt.loss        wt.loss   wt.loss   wt.loss   numeric   continuous          NA
-#> 17 wt.loss        age       age       age       numeric   continuous          NA
-#> 18 wt.loss        sex       sex       sex       numeric   continuous          NA
+#>  1 ph.ecog        ph.ecog0  ph.ecog   ph.ecog   factor    categoric…           3
+#>  2 ph.ecog        ph.ecog1  ph.ecog   ph.ecog   factor    categoric…           3
+#>  3 ph.ecog        ph.ecog2  ph.ecog   ph.ecog   factor    categoric…           3
+#>  4 ph.ecog        age       age       age       numeric   continuous          NA
+#>  5 ph.ecog        sex       sex       sex       numeric   continuous          NA
+#>  6 ph.karno       ph.karno  ph.karno  ph.karno  numeric   continuous          NA
+#>  7 ph.karno       age       age       age       numeric   continuous          NA
+#>  8 ph.karno       sex       sex       sex       numeric   continuous          NA
+#>  9 pat.karno      pat.karno pat.karno pat.karno numeric   continuous          NA
+#> 10 pat.karno      age       age       age       numeric   continuous          NA
+#> 11 pat.karno      sex       sex       sex       numeric   continuous          NA
+#> 12 meal.cal       meal.cal  meal.cal  meal.cal  numeric   continuous          NA
+#> 13 meal.cal       age       age       age       numeric   continuous          NA
+#> 14 meal.cal       sex       sex       sex       numeric   continuous          NA
+#> 15 wt.loss        wt.loss   wt.loss   wt.loss   numeric   continuous          NA
+#> 16 wt.loss        age       age       age       numeric   continuous          NA
+#> 17 wt.loss        sex       sex       sex       numeric   continuous          NA
 #> # ℹ 14 more variables: contrasts <chr>, contrasts_type <chr>,
 #> #   reference_row <lgl>, label <chr>, n_obs <dbl>, n_ind <dbl>, n_event <dbl>,
 #> #   exposure <dbl>, estimate <dbl>, std.error <dbl>, statistic <dbl>,
 #> #   p.value <dbl>, conf.low <dbl>, conf.high <dbl>
 br_get_results(mds, tidy = TRUE) # Tidy-formatted coefficients
-#> # A tibble: 17 × 8
+#> # A tibble: 16 × 8
 #>    Focal_variable term   estimate std.error statistic p.value conf.low conf.high
 #>    <chr>          <chr>     <dbl>     <dbl>     <dbl>   <dbl>    <dbl>     <dbl>
-#>  1 ph.ecog        ph.ec…    1.51   0.200        2.05  3.99e-2    1.02      2.23 
-#>  2 ph.ecog        ph.ec…    2.47   0.228        3.96  7.48e-5    1.58      3.86 
-#>  3 ph.ecog        ph.ec…    7.06   1.03         1.90  5.77e-2    0.938    53.1  
-#>  4 ph.ecog        age       1.01   0.00931      1.16  2.46e-1    0.993     1.03 
-#>  5 ph.ecog        sex       0.579  0.168       -3.24  1.18e-3    0.417     0.806
-#>  6 ph.karno       ph.ka…    0.987  0.00588     -2.27  2.35e-2    0.975     0.998
-#>  7 ph.karno       age       1.01   0.00940      1.32  1.88e-1    0.994     1.03 
-#>  8 ph.karno       sex       0.608  0.168       -2.96  3.03e-3    0.438     0.845
-#>  9 pat.karno      pat.k…    0.981  0.00564     -3.38  7.22e-4    0.970     0.992
-#> 10 pat.karno      age       1.01   0.00933      1.26  2.06e-1    0.994     1.03 
-#> 11 pat.karno      sex       0.595  0.169       -3.07  2.12e-3    0.427     0.829
-#> 12 meal.cal       meal.…    1.00   0.000238    -0.563 5.74e-1    0.999     1.00 
-#> 13 meal.cal       age       1.02   0.0105       1.45  1.47e-1    0.995     1.04 
-#> 14 meal.cal       sex       0.612  0.191       -2.57  1.00e-2    0.421     0.889
-#> 15 wt.loss        wt.lo…    1.00   0.00619      0.123 9.02e-1    0.989     1.01 
-#> 16 wt.loss        age       1.02   0.00966      2.08  3.77e-2    1.00      1.04 
-#> 17 wt.loss        sex       0.594  0.174       -2.99  2.80e-3    0.422     0.836
+#>  1 ph.ecog        ph.ec…    1.51   0.200       2.05   4.01e-2    1.02      2.23 
+#>  2 ph.ecog        ph.ec…    2.47   0.228       3.96   7.62e-5    1.58      3.86 
+#>  3 ph.ecog        age       1.01   0.00931     1.16   2.47e-1    0.993     1.03 
+#>  4 ph.ecog        sex       0.579  0.168      -3.24   1.18e-3    0.417     0.806
+#>  5 ph.karno       ph.ka…    0.988  0.00595    -2.06   3.96e-2    0.976     0.999
+#>  6 ph.karno       age       1.01   0.00946     1.33   1.82e-1    0.994     1.03 
+#>  7 ph.karno       sex       0.616  0.168      -2.88   3.92e-3    0.443     0.856
+#>  8 pat.karno      pat.k…    0.981  0.00568    -3.30   9.64e-4    0.971     0.992
+#>  9 pat.karno      age       1.01   0.00938     1.24   2.13e-1    0.993     1.03 
+#> 10 pat.karno      sex       0.603  0.169      -2.98   2.87e-3    0.433     0.841
+#> 11 meal.cal       meal.…    1.000  0.000241   -0.637  5.24e-1    0.999     1.00 
+#> 12 meal.cal       age       1.02   0.0106      1.41   1.59e-1    0.994     1.04 
+#> 13 meal.cal       sex       0.620  0.191      -2.49   1.26e-2    0.426     0.903
+#> 14 wt.loss        wt.lo…    1.000  0.00629    -0.0425 9.66e-1    0.987     1.01 
+#> 15 wt.loss        age       1.02   0.00972     2.05   4.03e-2    1.00      1.04 
+#> 16 wt.loss        sex       0.602  0.175      -2.90   3.76e-3    0.428     0.849
 ```
 
 ### Visualization
@@ -271,7 +268,10 @@ of x axis.
 br_show_forest(
   mds,
   rm_controls = TRUE, # Focus on focal predictors
-  xlim = c(0, 10), # Custom axis scaling
+  xlim = c(0, 3), # Custom axis scaling
+  #   Use x_trans = "log" to transform the axis
+  #   Use log_first = TRUE to transform both
+  #       the axis and estimate table
   drop = 1 # Remove redundant columns
 )
 ```
@@ -294,7 +294,7 @@ mds2 <- br_pipeline(
   x2 = c("age", "sex"),
   method = "coxph"
 )
-#> set `exponentiate=TRUE` for model(s) constructed from coxph method at default
+#> exponentiate estimates of model(s) constructed from coxph method at default
 ```
 
 ``` r
@@ -310,49 +310,47 @@ Show tidy table result as pretty table:
 
 ``` r
 br_show_table(mds)
-#>    Focal_variable      term estimate std.error statistic p.value      conf.int
-#> 1         ph.ecog  ph.ecog1     1.51      0.20      2.05  0.040  [1.02,  2.23]
-#> 2         ph.ecog  ph.ecog2     2.47      0.23      3.96  < .001 [1.58,  3.86]
-#> 3         ph.ecog  ph.ecog3     7.06      1.03      1.90  0.058  [0.94, 53.13]
-#> 4         ph.ecog       age     1.01  9.31e-03      1.16  0.246  [0.99,  1.03]
-#> 5         ph.ecog       sex     0.58      0.17     -3.24  0.001  [0.42,  0.81]
-#> 6        ph.karno  ph.karno     0.99  5.88e-03     -2.27  0.023  [0.98,  1.00]
-#> 7        ph.karno       age     1.01  9.40e-03      1.32  0.188  [0.99,  1.03]
-#> 8        ph.karno       sex     0.61      0.17     -2.96  0.003  [0.44,  0.84]
-#> 9       pat.karno pat.karno     0.98  5.64e-03     -3.38  < .001 [0.97,  0.99]
-#> 10      pat.karno       age     1.01  9.33e-03      1.26  0.206  [0.99,  1.03]
-#> 11      pat.karno       sex     0.59      0.17     -3.07  0.002  [0.43,  0.83]
-#> 12       meal.cal  meal.cal     1.00  2.38e-04     -0.56  0.574  [1.00,  1.00]
-#> 13       meal.cal       age     1.02      0.01      1.45  0.147  [0.99,  1.04]
-#> 14       meal.cal       sex     0.61      0.19     -2.57  0.010  [0.42,  0.89]
-#> 15        wt.loss   wt.loss     1.00  6.19e-03      0.12  0.902  [0.99,  1.01]
-#> 16        wt.loss       age     1.02  9.66e-03      2.08  0.038  [1.00,  1.04]
-#> 17        wt.loss       sex     0.59      0.17     -2.99  0.003  [0.42,  0.84]
+#>    Focal_variable      term estimate std.error statistic p.value     conf.int
+#> 1         ph.ecog  ph.ecog1     1.51      0.20      2.05  0.040  [1.02, 2.23]
+#> 2         ph.ecog  ph.ecog2     2.47      0.23      3.96  < .001 [1.58, 3.86]
+#> 3         ph.ecog       age     1.01  9.31e-03      1.16  0.247  [0.99, 1.03]
+#> 4         ph.ecog       sex     0.58      0.17     -3.24  0.001  [0.42, 0.81]
+#> 5        ph.karno  ph.karno     0.99  5.95e-03     -2.06  0.040  [0.98, 1.00]
+#> 6        ph.karno       age     1.01  9.46e-03      1.33  0.182  [0.99, 1.03]
+#> 7        ph.karno       sex     0.62      0.17     -2.88  0.004  [0.44, 0.86]
+#> 8       pat.karno pat.karno     0.98  5.68e-03     -3.30  < .001 [0.97, 0.99]
+#> 9       pat.karno       age     1.01  9.38e-03      1.24  0.213  [0.99, 1.03]
+#> 10      pat.karno       sex     0.60      0.17     -2.98  0.003  [0.43, 0.84]
+#> 11       meal.cal  meal.cal     1.00  2.41e-04     -0.64  0.524  [1.00, 1.00]
+#> 12       meal.cal       age     1.02      0.01      1.41  0.159  [0.99, 1.04]
+#> 13       meal.cal       sex     0.62      0.19     -2.49  0.013  [0.43, 0.90]
+#> 14        wt.loss   wt.loss     1.00  6.29e-03     -0.04  0.966  [0.99, 1.01]
+#> 15        wt.loss       age     1.02  9.72e-03      2.05  0.040  [1.00, 1.04]
+#> 16        wt.loss       sex     0.60      0.17     -2.90  0.004  [0.43, 0.85]
 ```
 
 As markdown table:
 
 ``` r
 br_show_table(mds, export = TRUE)
-#> Focal_variable |      term | estimate | std.error | statistic | p.value |      conf.int
-#> ---------------------------------------------------------------------------------------
-#> ph.ecog        |  ph.ecog1 |     1.51 |      0.20 |      2.05 |  0.040  | [1.02,  2.23]
-#> ph.ecog        |  ph.ecog2 |     2.47 |      0.23 |      3.96 |  < .001 | [1.58,  3.86]
-#> ph.ecog        |  ph.ecog3 |     7.06 |      1.03 |      1.90 |  0.058  | [0.94, 53.13]
-#> ph.ecog        |       age |     1.01 |  9.31e-03 |      1.16 |  0.246  | [0.99,  1.03]
-#> ph.ecog        |       sex |     0.58 |      0.17 |     -3.24 |  0.001  | [0.42,  0.81]
-#> ph.karno       |  ph.karno |     0.99 |  5.88e-03 |     -2.27 |  0.023  | [0.98,  1.00]
-#> ph.karno       |       age |     1.01 |  9.40e-03 |      1.32 |  0.188  | [0.99,  1.03]
-#> ph.karno       |       sex |     0.61 |      0.17 |     -2.96 |  0.003  | [0.44,  0.84]
-#> pat.karno      | pat.karno |     0.98 |  5.64e-03 |     -3.38 |  < .001 | [0.97,  0.99]
-#> pat.karno      |       age |     1.01 |  9.33e-03 |      1.26 |  0.206  | [0.99,  1.03]
-#> pat.karno      |       sex |     0.59 |      0.17 |     -3.07 |  0.002  | [0.43,  0.83]
-#> meal.cal       |  meal.cal |     1.00 |  2.38e-04 |     -0.56 |  0.574  | [1.00,  1.00]
-#> meal.cal       |       age |     1.02 |      0.01 |      1.45 |  0.147  | [0.99,  1.04]
-#> meal.cal       |       sex |     0.61 |      0.19 |     -2.57 |  0.010  | [0.42,  0.89]
-#> wt.loss        |   wt.loss |     1.00 |  6.19e-03 |      0.12 |  0.902  | [0.99,  1.01]
-#> wt.loss        |       age |     1.02 |  9.66e-03 |      2.08 |  0.038  | [1.00,  1.04]
-#> wt.loss        |       sex |     0.59 |      0.17 |     -2.99 |  0.003  | [0.42,  0.84]
+#> Focal_variable |      term | estimate | std.error | statistic | p.value |     conf.int
+#> --------------------------------------------------------------------------------------
+#> ph.ecog        |  ph.ecog1 |     1.51 |      0.20 |      2.05 |  0.040  | [1.02, 2.23]
+#> ph.ecog        |  ph.ecog2 |     2.47 |      0.23 |      3.96 |  < .001 | [1.58, 3.86]
+#> ph.ecog        |       age |     1.01 |  9.31e-03 |      1.16 |  0.247  | [0.99, 1.03]
+#> ph.ecog        |       sex |     0.58 |      0.17 |     -3.24 |  0.001  | [0.42, 0.81]
+#> ph.karno       |  ph.karno |     0.99 |  5.95e-03 |     -2.06 |  0.040  | [0.98, 1.00]
+#> ph.karno       |       age |     1.01 |  9.46e-03 |      1.33 |  0.182  | [0.99, 1.03]
+#> ph.karno       |       sex |     0.62 |      0.17 |     -2.88 |  0.004  | [0.44, 0.86]
+#> pat.karno      | pat.karno |     0.98 |  5.68e-03 |     -3.30 |  < .001 | [0.97, 0.99]
+#> pat.karno      |       age |     1.01 |  9.38e-03 |      1.24 |  0.213  | [0.99, 1.03]
+#> pat.karno      |       sex |     0.60 |      0.17 |     -2.98 |  0.003  | [0.43, 0.84]
+#> meal.cal       |  meal.cal |     1.00 |  2.41e-04 |     -0.64 |  0.524  | [1.00, 1.00]
+#> meal.cal       |       age |     1.02 |      0.01 |      1.41 |  0.159  | [0.99, 1.04]
+#> meal.cal       |       sex |     0.62 |      0.19 |     -2.49 |  0.013  | [0.43, 0.90]
+#> wt.loss        |   wt.loss |     1.00 |  6.29e-03 |     -0.04 |  0.966  | [0.99, 1.01]
+#> wt.loss        |       age |     1.02 |  9.72e-03 |      2.05 |  0.040  | [1.00, 1.04]
+#> wt.loss        |       sex |     0.60 |      0.17 |     -2.90 |  0.004  | [0.43, 0.85]
 ```
 
 As HTML table:
@@ -372,15 +370,15 @@ site](https://wanglabcsu.github.io/bregr/).
 
 ``` r
 covr::package_coverage()
-#> bregr Coverage: 79.88%
-#> R/98-utils.R: 41.03%
-#> R/01-class.R: 43.33%
-#> R/04-show.R: 79.74%
+#> bregr Coverage: 79.57%
+#> R/98-utils.R: 37.18%
+#> R/04-show.R: 78.15%
+#> R/06-avail.R: 78.57%
 #> R/03-accessors.R: 82.86%
-#> R/02-pipeline.R: 90.53%
+#> R/02-pipeline.R: 87.36%
+#> R/01-class.R: 90.70%
 #> R/99-zzz.R: 90.91%
-#> R/05-polar.R: 96.64%
-#> R/06-avail.R: 100.00%
+#> R/05-polar.R: 95.19%
 ```
 
 ## Related Project(s)

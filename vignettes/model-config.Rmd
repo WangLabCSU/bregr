@@ -31,7 +31,7 @@ The **bregr** package provides comprehensive support for the processing and visu
 Below is an illustrative example using a linear model:
 
 ```{r}
-rv = br_pipeline(
+rv <- br_pipeline(
   data = mtcars,
   y = "mpg", x = c("cyl", "disp*hp"), x2 = "am",
   method = "lm"
@@ -73,15 +73,15 @@ br_avail_methods()
 However, for alternative GLM configurations, modifications can be made directly. For instance, consider the following example using a quasi-family with specified variance and link functions:
 
 ```{r}
-data = data.frame(
+data <- data.frame(
   x = rnorm(100)
 )
-data$y = rpois(100, exp(1+data$x))
+data$y <- rpois(100, exp(1 + data$x))
 head(data)
 ```
 
 ```{r}
-rv = br_pipeline(
+rv <- br_pipeline(
   data = data,
   y = "y", x = "x",
   method = 'quasi(variance = "mu", link = "log")'
@@ -92,6 +92,6 @@ br_get_results(rv, tidy = TRUE)
 This is equivalent to:
 
 ```{r}
-glm(y ~ x, data = data, family = quasi(variance = "mu", link = "log")) |> 
+glm(y ~ x, data = data, family = quasi(variance = "mu", link = "log")) |>
   summary()
 ```

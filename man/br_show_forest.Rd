@@ -11,7 +11,8 @@ br_show_forest(
   ...,
   subset = NULL,
   drop = NULL,
-  tab_headers = NULL
+  tab_headers = NULL,
+  log_first = FALSE
 )
 }
 \arguments{
@@ -25,13 +26,18 @@ and reduce repeat values in column "Group", "Focal", and "Variable".}
 \item{rm_controls}{If \code{TRUE}, remove control terms.}
 
 \item{...}{Additional arguments passed to \code{\link[forestploter:forest]{forestploter::forest()}}, run \code{vignette("forestploter-post", "forestploter")}
-to see more plot options.}
+to see more plot options.
+For example, use \code{ticks_at} to specify
+custom ticks, generally a vector of 4-5 elements.}
 
 \item{subset}{Expression for subsetting the results data (\code{br_get_results(breg)}).}
 
 \item{drop}{Column indices to drop from the display table.}
 
 \item{tab_headers}{Character vector of custom column headers (must match number of displayed columns).}
+
+\item{log_first}{Log transformed the estimates and their confident intervals.
+For only log scaled axis of the forest, use \code{x_trans = "log"}.}
 }
 \value{
 A plot

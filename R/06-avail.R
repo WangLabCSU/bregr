@@ -34,7 +34,12 @@ br_avail_methods <- function() {
 #' set `exponentiate=TRUE` at default by **bregr**.
 #' @export
 br_avail_methods_use_exp <- function() {
-  c("coxph", "binomial", "quasibinomial")
+  # This is typical for logistic, Poisson and Cox models,
+  # but a bad idea if there is no log or logit link
+  c(
+    "coxph", "binomial", "quasibinomial",
+    "poisson", "quasipoisson"
+  )
 }
 
 #' @describeIn avails Returns model configs for specified method to

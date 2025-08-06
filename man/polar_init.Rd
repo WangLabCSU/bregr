@@ -4,14 +4,15 @@
 \alias{polar_init}
 \title{Init a dot plot in polar system}
 \usage{
-polar_init(data, x, ...)
+polar_init(data, mapping, ...)
 }
 \arguments{
 \item{data}{A \code{data.frame} contains all events, e.g., genes.}
 
-\item{x}{Column name (without quote) storing event list.}
+\item{mapping}{Set of aesthetic mappings to \code{\link[ggplot2:geom_point]{ggplot2::geom_point()}}.
+You should not set mapping for \code{y}.}
 
-\item{...}{Arguments passing to \code{\link[ggplot2:geom_point]{ggplot2::geom_point()}}.}
+\item{...}{Other arguments passing to \code{\link[ggplot2:geom_point]{ggplot2::geom_point()}}.}
 }
 \value{
 A \code{ggplot} object.
@@ -27,11 +28,11 @@ library(ggplot2)
 
 data <- data.frame(x = LETTERS[1:7])
 
-p1 <- polar_init(data, x = x)
+p1 <- polar_init(data, aes(x = x))
 p1
 
 # Set aes value
-p2 <- polar_init(data, x = x, size = 3, color = "red", alpha = 0.5)
+p2 <- polar_init(data, aes(x = x), size = 3, color = "red", alpha = 0.5)
 p2
 
 # Set aes mapping
@@ -44,7 +45,7 @@ data1 <- data.frame(
 )
 # Check https://ggplot2.tidyverse.org/reference/geom_point.html
 # for how to use both stroke and color
-p3 <- polar_init(data1, x = x, aes(size = size, color = color, shape = shape), alpha = 0.5)
+p3 <- polar_init(data1, aes(x = x, size = size, color = color, shape = shape), alpha = 0.5)
 p3
 
 # --------------------
@@ -55,11 +56,10 @@ data2 <- data.frame(
   x2 = c("B", "C", "D", "E", "C", "A", "C"),
   color = c("r", "r", "r", "b", "b", "b", "b")
 )
-p4 <- p3 + polar_connect(data2, x1, x2)
+p4 <- p3 + polar_connect(data2, aes(x = x1, xend = x2))
 p4
 
-# Unlike polar_init, mappings don't need to be included in aes()
-p5 <- p3 + polar_connect(data2, x1, x2, color = color, alpha = 0.8, linetype = 2)
+p5 <- p3 + polar_connect(data2, aes(x = x1, xend = x2, color = color), alpha = 0.8, linetype = 2)
 p5
 
 # Use two different color scales
@@ -67,7 +67,7 @@ if (requireNamespace("ggnewscale")) {
   library(ggnewscale)
   p6 <- p3 +
     new_scale("color") +
-    polar_connect(data2, x1, x2, color = color, alpha = 0.8, linetype = 2)
+    polar_connect(data2, aes(x = x1, xend = x2, color = color), alpha = 0.8, linetype = 2)
   p6 + scale_color_brewer()
   p6 + scale_color_manual(values = c("darkgreen", "magenta"))
 }

@@ -86,8 +86,8 @@
 #' )
 #'
 #' # 3. Customized model -----------
-#' dt = data.frame(x = rnorm(100))
-#' dt$y = rpois(100, exp(1+dt$x))
+#' dt <- data.frame(x = rnorm(100))
+#' dt$y <- rpois(100, exp(1 + dt$x))
 #' m5 <- breg(dt) |>
 #'   br_set_y("y") |>
 #'   br_set_x("x") |>
@@ -280,17 +280,17 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   config <- br_get_config(obj)
   dots <- rlang::list2(...)
 
-  # For logistic, and Cox-PH regressions models, `exponentiate` is typically set to `TRUE`.
+  # For br_avail_methods_use_exp(), `exponentiate` is typically set to `TRUE`.
   exponentiate <- FALSE
   if (!"exponentiate" %in% names(dots)) {
     if (rlang::is_string(config$method) && config$method %in% br_avail_methods_use_exp()) {
       dots[["exponentiate"]] <- TRUE
-      cli_inform("set {.code exponentiate=TRUE} for model(s) constructed from {.field {config$method}} method at default")
+      cli_inform("exponentiate estimates of model(s) constructed from {.field {config$method}} method at default")
     } else {
       dots[["exponentiate"]] <- FALSE
     }
-    exponentiate <- dots[["exponentiate"]]
   }
+  exponentiate <- dots[["exponentiate"]]
 
   if (is.null(group_by)) {
     res <- runner(ms, obj@data, dots, obj@x, run_parallel)
@@ -339,7 +339,8 @@ runner <- function(ms, data, dots, x, run_parallel) {
           list(interaction_sep = dots[["interaction_sep"]])
         } else {
           list(interaction_sep = ":")
-        })
+        }
+      )
     )
 
     # Get tidy result for models

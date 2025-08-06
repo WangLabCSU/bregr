@@ -4,15 +4,15 @@
 \alias{polar_connect}
 \title{Connects dots}
 \usage{
-polar_connect(data, x1, x2, ...)
+polar_connect(data, mapping, ...)
 }
 \arguments{
 \item{data}{A \code{data.frame} contains connections of all events.}
 
-\item{x1, x2}{Column names (\strong{without quote in \code{aes()}}) storing connected events.}
+\item{mapping}{Set of aesthetic mappings to \code{\link[ggplot2:geom_segment]{ggplot2::geom_segment()}}.
+Set mappings for \code{x} and \code{xend} are required.}
 
-\item{...}{Arguments passing to \code{\link[ggplot2:geom_segment]{ggplot2::geom_segment()}},
-expect \code{c(x, xend, y, yend)} these 4 mapping parameters.}
+\item{...}{Other arguments passing to \code{\link[ggplot2:geom_segment]{ggplot2::geom_segment()}}.}
 }
 \value{
 A \code{ggplot} object.

@@ -78,7 +78,8 @@ library(bregr)
 Load data:
 
 ```{r load-data}
-lung <- survival::lung
+lung <- survival::lung |>
+  dplyr::filter(ph.ecog != 3)
 lung$ph.ecog <- factor(lung$ph.ecog)
 ```
 
@@ -126,17 +127,20 @@ br_get_results(mds, tidy = TRUE) # Tidy-formatted coefficients
 
 bregr mainly provides `br_show_forest()` for plotting data table of modeling results.
 
-```{r dpi=300}
+```{r dpi=150}
 br_show_forest(mds)
 ```
 
 We can tune the plot to only keep focal variables and adjust the limits of x axis.
 
-```{r dpi=300}
+```{r dpi=150}
 br_show_forest(
   mds,
   rm_controls = TRUE, # Focus on focal predictors
-  xlim = c(0, 10), # Custom axis scaling
+  xlim = c(0, 3), # Custom axis scaling
+  #   Use x_trans = "log" to transform the axis
+  #   Use log_first = TRUE to transform both
+  #       the axis and estimate table
   drop = 1 # Remove redundant columns
 )
 ```

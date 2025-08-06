@@ -46,6 +46,7 @@ br_show_risk_network <- function(breg, ...) {
     cli_abort("this function cannot be used for analyzing data with multiple group variable after filtering")
   }
   if (isFALSE(exponentiate)) {
+    # when user set exponentiate=FALSE in br_run()
     data_reg$estimate <- exp(data_reg$estimate)
   }
 
@@ -73,24 +74,30 @@ br_show_risk_network <- function(breg, ...) {
 
   data_cor <- cbind(as.data.frame(t(sapply(vars_comb, function(x) x))), cor_value)
   colnames(data_cor) <- c("var1", "var2", "correlation")
-  data_cor$size <- abs(data_cor$correlation)
+  data_cor$linewidth <- abs(data_cor$correlation)
   data_cor$way <- ifelse(data_cor$correlation > 0, "positive", "negative")
   data_cor
 
   # 3. Visualization
-  p <- polar_init(data_reg2,
-    x = .data$Focal_variable,
-    ggplot2::aes(color = .data$role, size = .data$`-log10(p)`)
+  p <- polar_init(
+    data_reg2,
+    ggplot2::aes(
+      x = .data$Focal_variable,
+      color = .data$role, size = .data$`-log10(p)`
+    )
   ) + ggplot2::scale_color_manual(values = c("grey", "blue", "red")) +
     labs(size = "-log10(p)", color = "risk type") +
     ggnewscale::new_scale("color") +
-    ggnewscale::new_scale("size") +
+    ggnewscale::new_scale("linewidth") +
     polar_connect(data_cor,
-      x1 = .data$var1, x2 = .data$var2,
-      size = .data$size, color = .data$way, alpha = 0.5
+      aes(
+        x = .data$var1, xend = .data$var2,
+        linewidth = .data$linewidth, color = .data$way
+      ),
+      alpha = 0.5
     ) +
     ggplot2::scale_color_manual(values = c("cyan", "orange")) +
-    ggplot2::labs(color = "correlation type", size = "correlation size") +
+    ggplot2::labs(color = "correlation type", linewidth = "correlation size") +
     ggplot2::theme(
       legend.position = "right",
       legend.direction = "vertical",
@@ -107,10 +114,11 @@ br_show_risk_network <- function(breg, ...) {
 #' @description
 #' `r lifecycle::badge('stable')`
 #' @param data A `data.frame` contains all events, e.g., genes.
-#' @param x Column name (without quote) storing event list.
-#' @param ... Arguments passing to [ggplot2::geom_point()].
+#' @param mapping Set of aesthetic mappings to [ggplot2::geom_point()].
+#' You should not set mapping for `y`.
+#' @param ... Other arguments passing to [ggplot2::geom_point()].
 #'
-#' @importFrom ggplot2 .pt aes_string alpha coord_polar element_blank
+#' @importFrom ggplot2 .pt aes aes_string alpha coord_polar element_blank
 #' expand_limits geom_point geom_segment ggplot ggproto labs theme
 #' zeroGrob element_text
 #'
@@ -125,11 +133,11 @@ br_show_risk_network <- function(breg, ...) {
 #'
 #' data <- data.frame(x = LETTERS[1:7])
 #'
-#' p1 <- polar_init(data, x = x)
+#' p1 <- polar_init(data, aes(x = x))
 #' p1
 #'
 #' # Set aes value
-#' p2 <- polar_init(data, x = x, size = 3, color = "red", alpha = 0.5)
+#' p2 <- polar_init(data, aes(x = x), size = 3, color = "red", alpha = 0.5)
 #' p2
 #'
 #' # Set aes mapping
@@ -142,7 +150,7 @@ br_show_risk_network <- function(breg, ...) {
 #' )
 #' # Check https://ggplot2.tidyverse.org/reference/geom_point.html
 #' # for how to use both stroke and color
-#' p3 <- polar_init(data1, x = x, aes(size = size, color = color, shape = shape), alpha = 0.5)
+#' p3 <- polar_init(data1, aes(x = x, size = size, color = color, shape = shape), alpha = 0.5)
 #' p3
 #'
 #' # --------------------
@@ -153,11 +161,10 @@ br_show_risk_network <- function(breg, ...) {
 #'   x2 = c("B", "C", "D", "E", "C", "A", "C"),
 #'   color = c("r", "r", "r", "b", "b", "b", "b")
 #' )
-#' p4 <- p3 + polar_connect(data2, x1, x2)
+#' p4 <- p3 + polar_connect(data2, aes(x = x1, xend = x2))
 #' p4
 #'
-#' # Unlike polar_init, mappings don't need to be included in aes()
-#' p5 <- p3 + polar_connect(data2, x1, x2, color = color, alpha = 0.8, linetype = 2)
+#' p5 <- p3 + polar_connect(data2, aes(x = x1, xend = x2, color = color), alpha = 0.8, linetype = 2)
 #' p5
 #'
 #' # Use two different color scales
@@ -165,7 +172,7 @@ br_show_risk_network <- function(breg, ...) {
 #'   library(ggnewscale)
 #'   p6 <- p3 +
 #'     new_scale("color") +
-#'     polar_connect(data2, x1, x2, color = color, alpha = 0.8, linetype = 2)
+#'     polar_connect(data2, aes(x = x1, xend = x2, color = color), alpha = 0.8, linetype = 2)
 #'   p6 + scale_color_brewer()
 #'   p6 + scale_color_manual(values = c("darkgreen", "magenta"))
 #' }
@@ -175,16 +182,17 @@ br_show_risk_network <- function(breg, ...) {
 #'   expect_s3_class(p6, "ggplot")
 #' }
 #' @family risk_network
-polar_init <- function(data, x, ...) {
+polar_init <- function(data, mapping, ...) {
   stopifnot(is.data.frame(data))
   data$y <- 1
-  calls <- lapply(as.list(match.call()), function(x) {
-    if (is.symbol(x)) as.character(x) else x
-  })
-  stopifnot(!is.null(calls$x))
 
-  ggplot(data, aes_string(calls$x, "y")) +
-    geom_point(...) +
+  mapping2 <- aes(
+    y = .data$y
+  )
+  mapping <- merge_mapping(mapping, mapping2)
+
+  ggplot(data) +
+    geom_point(mapping = mapping, ...) +
     coord_polar() +
     expand_limits(y = c(0, 1.3)) +
     theme(
@@ -209,58 +217,33 @@ polar_init <- function(data, x, ...) {
 #' Check [polar_init()] for examples.
 #'
 #' @param data A `data.frame` contains connections of all events.
-#' @param x1,x2 Column names (**without quote in `aes()`**) storing connected events.
-#' @param ... Arguments passing to [ggplot2::geom_segment()],
-#' expect `c(x, xend, y, yend)` these 4 mapping parameters.
-#'
+#' @param mapping Set of aesthetic mappings to [ggplot2::geom_segment()].
+#' Set mappings for `x` and `xend` are required.
+#' @param ... Other arguments passing to [ggplot2::geom_segment()].
 #' @returns A `ggplot` object.
 #' @export
 #' @family risk_network
-polar_connect <- function(data, x1, x2, ...) {
+polar_connect <- function(data, mapping, ...) {
   stopifnot(is.data.frame(data))
-  calls <- lapply(as.list(match.call()), function(x) {
-    if (is.symbol(x)) {
-      as.character(x)
-    } else if (is.language(x)) {
-      setdiff(as.character(x), c("$", ".data"))
-    } else {
-      x
-    }
-  })
-  stopifnot(!is.null(calls$x1), !is.null(calls$x2))
-
   # TODO: 完美连接球和线?
-  aes_args <- list(
-    x = calls$x1,
+  mapping2 <- aes(
     y = 0.98,
-    xend = calls$x2,
     yend = 0.98
   )
-
-  alist <- calls[setdiff(names(calls), c("x1", "x2", "", "data"))]
-  if (length(alist) > 0) {
-    dot_list <- alist
-
-    aes_appends <- sapply(alist, function(x) {
-      x %in% colnames(data)
-    })
-    if (sum(aes_appends) > 0) {
-      aes_args <- c(aes_args, alist[aes_appends])
-      dot_list <- alist[!aes_appends]
-    }
-  } else {
-    dot_list <- list(...)
-  }
-
-  my_aes <- do.call("aes_string", aes_args)
-
-  do.call("geom_segment_straight",
-    args = c(
-      list(
-        mapping = my_aes,
-        data = data
-      ),
-      dot_list
-    )
+  mapping <- merge_mapping(mapping2, mapping)
+  geom_segment_straight(
+    mapping = mapping,
+    data = data,
+    ...
   )
+}
+
+merge_mapping <- function(x, y) {
+  if (is.null(x)) {
+    return(y)
+  }
+  for (i in names(y)) {
+    x[[i]] <- .subset2(y, i)
+  }
+  x
 }

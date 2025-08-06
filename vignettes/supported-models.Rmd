@@ -45,7 +45,7 @@ of a piped workflow to maintain simplicity.
 ### Linear Models
 
 ```{r}
-rv = br_pipeline(
+rv <- br_pipeline(
   data = mtcars,
   y = "mpg", x = c("cyl", "disp", "hp"), x2 = "am",
   method = "lm"
@@ -59,7 +59,7 @@ br_get_results(rv, tidy = TRUE)
 To focus on the results of focal variables:
 
 ```{r}
-br_get_results(rv, tidy = TRUE) |> 
+br_get_results(rv, tidy = TRUE) |>
   dplyr::filter(Focal_variable == term)
 ```
 
@@ -71,8 +71,8 @@ br_pipeline(
   data = mtcars,
   y = "mpg", x = c("cyl", "disp", "hp"), x2 = "am",
   method = "gaussian"
-) |> 
-  br_get_results(tidy = TRUE) |> 
+) |>
+  br_get_results(tidy = TRUE) |>
   dplyr::filter(Focal_variable == term)
 ```
 
@@ -89,9 +89,9 @@ br_pipeline(
   data = mtcars,
   y = "vs", x = c("cyl", "disp", "hp"), x2 = "am",
   method = "binomial"
-) |> 
-  suppressWarnings() |> 
-  br_get_results(tidy = TRUE) |> 
+) |>
+  suppressWarnings() |>
+  br_get_results(tidy = TRUE) |>
   dplyr::filter(Focal_variable == term)
 ```
 
@@ -103,9 +103,9 @@ br_pipeline(
   y = c("time", "status"),
   x = c("ph.ecog", "ph.karno", "pat.karno", "meal.cal"), x2 = c("age", "sex"),
   method = "coxph"
-) |> 
-  suppressWarnings() |> 
-  br_get_results(tidy = TRUE) |> 
+) |>
+  suppressWarnings() |>
+  br_get_results(tidy = TRUE) |>
   dplyr::filter(Focal_variable == term)
 ```
 
@@ -159,7 +159,7 @@ For example, to configure a linear mixed model:
 
 ```{r}
 if (requireNamespace("lme4")) {
-  md_config = list(
+  md_config <- list(
     f_call = "lme4::lmer",
     f_cnst_y = NULL,
     args_method = NULL,
@@ -177,8 +177,8 @@ if (requireNamespace("lme4") && requireNamespace("merDeriv") && requireNamespace
     y = "Reaction",
     x = c("Days", "Subject"), x2 = "(Days | Subject)",
     method = md_config
-  ) |> 
-    #br_get_results(tidy = TRUE)
+  ) |>
+    # br_get_results(tidy = TRUE)
     br_show_table(export = TRUE, args_table_export = list(format = "html"))
 }
 ```

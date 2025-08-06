@@ -26,10 +26,13 @@
 #' @param rm_controls If `TRUE`, remove control terms.
 #' @param ... Additional arguments passed to [forestploter::forest()], run `vignette("forestploter-post", "forestploter")`
 #' to see more plot options.
+#' For example, use `ticks_at` to specify
+#' custom ticks, generally a vector of 4-5 elements.
 #' @param subset Expression for subsetting the results data (`br_get_results(breg)`).
 #' @param drop Column indices to drop from the display table.
 #' @param tab_headers Character vector of custom column headers (must match number of displayed columns).
-#'
+#' @param log_first Log transformed the estimates and their confident intervals.
+#' For only log scaled axis of the forest, use `x_trans = "log"`.
 #' @returns A plot
 #' @export
 #' @family br_show
@@ -52,19 +55,28 @@ br_show_forest <- function(
     ...,
     subset = NULL,
     drop = NULL,
-    tab_headers = NULL) {
+    tab_headers = NULL,
+    log_first = FALSE) {
   assert_breg_obj_with_results(breg)
   assert_bool(rm_controls)
 
   # TODO: grouped (compared) forestplot for group_by???
   dots <- rlang::list2(...)
-  exponentiate <- attr(breg, "exponentiate")
-  if (exponentiate) {
-    dots[["x_trans"]] <- "log"
-  }
 
   dt <- br_get_results(breg)
   x2 <- br_get_x2(breg)
+
+  if (log_first) {
+    dt <- dt |> dplyr::mutate(
+      estimate = log(.data$estimate),
+      conf.high = log(.data$conf.high),
+      conf.low = log(.data$conf.low)
+    )
+  }
+  exponentiate <- attr(breg, "exponentiate")
+  if (exponentiate && !log_first && !("ref_line" %in% names(dots))) {
+    dots[["ref_line"]] <- 1L
+  }
 
   if (rm_controls) {
     dt <- dt |> dplyr::filter(.data$Focal_variable == .data$variable)
@@ -219,7 +231,12 @@ br_show_forest <- function(
       "Focal_variable" = "Focal",
       "variable" = "Variable",
       "label" = "Level",
-      "n_obs" = "N"
+      "n_obs" = "N",
+      if (log_first) {
+        c("Estimate (95% CI)" = "log(Estimate) (95% CI)")
+      } else {
+        NULL
+      }
     ))
 
   if (!is.null(drop)) {
