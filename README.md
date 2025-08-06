@@ -36,14 +36,16 @@ efficient pipelines.
 
 Batch regression streamlines analyses where:
 
-- Each model shares **identical control variables** ($c_1$, $c_2$, …).
-- **Focal predictors** ($x_1$, $x_2$, …) or **response variables**
-  ($y_1$, $y_2$, …) vary systematically.
+- Each model shares **identical control variables** ($`c_1`$, $`c_2`$,
+  …).
+- **Focal predictors** ($`x_1`$, $`x_2`$, …) or **response variables**
+  ($`y_1`$, $`y_2`$, …) vary systematically.
 
 A simplified overview of batch regression modeling is given below for
 illustration:
 
 <p align="center">
+
 <img src="man/figures/breg_formula.svg">
 </p>
 
@@ -123,6 +125,26 @@ mds <- br_pipeline(
   x2 = c("age", "sex"),
   method = "coxph"
 )
+```
+
+Run in parallel:
+
+``` r
+mds_p <- br_pipeline(
+  lung,
+  y = c("time", "status"),
+  x = colnames(lung)[6:10],
+  x2 = c("age", "sex"),
+  method = "coxph",
+  run_parallel = 3
+)
+#> Warning: running in parallel is not recommended for small number of focal terms
+#> exponentiate estimates of model(s) constructed from coxph method at default
+```
+
+``` r
+all.equal(mds, mds_p)
+#> [1] TRUE
 ```
 
 ### Output Inspection
@@ -259,7 +281,7 @@ modeling results.
 br_show_forest(mds)
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 We can tune the plot to only keep focal variables and adjust the limits
 of x axis.
@@ -276,7 +298,7 @@ br_show_forest(
 )
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 We also provide some interfaces from other packages for plotting
 constructed model(s), e.g., `br_show_forest_ggstats()`,
@@ -302,7 +324,7 @@ br_show_risk_network(mds2)
 #> please note only continuous focal terms analyzed and visualized
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
 ### Table
 
@@ -370,12 +392,12 @@ site](https://wanglabcsu.github.io/bregr/).
 
 ``` r
 covr::package_coverage()
-#> bregr Coverage: 79.57%
+#> bregr Coverage: 78.60%
 #> R/98-utils.R: 37.18%
 #> R/04-show.R: 78.15%
 #> R/06-avail.R: 78.57%
 #> R/03-accessors.R: 82.86%
-#> R/02-pipeline.R: 87.36%
+#> R/02-pipeline.R: 83.15%
 #> R/01-class.R: 90.70%
 #> R/99-zzz.R: 90.91%
 #> R/05-polar.R: 95.19%

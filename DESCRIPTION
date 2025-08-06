@@ -38,17 +38,19 @@ Imports:
     utils,
     vctrs (>= 0.5.0)
 Suggests: 
+    broom.mixed,
+    furrr,
+    future,
     ggnewscale,
     ggstats,
     ggstatsplot,
     gtsummary,
     knitr,
+    lme4,
+    merDeriv,
     rmarkdown,
     testthat (>= 3.0.0),
-    visreg,
-    lme4,
-    broom.mixed,
-    merDeriv
+    visreg
 VignetteBuilder: 
     knitr
 Config/testthat/edition: 3

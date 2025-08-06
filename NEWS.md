@@ -1,5 +1,6 @@
 # bregr (development version)
 
+* Supported parallel computation on all platforms with **furrr**.
 * Handled lifecyle deprecated issues in functions from **ggplot2**.
 * Properly set default `exponentiate` option in `br_run()`.
 * Added `c("poisson", "quasipoisson")` to `br_avail_methods_use_exp()`.

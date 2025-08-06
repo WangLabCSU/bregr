@@ -85,7 +85,7 @@ br_avail_method_config <- function(method) {
       args_data = glue::glue("data = data")
     )
   } else {
-    cli::cli_warn("nonstandard {.arg method} passed to {.fn stats::glm}, double-check if it's correct")
+    cli::cli_warn("nonstandard method {.arg {method}} passed to {.fn stats::glm}, double-check if it's correct")
     list(
       f_call = glue::glue("stats::glm"),
       f_cnst_y = NULL,

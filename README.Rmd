@@ -111,6 +111,24 @@ mds <- br_pipeline(
 )
 ```
 
+Run in parallel:
+
+```{r}
+mds_p <- br_pipeline(
+  lung,
+  y = c("time", "status"),
+  x = colnames(lung)[6:10],
+  x2 = c("age", "sex"),
+  method = "coxph",
+  run_parallel = 3
+)
+```
+
+```{r}
+all.equal(mds, mds_p)
+```
+
+
 ### Output Inspection
 
 Use `br_get_*()` function family to access attributes and data of result `breg` object.

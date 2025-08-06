@@ -255,17 +255,11 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   assert_character(group_by, allow_na = FALSE, allow_null = TRUE)
   assert_number_whole(run_parallel, min = 1, max = parallel::detectCores() - 1)
 
-  if (.Platform$OS.type == "windows") {
-    cli::cli_warn("running in parallel is not supported on Windows")
-    run_parallel <- 1L
-  }
   if (run_parallel > 1) {
     if (length(obj@n_x) < 100) {
       cli::cli_warn("running in parallel is not recommended for small number of focal terms")
     }
   }
-
-  # TODO: supported run in parallel with future.apply or any others??
 
   if (!is.null(group_by)) {
     assert_not_overlap(group_by, obj@x,
@@ -315,65 +309,34 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   obj
 }
 
+set_future_strategy <- function() {
+  if (packageVersion("future") >= "1.20.0") {
+    "multisession"
+  } else {
+    "multiprocess"
+  }
+}
 
 runner <- function(ms, data, dots, x, run_parallel) {
-  f <- function(m, data, dots) {
-    # m: model template
-    # data: data frame for modeling
-    # dots: arguments passing to parse model parameters
-    # x: focal variables
-    model <- rlang::eval_bare(rlang::parse_expr(m))
-
-    # NOTE:
-    # broom.helpers::model_* funs
-    # when weights were assigned to observations
-    # the number of observations will be multiplied
-    # see: https://github.com/larmarange/broom.helpers/blob/210cc945bd6a462148a358f8d4851e0d16d208e3/R/model_get_n.R#L96
-
-    # Get comprehensive result for models
-    result <- do.call(
-      broom.helpers::tidy_plus_plus,
-      args = vctrs::vec_c(
-        list(model), dots,
-        if ("interaction_sep" %in% names(dots)) {
-          list(interaction_sep = dots[["interaction_sep"]])
-        } else {
-          list(interaction_sep = ":")
-        }
-      )
-    )
-
-    # Get tidy result for models
-    # output conf.int while exponentiate depends on dots
-    result_tidy <- do.call(
-      broom::tidy,
-      args = vctrs::vec_c(
-        list(model), list(conf.int = TRUE),
-        if ("exponentiate" %in% names(dots)) {
-          list(exponentiate = dots[["exponentiate"]])
-        } else {
-          list()
-        },
-        if ("conf.level" %in% names(dots)) {
-          list(conf.level = dots[["conf.level"]])
-        } else {
-          list()
-        }
-      )
-    )
-
-    if (!("intercept" %in% names(dots) && isTRUE(dots[["intercept"]]))) {
-      result_tidy <- result_tidy |> dplyr::filter(!.data$term %in% "(Intercept)")
-    }
-
-    list(model = model, result = result, result_tidy = result_tidy)
-  }
-
-  # names(ms) <- x
   if (run_parallel > 1) {
-    res <- parallel::mclapply(ms, f, data = data, dots = dots, mc.cores = run_parallel)
+    rlang::check_installed("future")
+    rlang::check_installed("furrr")
+
+    oplan <- future::plan()
+    future::plan(set_future_strategy(), workers = run_parallel)
+    on.exit(future::plan(oplan), add = TRUE)
+    res <- furrr::future_map(ms, runner_, data = data, dots = dots,
+                             .progress = TRUE,
+                             .options = furrr::furrr_options(seed = TRUE))
+    #res <- parallel::mclapply(ms, runner_, data = data, dots = dots, mc.cores = run_parallel)
+    # cl <- parallel::makeCluster(run_parallel)
+    # #doParallel::registerDoParallel(cl)
+    # doSNOW::registerDoSNOW(cl)
+    # res <- plyr::llply(ms, runner_, data = data, dots = dots,
+    #                    .parallel = TRUE, .progress = TRUE)
+    # on_exit(parallel::stopCluster(cl))
   } else {
-    res <- map(ms, f, data = data, dots = dots)
+    res <- map(ms, runner_, data = data, dots = dots)
   }
 
   res <- list_transpose(res)
@@ -386,4 +349,56 @@ runner <- function(ms, data, dots, x, run_parallel) {
     results = results,
     results_tidy = results_tidy
   )
+}
+
+runner_ <- function(m, data, dots) {
+  # m: model template
+  # data: data frame for modeling
+  # dots: arguments passing to parse model parameters
+  # x: focal variables
+  model <- rlang::eval_bare(rlang::parse_expr(m))
+
+  # NOTE:
+  # broom.helpers::model_* funs
+  # when weights were assigned to observations
+  # the number of observations will be multiplied
+  # see: https://github.com/larmarange/broom.helpers/blob/210cc945bd6a462148a358f8d4851e0d16d208e3/R/model_get_n.R#L96
+
+  # Get comprehensive result for models
+  result <- do.call(
+    broom.helpers::tidy_plus_plus,
+    args = vctrs::vec_c(
+      list(model), dots,
+      if ("interaction_sep" %in% names(dots)) {
+        list(interaction_sep = dots[["interaction_sep"]])
+      } else {
+        list(interaction_sep = ":")
+      }
+    )
+  )
+
+  # Get tidy result for models
+  # output conf.int while exponentiate depends on dots
+  result_tidy <- do.call(
+    broom::tidy,
+    args = vctrs::vec_c(
+      list(model), list(conf.int = TRUE),
+      if ("exponentiate" %in% names(dots)) {
+        list(exponentiate = dots[["exponentiate"]])
+      } else {
+        list()
+      },
+      if ("conf.level" %in% names(dots)) {
+        list(conf.level = dots[["conf.level"]])
+      } else {
+        list()
+      }
+    )
+  )
+
+  if (!("intercept" %in% names(dots) && isTRUE(dots[["intercept"]]))) {
+    result_tidy <- result_tidy |> dplyr::filter(!.data$term %in% "(Intercept)")
+  }
+
+  list(model = model, result = result, result_tidy = result_tidy)
 }
