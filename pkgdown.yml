@@ -2,11 +2,10 @@ pandoc: 3.1.11
 pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
-  benchmark: benchmark.html
   bregr-group-by: bregr-group-by.html
   model-config: model-config.html
   supported-models: supported-models.html
-last_built: 2025-08-06T10:17Z
+last_built: 2025-08-06T16:01Z
 urls:
   reference: https://wanglabcsu.github.io/bregr/reference
   article: https://wanglabcsu.github.io/bregr/articles
