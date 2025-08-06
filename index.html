@@ -81,9 +81,9 @@
 </h2>
 <p>Batch regression streamlines analyses where:</p>
 <ul>
-<li>Each model shares <strong>identical control variables</strong> (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mn>1</mn></msub><annotation encoding="application/x-tex">c_1</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mn>2</mn></msub><annotation encoding="application/x-tex">c_2</annotation></semantics></math>, …).</li>
+<li>Each model shares <strong>identical control variables</strong> (<span class="math inline">$`c_1`$</span>, <span class="math inline">$`c_2`$</span>, …).</li>
 <li>
-<strong>Focal predictors</strong> (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>1</mn></msub><annotation encoding="application/x-tex">x_1</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>2</mn></msub><annotation encoding="application/x-tex">x_2</annotation></semantics></math>, …) or <strong>response variables</strong> (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">y_1</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">y_2</annotation></semantics></math>, …) vary systematically.</li>
+<strong>Focal predictors</strong> (<span class="math inline">$`x_1`$</span>, <span class="math inline">$`x_2`$</span>, …) or <strong>response variables</strong> (<span class="math inline">$`y_1`$</span>, <span class="math inline">$`y_2`$</span>, …) vary systematically.</li>
 </ul>
 <p>A simplified overview of batch regression modeling is given below for illustration:</p>
 <p align="center">
@@ -148,12 +148,27 @@
 <span>  x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span>,</span>
 <span>  method <span class="op">=</span> <span class="st">"coxph"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<p>Run in parallel:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mds_p</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
+<span>  <span class="va">lung</span>,</span>
+<span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"status"</span><span class="op">)</span>,</span>
+<span>  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">lung</span><span class="op">)</span><span class="op">[</span><span class="fl">6</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>,</span>
+<span>  x2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span>,</span>
+<span>  method <span class="op">=</span> <span class="st">"coxph"</span>,</span>
+<span>  run_parallel <span class="op">=</span> <span class="fl">3</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: running in parallel is not recommended for small number of focal terms</span></span>
+<span><span class="co">#&gt; exponentiate estimates of model(s) constructed from coxph method at default</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">mds</span>, <span class="va">mds_p</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="output-inspection">Output Inspection<a class="anchor" aria-label="anchor" href="#output-inspection"></a>
 </h3>
 <p>Use <code>br_get_*()</code> function family to access attributes and data of result <code>breg</code> object.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/accessors.html">br_get_models</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span> <span class="co"># Raw model objects</span></span>
 <span><span class="co">#&gt; $ph.ecog</span></span>
 <span><span class="co">#&gt; Call:</span></span>
@@ -277,11 +292,11 @@
 <h4 id="forest-plot-key-results">Forest Plot (Key Results)<a class="anchor" aria-label="anchor" href="#forest-plot-key-results"></a>
 </h4>
 <p>bregr mainly provides <code><a href="reference/br_show_forest.html">br_show_forest()</a></code> for plotting data table of modeling results.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_forest.html">br_show_forest</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="100%"></p>
+<p><img src="reference/figures/README-unnamed-chunk-7-1.png" width="100%"></p>
 <p>We can tune the plot to only keep focal variables and adjust the limits of x axis.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_forest.html">br_show_forest</a></span><span class="op">(</span></span>
 <span>  <span class="va">mds</span>,</span>
 <span>  rm_controls <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co"># Focus on focal predictors</span></span>
@@ -291,10 +306,10 @@
 <span>  <span class="co">#       the axis and estimate table</span></span>
 <span>  drop <span class="op">=</span> <span class="fl">1</span> <span class="co"># Remove redundant columns</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-6-1.png" width="100%"></p>
+<p><img src="reference/figures/README-unnamed-chunk-8-1.png" width="100%"></p>
 <p>We also provide some interfaces from other packages for plotting constructed model(s), e.g., <code><a href="reference/br_show_forest_ggstats.html">br_show_forest_ggstats()</a></code>, <code><a href="reference/br_show_forest_ggstatsplot.html">br_show_forest_ggstatsplot()</a></code>, <code><a href="reference/br_show_fitted_line.html">br_show_fitted_line()</a></code>, and <code><a href="reference/br_show_fitted_line_2d.html">br_show_fitted_line_2d()</a></code>.</p>
 <p>For Cox-PH modeling results (focal variables must be continuous type), we provide a risk network plotting function.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mds2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pipeline.html">br_pipeline</a></span><span class="op">(</span></span>
 <span>  <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/lung.html" class="external-link">lung</a></span>,</span>
 <span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"time"</span>, <span class="st">"status"</span><span class="op">)</span>,</span>
@@ -303,17 +318,17 @@
 <span>  method <span class="op">=</span> <span class="st">"coxph"</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; exponentiate estimates of model(s) constructed from coxph method at default</span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_risk_network.html">br_show_risk_network</a></span><span class="op">(</span><span class="va">mds2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; please note only continuous focal terms analyzed and visualized</span></span></code></pre></div>
-<p><img src="reference/figures/README-unnamed-chunk-8-1.png" width="100%"></p>
+<p><img src="reference/figures/README-unnamed-chunk-10-1.png" width="100%"></p>
 </div>
 </div>
 <div class="section level3">
 <h3 id="table">Table<a class="anchor" aria-label="anchor" href="#table"></a>
 </h3>
 <p>Show tidy table result as pretty table:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_table.html">br_show_table</a></span><span class="op">(</span><span class="va">mds</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Focal_variable      term estimate std.error statistic p.value     conf.int</span></span>
 <span><span class="co">#&gt; 1         ph.ecog  ph.ecog1     1.51      0.20      2.05  0.040  [1.02, 2.23]</span></span>
@@ -333,7 +348,7 @@
 <span><span class="co">#&gt; 15        wt.loss       age     1.02  9.72e-03      2.05  0.040  [1.00, 1.04]</span></span>
 <span><span class="co">#&gt; 16        wt.loss       sex     0.60      0.17     -2.90  0.004  [0.43, 0.85]</span></span></code></pre></div>
 <p>As markdown table:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_table.html">br_show_table</a></span><span class="op">(</span><span class="va">mds</span>, export <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Focal_variable |      term | estimate | std.error | statistic | p.value |     conf.int</span></span>
 <span><span class="co">#&gt; --------------------------------------------------------------------------------------</span></span>
@@ -354,7 +369,7 @@
 <span><span class="co">#&gt; wt.loss        |       age |     1.02 |  9.72e-03 |      2.05 |  0.040  | [1.00, 1.04]</span></span>
 <span><span class="co">#&gt; wt.loss        |       sex |     0.60 |      0.17 |     -2.90 |  0.004  | [0.43, 0.85]</span></span></code></pre></div>
 <p>As HTML table:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/br_show_table.html">br_show_table</a></span><span class="op">(</span><span class="va">mds</span>, export <span class="op">=</span> <span class="cn">TRUE</span>, args_table_export <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>format <span class="op">=</span> <span class="st">"html"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -366,14 +381,14 @@
 <div class="section level2">
 <h2 id="coverage">Coverage<a class="anchor" aria-label="anchor" href="#coverage"></a>
 </h2>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">covr</span><span class="fu">::</span><span class="fu">package_coverage</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; bregr Coverage: 79.57%</span></span>
+<span><span class="co">#&gt; bregr Coverage: 78.60%</span></span>
 <span><span class="co">#&gt; R/98-utils.R: 37.18%</span></span>
 <span><span class="co">#&gt; R/04-show.R: 78.15%</span></span>
 <span><span class="co">#&gt; R/06-avail.R: 78.57%</span></span>
 <span><span class="co">#&gt; R/03-accessors.R: 82.86%</span></span>
-<span><span class="co">#&gt; R/02-pipeline.R: 87.36%</span></span>
+<span><span class="co">#&gt; R/02-pipeline.R: 83.15%</span></span>
 <span><span class="co">#&gt; R/01-class.R: 90.70%</span></span>
 <span><span class="co">#&gt; R/99-zzz.R: 90.91%</span></span>
 <span><span class="co">#&gt; R/05-polar.R: 95.19%</span></span></code></pre></div>
