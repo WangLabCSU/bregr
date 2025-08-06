@@ -107,7 +107,12 @@ br_get_config <- function(obj) {
 #' @export
 br_get_models <- function(obj) {
   assert_breg_obj(obj)
-  obj@models
+  mds <- obj@models
+  rlang::check_installed("fs", "qs")
+  if (!insight::is_model(mds[[1]]) && fs::is_file(mds[[1]])) {
+    mds <- map(mds, qs::qread)
+  }
+  mds
 }
 
 #' @rdname accessors
@@ -128,9 +133,9 @@ br_get_model <- function(obj, idx) {
   }
 
   if (length(idx) == 1) {
-    obj@models[[idx]]
+    br_get_models(obj)[[idx]]
   } else {
-    obj@models[idx]
+    br_get_models(obj)[idx]
   }
 }
 # parameters::model_parameters()

@@ -319,16 +319,17 @@ set_future_strategy <- function() {
 
 runner <- function(ms, data, dots, x, run_parallel) {
   if (run_parallel > 1) {
-    rlang::check_installed("future")
-    rlang::check_installed("furrr")
+    rlang::check_installed("future", "furrr")
 
     oplan <- future::plan()
     future::plan(set_future_strategy(), workers = run_parallel)
     on.exit(future::plan(oplan), add = TRUE)
-    res <- furrr::future_map(ms, runner_, data = data, dots = dots,
-                             .progress = TRUE,
-                             .options = furrr::furrr_options(seed = TRUE))
-    #res <- parallel::mclapply(ms, runner_, data = data, dots = dots, mc.cores = run_parallel)
+    res <- furrr::future_map(ms, runner_,
+      data = data, dots = dots,
+      .progress = TRUE,
+      .options = furrr::furrr_options(seed = TRUE)
+    )
+    # res <- parallel::mclapply(ms, runner_, data = data, dots = dots, mc.cores = run_parallel)
     # cl <- parallel::makeCluster(run_parallel)
     # #doParallel::registerDoParallel(cl)
     # doSNOW::registerDoSNOW(cl)
@@ -398,6 +399,19 @@ runner_ <- function(m, data, dots) {
 
   if (!("intercept" %in% names(dots) && isTRUE(dots[["intercept"]]))) {
     result_tidy <- result_tidy |> dplyr::filter(!.data$term %in% "(Intercept)")
+  }
+
+  if (isTRUE(as.logical(getOption("bregr.save_model", default = FALSE)))) {
+    rlang::check_installed(c("fs", "digest", "qs"))
+    md_path <- getOption("bregr.path", default = "")
+    if (md_path == "") {
+      md_path <- fs::path_temp()
+    }
+    fs::dir_create(md_path)
+    dg <- digest::digest(model)
+    md_file <- fs::path(md_path, dg, ext = "qs")
+    qs::qsave(model, file = md_file)
+    model <- md_file
   }
 
   list(model = model, result = result, result_tidy = result_tidy)

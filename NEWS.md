@@ -1,5 +1,7 @@
 # bregr (development version)
 
+* Added global options "bregr.save_model" and "bregr.path", users can
+  set them with `options()`.
 * Supported parallel computation on all platforms with **furrr**.
 * Handled lifecyle deprecated issues in functions from **ggplot2**.
 * Properly set default `exponentiate` option in `br_run()`.

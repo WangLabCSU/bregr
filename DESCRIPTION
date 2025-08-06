@@ -50,7 +50,10 @@ Suggests:
     merDeriv,
     rmarkdown,
     testthat (>= 3.0.0),
-    visreg
+    visreg,
+    qs,
+    fs,
+    digest
 VignetteBuilder: 
     knitr
 Config/testthat/edition: 3
