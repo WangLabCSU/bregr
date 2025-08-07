@@ -149,6 +149,7 @@ br_set_x <- function(obj, ...) {
     as.character()
   assert_character(x, allow_na = FALSE)
 
+  x <- repair_names(x)
   x_ <- get_vars(x)
   data <- br_get_data(obj)
   if (nrow(data) == 0) {
@@ -179,6 +180,7 @@ br_set_x2 <- function(obj, ...) {
   assert_character(x2, allow_na = FALSE, allow_null = TRUE)
   assert_not_overlap(x, x2)
 
+  x2 <- repair_names(x2)
   x2_ <- get_vars(x2)
   data <- br_get_data(obj)
   if (nrow(data) == 0) {

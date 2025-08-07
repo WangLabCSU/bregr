@@ -34,6 +34,25 @@ merge_vars <- function(...) {
   rv
 }
 
+# https://stackoverflow.com/questions/8396577/check-if-character-value-is-a-valid-r-object-name
+isValidAndUnreserved <- function(string) {
+  sapply(string, function(x) {
+    if (grepl("[*:|\\(\\)]", x)) {
+      if (grepl("[+-\\*/:|\\)]{2,}", x)) {
+        FALSE
+      } else TRUE
+    } else {
+      make.names(x) == x
+    }
+  })
+}
+
+repair_names = function(x) {
+  ifelse(isValidAndUnreserved(x) | startsWith(x, "`"),
+         x, paste0("`", x, "`")
+  )
+}
+
 remove_backticks <- function(x) {
   gsub("^`|`$|\\\\(?=`)|`(?=:)|(?<=:)`", "", x, perl = TRUE)
 }
