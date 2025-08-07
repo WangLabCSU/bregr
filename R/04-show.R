@@ -539,7 +539,8 @@ br_show_table_gt <- function(
 #' This function creates a nomogram visualization for survival models, particularly 
 #' Cox proportional hazards models. A nomogram is a graphical calculating device 
 #' that provides a visual representation of a regression model to calculate 
-#' individualized predictions and risk scores.
+#' individualized predictions and risk scores. For survival models, it includes
+#' survival probability predictions at specified time points.
 #'
 #' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
 #' @param idx Length-1 vector. Index or name (focal variable) of the model.
@@ -555,6 +556,10 @@ br_show_table_gt <- function(
 #' total score. Default is `TRUE`.
 #' @param total.points Logical indicating whether to include total points axis.
 #' Default is `TRUE`.
+#' @param surv.at Numeric vector of time points (in years) for survival probability
+#' prediction. Default is c(3, 5, 10) for 3, 5, and 10-year survival.
+#' @param time.inc Time increment for baseline survival calculation.
+#' Default is 365.25 (days per year).
 #' @param ... Additional arguments passed to the plotting function.
 #' @returns A plot
 #' @export
@@ -573,14 +578,15 @@ br_show_table_gt <- function(
 #'   method = "coxph"
 #' )
 #' 
-#' # Create nomogram for the first model (age)
+#' # Create nomogram for the first model (age) with default survival times
 #' br_show_nomogram(mds, idx = 1)
 #' 
 #' # Create nomogram for the second model (ph.ecog)  
 #' br_show_nomogram(mds, idx = 2)
 #' 
-#' # Use with custom labels
-#' br_show_nomogram(mds, idx = "age", funlabel = "Log Hazard")
+#' # Use with custom survival time points and labels
+#' br_show_nomogram(mds, idx = "age", surv.at = c(1, 2, 5), 
+#'                  funlabel = "Log Hazard")
 #' 
 #' @testexamples
 #' expect_true(inherits(br_show_nomogram(mds, idx = 1), "ggplot"))
@@ -593,6 +599,8 @@ br_show_nomogram <- function(
     lp = TRUE,
     points = TRUE,
     total.points = TRUE,
+    surv.at = c(3, 5, 10),
+    time.inc = 365.25,
     ...) {
   
   assert_breg_obj_with_results(breg)
@@ -629,12 +637,12 @@ br_show_nomogram <- function(
     dplyr::filter(.data$Focal_variable == focal_var)
   
   # Create a simplified nomogram using ggplot2
-  # This implements a basic nomogram structure
-  .create_nomogram_plot(mod, model_results, model_data, funlabel, fun, fun.at, lp, points, total.points, ...)
+  # This implements a basic nomogram structure with survival predictions
+  .create_nomogram_plot(mod, model_results, model_data, funlabel, fun, fun.at, lp, points, total.points, surv.at, time.inc, ...)
 }
 
 # Helper function to create nomogram plot
-.create_nomogram_plot <- function(model, results, data, funlabel, fun, fun.at, lp, points, total.points, ...) {
+.create_nomogram_plot <- function(model, results, data, funlabel, fun, fun.at, lp, points, total.points, surv.at, time.inc, ...) {
   
   # Extract model coefficients
   coefs <- stats::coef(model)
@@ -725,6 +733,25 @@ br_show_nomogram <- function(
     plot_data$points_norm <- plot_data$points
   }
   
+  # Calculate survival probabilities for Cox models
+  survival_data <- NULL
+  if (insight::model_name(model) == "coxph" && !is.null(surv.at) && length(surv.at) > 0) {
+    # Get baseline survival from the Cox model
+    baseline_surv <- tryCatch({
+      survival::survfit(model)
+    }, error = function(e) {
+      cli_warn("Could not calculate baseline survival: {e$message}")
+      NULL
+    })
+    
+    if (!is.null(baseline_surv)) {
+      # Calculate survival probabilities at specified time points
+      survival_data <- .calculate_survival_probabilities(
+        model, baseline_surv, surv.at, time.inc, plot_data
+      )
+    }
+  }
+  
   # Create the nomogram plot using ggplot2
   p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$points_norm, y = .data$variable)) +
     ggplot2::geom_point(size = 2, color = "blue") +
@@ -786,10 +813,91 @@ br_show_nomogram <- function(
   # Add total points information if requested
   if (total.points) {
     total_range <- range(plot_data$points_norm, na.rm = TRUE)
+    
+    # Add total points scale
+    total_points_y <- length(unique(plot_data$variable)) + 1
+    p <- p + ggplot2::geom_segment(
+      ggplot2::aes(x = total_range[1], xend = total_range[2], 
+                   y = total_points_y, yend = total_points_y),
+      inherit.aes = FALSE, color = "black", size = 1
+    ) +
+    ggplot2::annotate("text", x = mean(total_range), y = total_points_y + 0.3, 
+                     label = "Total Points", hjust = 0.5, size = 4, face = "bold")
+    
+    # Add survival probability scales if available
+    if (!is.null(survival_data) && length(survival_data) > 0) {
+      for (i in seq_along(surv.at)) {
+        surv_time <- surv.at[i]
+        surv_key <- paste0("surv_", surv_time, "y")
+        
+        if (surv_key %in% names(survival_data)) {
+          surv_y <- total_points_y + 1 + i
+          
+          # Create survival probability scale
+          p <- p + ggplot2::geom_segment(
+            ggplot2::aes(x = total_range[1], xend = total_range[2], 
+                         y = surv_y, yend = surv_y),
+            inherit.aes = FALSE, color = "red", size = 1
+          ) +
+          ggplot2::annotate("text", x = mean(total_range), y = surv_y + 0.3,
+                           label = paste(surv_time, "-Year Survival Probability"), 
+                           hjust = 0.5, size = 4, face = "bold")
+          
+          # Add probability markers
+          prob_positions <- c(0.9, 0.7, 0.5, 0.3, 0.1)
+          for (prob in prob_positions) {
+            x_pos <- total_range[1] + (1 - prob) * diff(total_range)
+            p <- p + ggplot2::annotate("text", x = x_pos, y = surv_y - 0.2,
+                                     label = paste0(round(prob * 100, 0), "%"),
+                                     hjust = 0.5, size = 3)
+          }
+        }
+      }
+      
+      # Expand y-axis to accommodate survival scales
+      max_y <- total_points_y + 1 + length(surv.at)
+      current_vars <- unique(plot_data$variable)
+      all_levels <- c(current_vars, rep("", max_y - length(current_vars)))
+      p <- p + ggplot2::ylim(c(all_levels, ""))
+    }
+    
     p <- p + ggplot2::labs(
       caption = paste("Total Points Range:", round(total_range[1], 1), "to", round(total_range[2], 1))
     )
   }
   
   return(p)
+}
+
+# Helper function to calculate survival probabilities
+.calculate_survival_probabilities <- function(model, baseline_surv, surv.at, time.inc, plot_data) {
+  
+  # Convert survival times from years to the same units as model (typically days)
+  surv_times <- surv.at * time.inc
+  
+  # Calculate range of linear predictors from the plot data
+  lp_range <- range(plot_data$points, na.rm = TRUE)
+  lp_seq <- seq(lp_range[1], lp_range[2], length.out = 20)
+  
+  survival_data <- list()
+  
+  for (i in seq_along(surv.at)) {
+    surv_time <- surv_times[i]
+    
+    # Get baseline survival at this time point
+    time_idx <- which.min(abs(baseline_surv$time - surv_time))
+    if (length(time_idx) > 0) {
+      baseline_surv_t <- baseline_surv$surv[time_idx]
+      
+      # Calculate survival probabilities for range of linear predictors
+      # S(t|x) = S0(t)^exp(β'x)
+      surv_probs <- baseline_surv_t^exp(lp_seq)
+      
+      # Store the survival probabilities
+      survival_data[[paste0("surv_", surv.at[i], "y")]] <- surv_probs
+      survival_data[[paste0("lp_", surv.at[i], "y")]] <- lp_seq
+    }
+  }
+  
+  return(survival_data)
 }
