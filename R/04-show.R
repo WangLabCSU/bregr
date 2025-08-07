@@ -604,6 +604,12 @@ br_show_survival_curves <- function(breg,
   
   # Create score groups
   score_quantiles <- quantile(scores, probs = seq(0, 1, length.out = n_groups + 1), na.rm = TRUE)
+  
+  # Handle case where scores have little variation
+  if (length(unique(score_quantiles)) <= 2) {
+    cli::cli_warn("Score values have limited variation, grouping may not be meaningful")
+  }
+  
   score_groups <- cut(scores, 
                       breaks = score_quantiles, 
                       include.lowest = TRUE,
@@ -613,9 +619,13 @@ br_show_survival_curves <- function(breg,
   if (is.null(group_labels)) {
     if (n_groups == 3) {
       group_labels <- c("Low Risk", "Medium Risk", "High Risk")
+    } else if (n_groups == 2) {
+      group_labels <- c("Low Risk", "High Risk")
     } else {
       group_labels <- paste0("Q", 1:n_groups)
     }
+  } else if (length(group_labels) != n_groups) {
+    cli::cli_abort("Length of group_labels ({length(group_labels)}) must match n_groups ({n_groups})")
   }
   
   # Prepare data for survival analysis

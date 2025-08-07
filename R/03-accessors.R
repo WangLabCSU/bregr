@@ -268,6 +268,11 @@ br_predict <- function(obj, newdata = NULL, model_idx = NULL, type = NULL) {
       predictions <- as.numeric(predictions)
     }
     
+    # Handle missing values
+    if (any(is.na(predictions))) {
+      cli::cli_warn("Some predictions are NA, consider checking your data for missing values")
+    }
+    
     predictions
   }, error = function(e) {
     cli::cli_abort("Failed to generate predictions: {e$message}")

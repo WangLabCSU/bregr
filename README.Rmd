@@ -183,6 +183,25 @@ mds2 <- br_pipeline(
 br_show_risk_network(mds2)
 ```
 
+#### Model Score Prediction and Survival Curves
+
+For Cox-PH models, you can generate model predictions (risk scores) and create survival curves grouped by these scores:
+
+```{r}
+# Generate model predictions
+scores <- br_predict(mds2, model_idx = "age")
+head(scores)
+```
+
+```{r dpi=150, fig.height=6}
+# Create survival curves based on model scores
+br_show_survival_curves(
+  mds2, 
+  model_idx = "age",
+  n_groups = 3,
+  title = "Survival Curves by Age Model Risk Score"
+)
+```
 
 ### Table
 
