@@ -26,6 +26,7 @@ functionality."><meta property="og:image" content="https://wanglabcsu.github.io/
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/bregr-group-by.html">Group Regression Analysis and Visualization</a></li>
     <li><a class="dropdown-item" href="../articles/model-config.html">Model Configurations</a></li>
+    <li><a class="dropdown-item" href="../articles/quick-analyze-cancer-data.html">Quickly Analyze Cancer Data with Data from UCSCXenaShiny</a></li>
     <li><a class="dropdown-item" href="../articles/save-model-file.html">Save Models to Local Disk</a></li>
     <li><a class="dropdown-item" href="../articles/supported-models.html">Supported Models</a></li>
   </ul></li>
@@ -74,6 +75,10 @@ functionality.</p>
 <span></span>
 <span><span class="fu">br_get_model</span><span class="op">(</span><span class="va">obj</span>, <span class="va">idx</span><span class="op">)</span></span>
 <span></span>
+<span><span class="fu">br_get_model_names</span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">br_rename_models</span><span class="op">(</span><span class="va">obj</span>, <span class="va">new_names</span><span class="op">)</span></span>
+<span></span>
 <span><span class="fu">br_get_results</span><span class="op">(</span><span class="va">obj</span>, tidy <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -109,6 +114,8 @@ The tidy results are obtained from <code><a href="https://broom.tidymodels.org/r
 <li><p><code>br_get_config()</code> returns modeling method and extra arguments.</p></li>
 <li><p><code>br_get_models()</code> returns all or a subset of constructed models.</p></li>
 <li><p><code>br_get_model()</code> returns a subset of constructed models.</p></li>
+<li><p><code>br_get_model_names()</code> returns all model names.</p></li>
+<li><p><code>br_rename_models()</code> returns a renamed object.</p></li>
 <li><p><code>br_get_results()</code> returns modeling result <code>data.frame</code>.</p></li>
 </ul></div>
     <div class="section level2">

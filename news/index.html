@@ -20,6 +20,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/bregr-group-by.html">Group Regression Analysis and Visualization</a></li>
     <li><a class="dropdown-item" href="../articles/model-config.html">Model Configurations</a></li>
+    <li><a class="dropdown-item" href="../articles/quick-analyze-cancer-data.html">Quickly Analyze Cancer Data with Data from UCSCXenaShiny</a></li>
     <li><a class="dropdown-item" href="../articles/save-model-file.html">Save Models to Local Disk</a></li>
     <li><a class="dropdown-item" href="../articles/supported-models.html">Supported Models</a></li>
   </ul></li>
@@ -40,7 +41,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="bregr-development-version">bregr (development version)<a class="anchor" aria-label="anchor" href="#bregr-development-version"></a></h2>
-<ul><li>Soft-deprecated <code><a href="../reference/accessors.html">br_get_model()</a></code> by merging it with <code><a href="../reference/accessors.html">br_get_models()</a></code>.</li>
+<ul><li>Added <code><a href="../reference/accessors.html">br_get_model_names()</a></code> and <code><a href="../reference/accessors.html">br_rename_models()</a></code> to get and set model names.</li>
+<li>Soft-deprecated <code><a href="../reference/accessors.html">br_get_model()</a></code> by merging it with <code><a href="../reference/accessors.html">br_get_models()</a></code>.</li>
 <li>Introduced global options “bregr.save_model” and “bregr.path”, configurable via <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code>.</li>
 <li>Enabled cross-platform parallel computation through integration with <strong>furrr</strong>.</li>
 <li>Addressed lifecycle deprecation warnings in functions from <strong>ggplot2</strong>.</li>

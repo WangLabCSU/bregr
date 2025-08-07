@@ -35,6 +35,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/bregr-group-by.html">Group Regression Analysis and Visualization</a></li>
     <li><a class="dropdown-item" href="../articles/model-config.html">Model Configurations</a></li>
+    <li><a class="dropdown-item" href="../articles/quick-analyze-cancer-data.html">Quickly Analyze Cancer Data with Data from UCSCXenaShiny</a></li>
     <li><a class="dropdown-item" href="../articles/save-model-file.html">Save Models to Local Disk</a></li>
     <li><a class="dropdown-item" href="../articles/supported-models.html">Supported Models</a></li>
   </ul>
@@ -100,7 +101,7 @@ saved as local files (<code>bregr.save_model</code>, default is
 <span>  <span class="fu"><a href="../reference/pipeline.html">br_set_x2</a></span><span class="op">(</span><span class="st">"vs"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/pipeline.html">br_set_model</a></span><span class="op">(</span><span class="st">"gaussian"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/pipeline.html">br_run</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; model save is enabled with result path <span style="color: #0000BB;">/tmp/Rtmpf7xgSJ</span></span></span>
+<span><span class="co">#&gt; model save is enabled with result path <span style="color: #0000BB;">/tmp/RtmpDICOpt</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">This message is displayed once per session.</span></span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>bregr.save_model <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -109,13 +110,13 @@ verify this by examining the model objects:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m</span><span class="op">@</span><span class="va">models</span></span>
 <span><span class="co">#&gt; $cyl</span></span>
-<span><span class="co">#&gt; /tmp/Rtmpf7xgSJ/33a0e9481d4c71bbc7abe306caa9e0f4.qs</span></span>
+<span><span class="co">#&gt; /tmp/RtmpDICOpt/966994ac6f28181b20ab070966b9b09d.qs</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $disp</span></span>
-<span><span class="co">#&gt; /tmp/Rtmpf7xgSJ/885a4a8c1bb9b077d2880caff2e36745.qs</span></span>
+<span><span class="co">#&gt; /tmp/RtmpDICOpt/26bc6252378043ff17b6aba595444f26.qs</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $hp</span></span>
-<span><span class="co">#&gt; /tmp/Rtmpf7xgSJ/466ce29c7544e1ca8da5dc76a021fd86.qs</span></span></code></pre></div>
+<span><span class="co">#&gt; /tmp/RtmpDICOpt/00bc09b6b490b7d21179d5452ee214ca.qs</span></span></code></pre></div>
 <p>We can retrieve the saved models using the following commands:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/accessors.html">br_get_models</a></span><span class="op">(</span><span class="va">m</span>, <span class="fl">1</span><span class="op">)</span></span>
