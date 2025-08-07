@@ -256,7 +256,7 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   assert_number_whole(run_parallel, min = 1, max = parallel::detectCores() - 1)
 
   if (run_parallel > 1) {
-    if (length(obj@n_x) < 100) {
+    if (obj@n_x < 100) {
       cli::cli_warn("running in parallel is typically not recommended for small number (<100) of focal terms")
     }
   }
@@ -321,9 +321,13 @@ runner <- function(ms, data, dots, x, run_parallel) {
   if (run_parallel > 1) {
     rlang::check_installed("future", "furrr")
 
+    options(future.globals.maxSize = Inf)
+    on.exit(options(future.globals.maxSize = NULL))
+
     oplan <- future::plan()
     future::plan(set_future_strategy(), workers = run_parallel)
-    on.exit(future::plan(oplan), add = TRUE)
+    on.exit(future::plan(oplan))
+
     res <- furrr::future_map(ms, runner_,
       data = data, dots = dots,
       .progress = TRUE,
