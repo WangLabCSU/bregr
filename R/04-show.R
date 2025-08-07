@@ -573,11 +573,17 @@ br_show_table_gt <- function(
 #'   method = "coxph"
 #' )
 #' 
-#' # Create nomogram for the first model
+#' # Create nomogram for the first model (age)
 #' br_show_nomogram(mds, idx = 1)
 #' 
+#' # Create nomogram for the second model (ph.ecog)  
+#' br_show_nomogram(mds, idx = 2)
+#' 
+#' # Use with custom labels
+#' br_show_nomogram(mds, idx = "age", funlabel = "Log Hazard")
+#' 
 #' @testexamples
-#' expect_true(inherits(br_show_nomogram(mds, idx = 1), c("ggplot", "grob")))
+#' expect_true(inherits(br_show_nomogram(mds, idx = 1), "ggplot"))
 br_show_nomogram <- function(
     breg, 
     idx = 1, 
@@ -596,9 +602,7 @@ br_show_nomogram <- function(
 
   # Get the specific model
   mod <- br_get_models(breg, idx)
-  if (length(mod) > 1) {
-    mod <- mod[[1]]
-  }
+  # br_get_models returns the model directly when idx has length 1
   
   # Check if it's a supported model type
   model_name <- insight::model_name(mod)
@@ -610,8 +614,17 @@ br_show_nomogram <- function(
   results <- br_get_results(breg, tidy = FALSE)
   model_data <- br_get_data(breg)
   
-  # Filter results for the specific model
-  focal_var <- names(br_get_models(breg))[idx]
+  # For nomogram, we want to show all variables in the specific model
+  # The idx parameter selects which model to visualize
+  # We need to get the focal variable name for this model
+  model_names <- br_get_model_names(breg)
+  if (is.character(idx)) {
+    focal_var <- idx
+  } else {
+    focal_var <- model_names[idx]
+  }
+  
+  # Filter results for the specific model's focal variable
   model_results <- results |>
     dplyr::filter(.data$Focal_variable == focal_var)
   
@@ -629,7 +642,7 @@ br_show_nomogram <- function(
   # Get variable information from results
   var_info <- results |>
     dplyr::filter(!.data$reference_row %in% TRUE, !is.na(.data$estimate)) |>
-    dplyr::select(.data$variable, .data$estimate, .data$var_type, .data$var_class) |>
+    dplyr::select(.data$variable, .data$estimate, .data$var_type, .data$var_class, .data$label) |>
     dplyr::distinct()
   
   if (nrow(var_info) == 0) {
@@ -669,9 +682,9 @@ br_show_nomogram <- function(
       } else if (var_class == "factor") {
         var_levels <- levels(as.factor(data[[var_name]]))
         
-        # For factor variables, use the estimates directly from results
+        # For factor variables, use the estimates from results  
         factor_results <- results |>
-          dplyr::filter(.data$variable == var_name, !is.na(.data$estimate))
+          dplyr::filter(.data$variable == var_name, !is.na(.data$estimate), !.data$reference_row %in% TRUE)
         
         if (nrow(factor_results) > 0) {
           # Include reference level (0 points) and other levels
@@ -679,14 +692,12 @@ br_show_nomogram <- function(
           points_values <- c(0, factor_results$estimate)
           
           # Convert to log scale if estimates are exponentiated  
-          if (any(points_values > 0, na.rm = TRUE) && any(abs(log(points_values[points_values > 0])) > abs(points_values[points_values > 0]), na.rm = TRUE)) {
-            points_values[points_values > 0] <- log(points_values[points_values > 0])
-          }
+          points_log <- ifelse(points_values > 0 & points_values != 1, log(points_values), points_values)
           
           nomogram_data[[var_name]] <- data.frame(
             variable = var_name,
             value = level_values,
-            points = points_values,
+            points = points_log,
             var_type = var_type,
             stringsAsFactors = FALSE
           )
