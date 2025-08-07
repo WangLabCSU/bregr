@@ -34,22 +34,19 @@ merge_vars <- function(...) {
   rv
 }
 
-# https://stackoverflow.com/questions/8396577/check-if-character-value-is-a-valid-r-object-name
-isValidAndUnreserved <- function(string) {
-  sapply(string, function(x) {
-    if (grepl("[*:|\\(\\)]", x)) {
-      if (grepl("[+-\\*/:|\\)]{2,}", x)) {
-        FALSE
-      } else TRUE
-    } else {
-      make.names(x) == x
-    }
-  })
-}
-
-repair_names = function(x) {
-  ifelse(isValidAndUnreserved(x) | startsWith(x, "`"),
-         x, paste0("`", x, "`")
+# x: terms to repair
+# y: reference column names
+#
+# for 3 types of cases:
+# 1: valid column names: keep
+# 2: invalid column names: transform
+# 3: other cases (treat as formula term): keep
+# repair_names(c("abc", "?|100", "abc * d"), c("abc", "?|100", "d"))
+repair_names <- function(x, y) {
+  if_else(
+    (x %in% y) & !(make.names(x) == x | (startsWith(x, "`") & endsWith(x, "`"))),
+    paste0("`", x, "`"),
+    x
   )
 }
 

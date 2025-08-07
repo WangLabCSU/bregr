@@ -143,22 +143,23 @@ br_set_y <- function(obj, y) {
 #' @export
 br_set_x <- function(obj, ...) {
   assert_breg_obj(obj)
+  data <- br_get_data(obj)
+  col_names <- colnames(data)
+  if (nrow(data) == 0) {
+    cli_abort("cannot set {.arg x} for {.arg obj} with void data")
+  }
 
   x <- rlang::list2(...) |>
     unlist() |>
     as.character()
   assert_character(x, allow_na = FALSE)
 
-  x <- repair_names(x)
+  x <- repair_names(x, col_names)
   x_ <- get_vars(x)
-  data <- br_get_data(obj)
-  if (nrow(data) == 0) {
-    cli_abort("cannot set {.arg x} for {.arg obj} with void data")
-  } else {
-    .in <- x_ %in% colnames(data)
-    if (!all(.in)) {
-      cli_abort("column(s) {.val {x_[!.in]}} specified in {.arg x} not in {.field data} (columns: {.val {colnames(data)}}) of {.arg obj}")
-    }
+
+  .in <- x_ %in% col_names
+  if (!all(.in)) {
+    cli_abort("column(s) {.val {x_[!.in]}} specified in {.arg x} not in {.field data} (columns: {.val col_names}}) of {.arg obj}")
   }
 
   obj@x <- x
@@ -169,6 +170,12 @@ br_set_x <- function(obj, ...) {
 #' @export
 br_set_x2 <- function(obj, ...) {
   assert_breg_obj(obj)
+  data <- br_get_data(obj)
+  col_names <- colnames(data)
+  if (nrow(data) == 0) {
+    cli_abort("cannot set {.arg x} for {.arg obj} with void data")
+  }
+
   x <- br_get_x(obj)
   if (is.null(x)) {
     cli_abort("{.fn br_set_x2()} should be called after {.fn br_set_x()}")
@@ -180,16 +187,12 @@ br_set_x2 <- function(obj, ...) {
   assert_character(x2, allow_na = FALSE, allow_null = TRUE)
   assert_not_overlap(x, x2)
 
-  if (length(x2) > 0) x2 <- repair_names(x2)
+  if (length(x2) > 0) x2 <- repair_names(x2, col_names)
   x2_ <- get_vars(x2)
-  data <- br_get_data(obj)
-  if (nrow(data) == 0) {
-    cli_abort("cannot set {.arg x2} for {.arg obj} with void data")
-  } else {
-    .in <- x2_ %in% colnames(data)
-    if (!all(.in)) {
-      cli_abort("column(s) {.val {x2_[!.in]}} specified in {.arg x2} not in {.field data} (columns: {.val {colnames(data)}}) of {.arg obj}")
-    }
+
+  .in <- x2_ %in% col_names
+  if (!all(.in)) {
+    cli_abort("column(s) {.val {x2_[!.in]}} specified in {.arg x2} not in {.field data} (columns: {.val {col_names}}) of {.arg obj}")
   }
 
   obj@x2 <- x2

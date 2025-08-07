@@ -1,5 +1,8 @@
 # bregr (development version)
 
+* Updated `br_set_x()` and `br_set_x2()` to properly handle different input
+types, including valid column names (in R), invalid column names, and
+model formula terms.
 * Supported error handling when model construction failed.
 * Added `br_get_model_names()` and `br_rename_models()` to get and set model names.
 * Soft-deprecated `br_get_model()` by merging it with `br_get_models()`.
