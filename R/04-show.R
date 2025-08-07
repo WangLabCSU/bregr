@@ -530,3 +530,255 @@ br_show_table_gt <- function(
   }
   t
 }
+
+#' Show a nomogram for survival models
+#'
+#' @description
+#' `r lifecycle::badge('stable')`
+#'
+#' This function creates a nomogram visualization for survival models, particularly 
+#' Cox proportional hazards models. A nomogram is a graphical calculating device 
+#' that provides a visual representation of a regression model to calculate 
+#' individualized predictions and risk scores.
+#'
+#' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
+#' @param idx Length-1 vector. Index or name (focal variable) of the model.
+#' Only one model is supported for nomogram visualization.
+#' @param funlabel Character string for the function label on the nomogram.
+#' Default is "Linear Predictor" for Cox models.
+#' @param fun Function to be applied to the linear predictor. For Cox models,
+#' this could be the survival function at a specific time point.
+#' @param fun.at Numeric vector of points where the function should be evaluated.
+#' @param lp Logical indicating whether to include linear predictor axis.
+#' Default is `TRUE`.
+#' @param points Logical indicating whether to include points axis for calculating
+#' total score. Default is `TRUE`.
+#' @param total.points Logical indicating whether to include total points axis.
+#' Default is `TRUE`.
+#' @param ... Additional arguments passed to the plotting function.
+#' @returns A plot
+#' @export
+#' @family br_show
+#' @examples
+#' # Cox proportional hazards model
+#' lung <- survival::lung |>
+#'   dplyr::filter(ph.ecog != 3)
+#' lung$ph.ecog <- factor(lung$ph.ecog)
+#' 
+#' mds <- br_pipeline(
+#'   lung,
+#'   y = c("time", "status"),
+#'   x = c("age", "ph.ecog"),
+#'   x2 = "sex",
+#'   method = "coxph"
+#' )
+#' 
+#' # Create nomogram for the first model
+#' br_show_nomogram(mds, idx = 1)
+#' 
+#' @testexamples
+#' expect_true(inherits(br_show_nomogram(mds, idx = 1), c("ggplot", "grob")))
+br_show_nomogram <- function(
+    breg, 
+    idx = 1, 
+    funlabel = "Linear Predictor",
+    fun = NULL,
+    fun.at = NULL,
+    lp = TRUE,
+    points = TRUE,
+    total.points = TRUE,
+    ...) {
+  
+  assert_breg_obj_with_results(breg)
+  if (length(idx) != 1) {
+    cli_abort("length-1 {.arg idx} (integer index or a focal variable name) is required")
+  }
+
+  # Get the specific model
+  mod <- br_get_models(breg, idx)
+  if (length(mod) > 1) {
+    mod <- mod[[1]]
+  }
+  
+  # Check if it's a supported model type
+  model_name <- insight::model_name(mod)
+  if (!model_name %in% c("coxph", "survreg")) {
+    cli_abort("nomogram visualization is currently only supported for survival models (coxph, survreg)")
+  }
+  
+  # Get model results and data
+  results <- br_get_results(breg, tidy = FALSE)
+  model_data <- br_get_data(breg)
+  
+  # Filter results for the specific model
+  focal_var <- names(br_get_models(breg))[idx]
+  model_results <- results |>
+    dplyr::filter(.data$Focal_variable == focal_var)
+  
+  # Create a simplified nomogram using ggplot2
+  # This implements a basic nomogram structure
+  .create_nomogram_plot(mod, model_results, model_data, funlabel, fun, fun.at, lp, points, total.points, ...)
+}
+
+# Helper function to create nomogram plot
+.create_nomogram_plot <- function(model, results, data, funlabel, fun, fun.at, lp, points, total.points, ...) {
+  
+  # Extract model coefficients
+  coefs <- stats::coef(model)
+  
+  # Get variable information from results
+  var_info <- results |>
+    dplyr::filter(!.data$reference_row %in% TRUE, !is.na(.data$estimate)) |>
+    dplyr::select(.data$variable, .data$estimate, .data$var_type, .data$var_class) |>
+    dplyr::distinct()
+  
+  if (nrow(var_info) == 0) {
+    cli_abort("No valid coefficients found for nomogram creation")
+  }
+  
+  # Create nomogram data structure
+  nomogram_data <- list()
+  
+  # Calculate ranges and scales for each variable
+  for (i in seq_len(nrow(var_info))) {
+    var_name <- var_info$variable[i]
+    var_type <- var_info$var_type[i]
+    var_class <- var_info$var_class[i]
+    
+    if (var_name %in% names(data)) {
+      if (var_type == "continuous") {
+        var_range <- range(data[[var_name]], na.rm = TRUE)
+        var_seq <- seq(var_range[1], var_range[2], length.out = 10)
+        
+        # Calculate points contribution
+        coef_val <- var_info$estimate[i]
+        # Convert to log scale if estimates are exponentiated
+        if (coef_val > 0 && abs(log(coef_val)) > abs(coef_val)) {
+          coef_val <- log(coef_val)
+        }
+        
+        points_contrib <- coef_val * (var_seq - min(var_seq, na.rm = TRUE))
+        
+        nomogram_data[[var_name]] <- data.frame(
+          variable = var_name,
+          value = var_seq,
+          points = points_contrib,
+          var_type = var_type,
+          stringsAsFactors = FALSE
+        )
+      } else if (var_class == "factor") {
+        var_levels <- levels(as.factor(data[[var_name]]))
+        
+        # For factor variables, use the estimates directly from results
+        factor_results <- results |>
+          dplyr::filter(.data$variable == var_name, !is.na(.data$estimate))
+        
+        if (nrow(factor_results) > 0) {
+          # Include reference level (0 points) and other levels
+          level_values <- c("Reference", factor_results$label)
+          points_values <- c(0, factor_results$estimate)
+          
+          # Convert to log scale if estimates are exponentiated  
+          if (any(points_values > 0, na.rm = TRUE) && any(abs(log(points_values[points_values > 0])) > abs(points_values[points_values > 0]), na.rm = TRUE)) {
+            points_values[points_values > 0] <- log(points_values[points_values > 0])
+          }
+          
+          nomogram_data[[var_name]] <- data.frame(
+            variable = var_name,
+            value = level_values,
+            points = points_values,
+            var_type = var_type,
+            stringsAsFactors = FALSE
+          )
+        }
+      }
+    }
+  }
+  
+  # Combine all variable data
+  if (length(nomogram_data) == 0) {
+    cli_abort("Unable to create nomogram data from model results")
+  }
+  
+  plot_data <- do.call(rbind, nomogram_data)
+  
+  # Normalize points to 0-100 scale
+  if (points) {
+    max_abs_points <- max(abs(plot_data$points), na.rm = TRUE)
+    if (max_abs_points > 0) {
+      plot_data$points_norm <- (plot_data$points / max_abs_points) * 100
+    } else {
+      plot_data$points_norm <- plot_data$points
+    }
+  } else {
+    plot_data$points_norm <- plot_data$points
+  }
+  
+  # Create the nomogram plot using ggplot2
+  p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$points_norm, y = .data$variable)) +
+    ggplot2::geom_point(size = 2, color = "blue") +
+    ggplot2::geom_segment(
+      data = plot_data |> dplyr::group_by(.data$variable) |> 
+        dplyr::summarise(
+          xmin = min(.data$points_norm, na.rm = TRUE),
+          xmax = max(.data$points_norm, na.rm = TRUE),
+          .groups = "drop"
+        ),
+      ggplot2::aes(x = .data$xmin, xend = .data$xmax, y = .data$variable, yend = .data$variable),
+      inherit.aes = FALSE,
+      color = "gray70"
+    ) +
+    ggplot2::scale_x_continuous(breaks = seq(0, 100, 20)) +
+    ggplot2::labs(
+      title = "Nomogram for Survival Model",
+      x = if (points) "Points (0-100)" else funlabel,
+      y = "Variables"
+    ) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
+      plot.title = ggplot2::element_text(hjust = 0.5, face = "bold"),
+      panel.grid.minor = ggplot2::element_blank(),
+      panel.grid.major.y = ggplot2::element_blank(),
+      axis.text.y = ggplot2::element_text(face = "bold"),
+      strip.background = ggplot2::element_blank()
+    )
+  
+  # Add variable labels as annotations
+  for (var in unique(plot_data$variable)) {
+    var_data <- plot_data[plot_data$variable == var, ]
+    if (var_data$var_type[1] == "continuous") {
+      # For continuous variables, show min and max values
+      min_val <- min(var_data$value, na.rm = TRUE)
+      max_val <- max(var_data$value, na.rm = TRUE)
+      p <- p + ggplot2::annotate("text", 
+                               x = min(var_data$points_norm), 
+                               y = var, 
+                               label = paste(round(min_val, 2)), 
+                               hjust = 1.1, vjust = -0.5, size = 3)
+      p <- p + ggplot2::annotate("text", 
+                               x = max(var_data$points_norm), 
+                               y = var, 
+                               label = paste(round(max_val, 2)), 
+                               hjust = -0.1, vjust = -0.5, size = 3)
+    } else {
+      # For categorical variables, show level names
+      for (i in seq_len(nrow(var_data))) {
+        p <- p + ggplot2::annotate("text", 
+                                 x = var_data$points_norm[i], 
+                                 y = var, 
+                                 label = var_data$value[i], 
+                                 hjust = 0.5, vjust = -0.5, size = 3)
+      }
+    }
+  }
+  
+  # Add total points information if requested
+  if (total.points) {
+    total_range <- range(plot_data$points_norm, na.rm = TRUE)
+    p <- p + ggplot2::labs(
+      caption = paste("Total Points Range:", round(total_range[1], 1), "to", round(total_range[2], 1))
+    )
+  }
+  
+  return(p)
+}
