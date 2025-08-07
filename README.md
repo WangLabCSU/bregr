@@ -36,16 +36,14 @@ efficient pipelines.
 
 Batch regression streamlines analyses where:
 
-- Each model shares **identical control variables** ($`c_1`$, $`c_2`$,
-  …).
-- **Focal predictors** ($`x_1`$, $`x_2`$, …) or **response variables**
-  ($`y_1`$, $`y_2`$, …) vary systematically.
+- Each model shares **identical control variables** ($c_1$, $c_2$, …).
+- **Focal predictors** ($x_1$, $x_2$, …) or **response variables**
+  ($y_1$, $y_2$, …) vary systematically.
 
 A simplified overview of batch regression modeling is given below for
 illustration:
 
 <p align="center">
-
 <img src="man/figures/breg_formula.svg">
 </p>
 
@@ -146,6 +144,10 @@ mds_p <- br_pipeline(
 all.equal(mds, mds_p)
 #> [1] TRUE
 ```
+
+Two global options have been introduced to control whether models are
+saved as local files (`bregr.save_model`, default is `FALSE`) and where
+they should be saved (`bregr.path`, default uses a temporary path).
 
 ### Output Inspection
 
@@ -392,12 +394,12 @@ site](https://wanglabcsu.github.io/bregr/).
 
 ``` r
 covr::package_coverage()
-#> bregr Coverage: 78.60%
+#> bregr Coverage: 77.37%
 #> R/98-utils.R: 37.18%
-#> R/04-show.R: 78.15%
+#> R/02-pipeline.R: 78.01%
+#> R/04-show.R: 78.45%
 #> R/06-avail.R: 78.57%
-#> R/03-accessors.R: 82.86%
-#> R/02-pipeline.R: 83.15%
+#> R/03-accessors.R: 80.00%
 #> R/01-class.R: 90.70%
 #> R/99-zzz.R: 90.91%
 #> R/05-polar.R: 95.19%
