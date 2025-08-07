@@ -650,7 +650,7 @@ br_show_survival_curves <- function(breg,
   plot_data <- data.frame(
     time = surv_summary$time,
     surv = surv_summary$surv,
-    group = rep(names(km_fit$strata), km_fit$n),
+    group = surv_summary$strata,
     upper = surv_summary$upper,
     lower = surv_summary$lower
   )
