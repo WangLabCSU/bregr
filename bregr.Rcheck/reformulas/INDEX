@@ -1,0 +1,14 @@
+RHSForm                 extract right-hand side of a formula
+anySpecial              Detect whether there are any 'specials' in a
+                        formula term
+expandDoubleVerts       Expand terms with "||" notation into separate
+                        "|" terms
+expandGrpVar            apply
+findReTrmClasses        list of specials - taken from enum.R
+isNested                Is f1 nested within f2?
+mkReTrms                Create list of structures needed for models
+                        with random effects
+no_specials             Drop 'specials' from a formula
+nobars                  Omit terms separated by vertical bars in a
+                        formula
+subbars                 "Substitute bars"

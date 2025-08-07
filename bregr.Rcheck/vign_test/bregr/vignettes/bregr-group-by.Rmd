@@ -1,0 +1,84 @@
+---
+title: "Group Regression Analysis and Visualization"
+author: 
+  - name: Shixiang Wang
+    affiliation: Central South University
+    email: wangshx@csu.edu.cn
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Group Regression Analysis and Visualization}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "100%"
+)
+```
+
+We are using the same example from the [ezcox package vignette](https://CRAN.R-project.org/package=ezcox/vignettes/ezgroup.html).
+
+Load the package and data.
+
+```{r setup}
+library(bregr)
+
+data <- survival::lung
+data <- data |>
+  dplyr::mutate(
+    ph.ecog = factor(ph.ecog),
+    sex = ifelse(sex == 1, "Male", "Female")
+  )
+```
+
+Construct grouped batch survival models to determine if the variable `ph.ecog` has different survival effects under different sex groups.
+
+```{r groupby-pipeline}
+mds <- br_pipeline(
+  data,
+  y = c("time", "status"),
+  x = "ph.ecog",
+  group_by = "sex",
+  method = "coxph"
+)
+```
+
+We can examine the constructed models.
+
+```{r get-models}
+br_get_models(mds)
+```
+
+Now, display the results using a forest plot.
+
+```{r show-forest, fig.width=9, fig.height=5, dpi=150}
+br_show_forest(mds)
+```
+
+We can optimize the plot for better visualization, for example, by removing the second column of the table and eliminating the row with `NA` results.
+
+```{r show-forest2, fig.width=8, fig.height=4, dpi=150}
+br_show_forest(
+  mds,
+  drop = 2,
+  subset = !(Group_variable == "2" & variable == "ph.ecog" & label == 3)
+)
+```
+
+To subset the data rows, we can input an R expression using variables from `br_get_results(mds)`. For example, we can use `Group_variable == "Female" & variable == "ph.ecog" & label == 3` to locate the row we want to remove, and then use `!()` to select the negated rows.
+
+If drop `All` group is necessary, update the `subset` with:
+
+```{r show-forest-rm-all, fig.width=8, fig.height=4, dpi=150}
+br_show_forest(
+  mds,
+  drop = 2,
+  subset = !((Group_variable == "Female" & variable == "ph.ecog" & label == 3) |
+    (Group_variable == "All"))
+)
+```
+

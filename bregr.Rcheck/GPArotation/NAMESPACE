@@ -1,0 +1,53 @@
+importFrom("stats", "rnorm")
+
+export(
+   "GPFoblq",
+   "GPForth")
+export(
+   "GPFRSoblq",
+   "GPFRSorth")
+
+export("Random.Start")
+
+export("oblimin")
+export("quartimin")
+export("targetT")
+export("targetQ")
+export("pstT")
+export("pstQ")
+export("oblimax")
+export("entropy")
+export("quartimax")
+export("Varimax")
+export("simplimax")
+export("bentlerT")
+export("bentlerQ")
+export("tandemI")
+export("tandemII")
+export("geominT")
+export("geominQ")
+export("bigeominT")
+export("bigeominQ")
+export("cfT")
+export("cfQ")
+export("infomaxT")
+export("infomaxQ")
+export("mccammon")
+export("bifactorT")
+export("bifactorQ")
+export("equamax")
+export("parsimax")
+export("varimin")
+
+export("lpT")
+export("lpQ")
+export("GPForth.lp")
+export("GPFoblq.lp")
+
+export(
+    "eiv",
+    "echelon")
+
+S3method("print", "GPArotation")
+S3method("summary", "GPArotation")
+S3method("print", "summary.GPArotation")

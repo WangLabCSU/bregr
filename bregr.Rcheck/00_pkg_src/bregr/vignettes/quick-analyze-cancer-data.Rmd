@@ -1,0 +1,80 @@
+---
+title: "Quickly Analyze Cancer Data with Data from UCSCXenaShiny"
+author: 
+  - name: Shixiang Wang
+    affiliation: Central South University
+    email: wangshx@csu.edu.cn
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Quickly Analyze Cancer Data with Data from UCSCXenaShiny}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "100%"
+)
+```
+
+```{r setup}
+library(bregr)
+library(dplyr)
+
+if (!requireNamespace("UCSCXenaShiny")) {
+  install.packages("UCSCXenaShiny")
+}
+library(UCSCXenaShiny)
+```
+
+[**UCSCXenaShiny**](https://openbiox.github.io/UCSCXenaShiny/reference) offers extensive builtin cancer datasets and data query functions to facilitate analysis and visualization.
+
+## Obtain Data
+
+```{r}
+data <- inner_join(
+  tcga_clinical_fine,
+  tcga_surv |> select(sample, OS, OS.time),
+  by = c("Sample" = "sample")
+) |> filter(!is.na(Stage_ajcc), !is.na(Gender))
+head(data)
+```
+
+## Execute bregr Pipeline
+
+Assessing the influence of AJCC Stage on overall survival can be done by analyzing data grouped by gender.
+
+```{r}
+m <- br_pipeline(
+  data = data,
+  y = c("OS.time", "OS"),
+  x = "Stage_ajcc", x2 = "Age",
+  group_by = "Gender",
+  method = "coxph"
+)
+m
+```
+
+```{r}
+br_get_results(m, tidy = TRUE) |>
+  knitr::kable()
+```
+
+## Generate Visualizations
+
+For example:
+
+```{r fig.dpi=150, fig.width=6, fig.height=6}
+m <- br_rename_models(m, c("Female", "Male", "All"))
+
+br_show_forest_ggstats(m)
+```
+
+## Explore Further
+
+Besides, using `tcga_surv_get()`, you can efficiently retrieve values for a specified gene (`c("mRNA", "miRNA", "methylation", "transcript", "protein", "mutation", "cnv")`) from the TCGA cohort.
+
+For more comprehensive guidance on querying various omics data from different databases/cohorts, refer to the [Molecular Data Query](https://lishensuo.github.io/UCSCXenaShiny_Book/data-query.html) section of the **UCSCXenaShiny** tutorial book.

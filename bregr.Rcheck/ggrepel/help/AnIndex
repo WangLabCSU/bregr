@@ -1,0 +1,7 @@
+GeomLabelRepel	ggrepel
+GeomTextRepel	ggrepel
+geom_label_repel	geom_text_repel
+geom_text_repel	geom_text_repel
+ggrepel	ggrepel
+PositionNudgeRepel	ggrepel
+position_nudge_repel	position_nudge_repel

@@ -1,0 +1,38 @@
+Package: bregr
+Title: Easy and Efficient Batch Processing of Regression Models
+Version: 1.0.0.9000
+Authors@R: c(
+    person("Shixiang", "Wang", , "w_shixiang@163.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-9855-7357")),
+    person("Yun", "Peng", , "yunyunp96@163.com", role = "aut",
+           comment = c(ORCID = "0000-0003-2801-3332")),
+    person("Chenyang", "Shu", , "402221506@qq.com", role = "aut")
+  )
+Maintainer: Shixiang Wang <w_shixiang@163.com>
+Description: Easily process batches of univariate or multivariate
+    regression models. Returns results in a tidy format and generates
+    visualization plots for straightforward interpretation (Wang,
+    Shixiang, et al. (2021) <DOI:10.48550/arXiv.2110.14232>).
+License: GPL (>= 3)
+URL: https://github.com/WangLabCSU/bregr,
+        https://wanglabcsu.github.io/bregr/
+BugReports: https://github.com/WangLabCSU/bregr/issues
+Depends: R (>= 4.1.0)
+Imports: broom, broom.helpers, cli, dplyr, forestploter, ggplot2, glue,
+        insight, lifecycle, parallel, purrr, rlang (>= 1.1.0), S7,
+        survival, tibble, utils, vctrs (>= 0.5.0)
+Suggests: broom.mixed, digest, fs, furrr, future, ggnewscale, ggstats,
+        ggstatsplot, gtsummary, knitr, lme4, merDeriv, qs, rmarkdown,
+        testthat (>= 3.0.0), UCSCXenaShiny, visreg
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE, roclets = c("collate", "namespace",
+        "rd", "roxytest::testthat_roclet"))
+RoxygenNote: 7.3.2
+NeedsCompilation: no
+Packaged: 2025-08-07 13:05:53 UTC; runner
+Author: Shixiang Wang [aut, cre] (ORCID:
+    <https://orcid.org/0000-0001-9855-7357>),
+  Yun Peng [aut] (ORCID: <https://orcid.org/0000-0003-2801-3332>),
+  Chenyang Shu [aut]

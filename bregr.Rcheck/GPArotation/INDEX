@@ -1,0 +1,12 @@
+GPArotation             Gradient Projection Algorithms for Factor
+                        Rotation
+GPFRSorth               Rotation Optimization
+Harman                  Example Data from Harman
+Lp rotation             Lp Rotation
+Random.Start            Generate a Random Orthogonal Rotation
+Thurstone               Example Data from Thurstone
+WansbeekMeijer          Factor Example from Wansbeek and Meijer
+echelon                 Echelon Rotation
+eiv                     Errors-in-Variables Rotation
+rotations               Rotations
+vgQ                     Rotations

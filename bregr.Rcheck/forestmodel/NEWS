@@ -1,0 +1,85 @@
+forestmodel 0.6.2 (2020-07-17)
+------------------------------
+* Improvements to code by @ShixiangWang to use `tibble` rather than `data_frame` (fixes #23).
+* Addition of point_size option by @ShixiangWang.
+* Use of label attribute in data where available, as suggested by @larmarange (fixes #24).
+
+forestmodel 0.6.1 (2019-12-03)
+------------------------------
+* `limits` option now uses arrows where the confidence intervals extend beyond
+  the limits (fixes #16, thanks to @ShixiangWang for raising this and providing code!)
+* Fix in `forest_rma` needed because of change to `rlang::tidy_eval`, thanks to
+  @ShixiangWang (fixes #18).
+* Fix for selection of covariates, thanks to @ShixiangWang (fixes #20).
+* New merge_models parameter, thanks to @ShixiangWang.
+
+forestmodel 0.6.0 (2019-02-25)
+------------------------------
+* Updated package to use `rlang::tidy_eval`
+* Added `model_list` option as suggested by Natasha Purington
+* Filter out by default confidence intervals or points that go are infinite
+
+forestmodel 0.5.1 (2018-11-15)
+------------------------------
+* Fixed covariates option (fixes #14, thanks Mattia for pointing this out)
+
+forestmodel 0.5.0 (2018-04-24)
+------------------------------
+* Updated minimum version numbers for packages
+
+forestmodel 0.4.4 (2017-04-28)
+------------------------------
+* Fixed bug in `forests_rma` where the transformation wasn't being passed to
+  `default_forest_panels`.
+
+
+forestmodel 0.4.3 (2017-04-16)
+------------------------------
+* Fixed a bug in `forest_model` which meant that non-synactic variable names (e.g. with
+  spaces in the title) were dropped from the plot.
+* Now handles character columns as factors.
+* Fixed some incompatibilities with `bind_cols` in `dplyr` 0.6.
+
+forestmodel 0.4.2 (2017-04-04)
+------------------------------
+* Fixed a couple of issues in `panel_forest_plot` that produced warnings.
+
+forestmodel 0.4.1
+-----------------
+* Fixed #5 issue regarding `coxph` models with a single predictor (thanks @vjd)
+  for identifying the bug)
+
+forestmodel 0.4.0 (2015-12-10)
+------------------------------
+* Fixed problem with `coxph` models that used special functions.
+* Changed from `forest_breaks` to `graphics::axisTicks` for break calculation.
+
+forestmodel 0.3.3
+-----------------
+
+* Added `n_events` and `person_time` variables to data for display when using a
+  `coxph` model
+
+forestmodel 0.3.2
+-----------------
+
+* Now handles logical covariates appropriately
+* Tweaks to break and limit calculation
+
+forestmodel 0.3.1
+-----------------
+
+* Added option (set as default) to recalcluate panel widths
+* Added function to make custom panels easier to generate (`forest_panels`)
+* Tidied up parameters to make them more consistent between functions
+
+forestmodel 0.3
+---------------
+
+* Updated panel object to be a list of lists for greater flexibility
+* Added `forest_rma` function to produce forest plots from output of `metafor::rma`
+
+forestmodel 0.1
+---------------
+
+* Initial release

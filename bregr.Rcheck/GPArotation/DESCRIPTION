@@ -1,0 +1,27 @@
+Package: GPArotation
+Version: 2025.3-1
+Title: Gradient Projection Factor Rotation
+Authors@R: c( 
+	person("Coen", "Bernaards", email = "cab.gparotation@gmail.com", role = c("aut","cre")),
+	person("Paul", "Gilbert", email = "pgilbert.ttv9z@ncf.ca", role = "aut"),
+	person("Robert", "Jennrich", role = "aut")
+	)
+Depends: R (>= 2.0.0)
+Description: Gradient Projection Algorithms for Factor Rotation. 
+    For details see ?GPArotation. When using this package, please cite
+    Bernaards and Jennrich (2005) <doi:10.1177/0013164404272507>
+    'Gradient Projection Algorithms and Software 
+    for Arbitrary Rotation Criteria in Factor Analysis'.
+LazyData: yes
+Imports: stats
+License: GPL (>= 2)
+URL: https://optimizer.r-forge.r-project.org/GPArotation_www/
+NeedsCompilation: no
+Packaged: 2025-03-22 15:54:08 UTC; coen
+Author: Coen Bernaards [aut, cre],
+  Paul Gilbert [aut],
+  Robert Jennrich [aut]
+Maintainer: Coen Bernaards <cab.gparotation@gmail.com>
+Repository: CRAN
+Date/Publication: 2025-04-12 21:40:02 UTC
+Built: R 4.5.1; ; 2025-08-07 13:08:33 UTC; unix

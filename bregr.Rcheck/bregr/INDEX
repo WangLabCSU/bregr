@@ -1,0 +1,21 @@
+accessors               Accessor functions for 'breg' objects
+avails                  Package availability
+br_show_fitted_line     Show fitted regression line with 'visreg'
+                        interface
+br_show_fitted_line_2d
+                        Show 2d fitted regression line with 'visreg'
+                        interface
+br_show_forest          Show a forest plot for regression results
+br_show_forest_ggstats
+                        Show a forest plot with 'ggstats' interface
+br_show_forest_ggstatsplot
+                        Show a forest plot with 'ggstatsplot' interface
+br_show_risk_network    Show connected risk network plot
+br_show_table           Show model tidy results in table format
+br_show_table_gt        Show regression models with 'gtsummary'
+                        interface
+breg                    Creates a new breg-class object
+pipeline                Modeling and analysis pipeline
+polar_connect           Connects dots
+polar_init              Init a dot plot in polar system
+print.breg              Print method for breg object
