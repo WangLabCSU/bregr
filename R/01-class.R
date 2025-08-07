@@ -52,6 +52,7 @@ breg <- new_class("breg",
                          results = NULL,
                          results_tidy = NULL) {
     data <- tibble::as_tibble(data, rownames = ".row_names")
+
     new_object(
       S7_object(),
       y = y,
