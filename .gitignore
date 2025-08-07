@@ -10,3 +10,10 @@ inst/doc
 docs
 /doc/
 /Meta/
+
+# R CMD check build artifacts
+.Rcheck/
+*.Rcheck/
+..Rcheck/
+*.tar.gz
+bregr_*.tar.gz
