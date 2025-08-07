@@ -65,7 +65,7 @@ remove_missing <- "ggplot2" %:::% "remove_missing"
 empty <- "ggplot2" %:::% "empty"
 
 assert_breg_obj <- function(obj) {
-  if (!rlang::inherits_any(obj, "bregr::breg")) {
+  if (!inherits(obj, "breg")) {
     cli_abort("bad input for argument {.arg obj}, a object of class {.cls breg} is required")
   } else {
     TRUE

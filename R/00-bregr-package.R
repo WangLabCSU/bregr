@@ -4,7 +4,7 @@
 ## usethis namespace: start
 #' @import vctrs
 #' @import cli
-#' @importFrom survival coxph
+#' @importFrom survival coxph cox.zph
 #' @importFrom lifecycle deprecated
 #' @importFrom rlang .data .env
 #' @importFrom utils combn packageDescription packageVersion

@@ -11,7 +11,7 @@ br_show_forest_ggstats(breg, idx = NULL, ...)
 
 \item{idx}{Index or names (focal variables) of the model(s).}
 
-\item{...}{Arguments passing to \code{\link[ggstats:ggcoef_model]{ggstats::ggcoef_table()}} or \code{\link[ggstats:ggcoef_model]{ggstats::ggcoef_compare()}} excepts \code{model}.}
+\item{...}{Arguments passing to \code{\link[ggstats:ggcoef_table]{ggstats::ggcoef_table()}} or \code{\link[ggstats:ggcoef_compare]{ggstats::ggcoef_compare()}} excepts \code{model}.}
 }
 \value{
 A plot
@@ -35,12 +35,12 @@ if (rlang::is_installed("ggstats")) {
 }
 \seealso{
 Other br_show: 
+\code{\link{br_show_diagnostics}()},
 \code{\link{br_show_fitted_line}()},
 \code{\link{br_show_fitted_line_2d}()},
 \code{\link{br_show_forest}()},
 \code{\link{br_show_forest_ggstatsplot}()},
 \code{\link{br_show_risk_network}()},
-\code{\link{br_show_table}()},
-\code{\link{br_show_table_gt}()}
+\code{\link{br_show_table}()}
 }
 \concept{br_show}

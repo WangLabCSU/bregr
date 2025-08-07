@@ -32,13 +32,13 @@ p
 }
 \seealso{
 Other br_show: 
+\code{\link{br_show_diagnostics}()},
 \code{\link{br_show_fitted_line}()},
 \code{\link{br_show_fitted_line_2d}()},
 \code{\link{br_show_forest}()},
 \code{\link{br_show_forest_ggstats}()},
 \code{\link{br_show_forest_ggstatsplot}()},
-\code{\link{br_show_table}()},
-\code{\link{br_show_table_gt}()}
+\code{\link{br_show_table}()}
 
 Other risk_network: 
 \code{\link{polar_connect}()},

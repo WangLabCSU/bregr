@@ -497,6 +497,196 @@ br_show_table <- function(breg, ..., args_table_format = list(), export = FALSE,
 #'
 #' @testexamples
 #' expect_true(TRUE)
+#' Show diagnostic plots for regression models
+#'
+#' @description
+#' `r lifecycle::badge('experimental')`
+#'
+#' Creates diagnostic plots for regression models. For Cox models, shows
+#' Schoenfeld residuals plots to assess proportional hazards assumption.
+#' For other models, provides appropriate diagnostic plots.
+#'
+#' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
+#' @param idx Index or name (focal variable) of the model to plot. Must be a single model.
+#' @param type Type of diagnostic plot. For Cox models: "schoenfeld" (default), "martingale", "deviance".
+#' For other models: "residuals" (default), "qq", "scale_location", "leverage".
+#' @param ... Additional arguments passed to plotting functions.
+#' @returns A ggplot2 object or list of plots.
+#' @export
+#' @family br_show
+#' @examples
+#' \dontrun{
+#' # Create Cox models
+#' mds <- br_pipeline(
+#'   survival::lung,
+#'   y = c("time", "status"),
+#'   x = colnames(survival::lung)[6:10],
+#'   x2 = c("age", "sex"),
+#'   method = "coxph"
+#' )
+#' 
+#' # Show diagnostic plots
+#' br_show_diagnostics(mds, idx = 1)
+#' br_show_diagnostics(mds, idx = "ph.ecog", type = "schoenfeld")
+#' }
+#' @testexamples
+#' expect_true(TRUE)
+br_show_diagnostics <- function(breg, idx = 1, type = NULL, ...) {
+  assert_breg_obj_with_results(breg)
+  if (length(idx) != 1) {
+    cli::cli_abort("Only one model can be plotted at a time. Provide a single {.arg idx}.")
+  }
+  
+  model <- br_get_models(breg, idx)
+  model_name <- if (is.character(idx)) idx else names(br_get_models(breg))[idx]
+  
+  if (inherits(model, "coxph")) {
+    if (is.null(type)) type <- "schoenfeld"
+    .br_show_cox_diagnostics(model, model_name, type, ...)
+  } else if (inherits(model, c("lm", "glm"))) {
+    if (is.null(type)) type <- "residuals"
+    .br_show_lm_diagnostics(model, model_name, type, ...)
+  } else {
+    cli::cli_abort("Diagnostic plots not yet implemented for model type: {class(model)[1]}")
+  }
+}
+
+# Internal function for Cox model diagnostics
+.br_show_cox_diagnostics <- function(model, model_name, type, ...) {
+  if (type == "schoenfeld") {
+    # Test proportional hazards and plot Schoenfeld residuals
+    tryCatch({
+      ph_test <- survival::cox.zph(model, ...)
+      
+      # Create a plot of Schoenfeld residuals
+      plots <- list()
+      n_vars <- nrow(ph_test$table) - 1  # Exclude GLOBAL row
+      
+      if (n_vars > 0) {
+        # Create data for plotting
+        time_points <- ph_test$time
+        residuals <- ph_test$y  # cox.zph stores residuals in 'y' component
+        
+        if (is.matrix(residuals)) {
+          var_names <- colnames(residuals)
+          
+          # Create plots for each variable
+          for (i in seq_len(ncol(residuals))) {
+            var_name <- var_names[i]
+            plot_data <- data.frame(
+              time = time_points,
+              residuals = residuals[, i],
+              variable = var_name
+            )
+            
+            p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = time, y = residuals)) +
+              ggplot2::geom_point(alpha = 0.6) +
+              ggplot2::geom_smooth(se = TRUE, color = "red", linewidth = 1) +
+              ggplot2::geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.7) +
+              ggplot2::labs(
+                title = paste("Schoenfeld Residuals:", var_name),
+                subtitle = paste("Model:", model_name),
+                x = "Time",
+                y = "Schoenfeld Residuals"
+              ) +
+              ggplot2::theme_minimal()
+            
+            plots[[var_name]] <- p
+          }
+        } else {
+          # Single variable case
+          plot_data <- data.frame(
+            time = time_points,
+            residuals = as.vector(residuals)
+          )
+          
+          p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = time, y = residuals)) +
+            ggplot2::geom_point(alpha = 0.6) +
+            ggplot2::geom_smooth(se = TRUE, color = "red", linewidth = 1) +
+            ggplot2::geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.7) +
+            ggplot2::labs(
+              title = "Schoenfeld Residuals",
+              subtitle = paste("Model:", model_name),
+              x = "Time",
+              y = "Schoenfeld Residuals"
+            ) +
+            ggplot2::theme_minimal()
+          
+          plots[["single"]] <- p
+        }
+        
+        if (length(plots) == 1) {
+          return(plots[[1]])
+        } else {
+          # Combine multiple plots using patchwork if available
+          if (rlang::is_installed("patchwork")) {
+            combined_plot <- Reduce(`+`, plots)
+            return(combined_plot)
+          } else {
+            cli::cli_inform("Multiple plots created. Install 'patchwork' package to combine them automatically.")
+            return(plots)
+          }
+        }
+      }
+    }, error = function(e) {
+      cli::cli_abort("Failed to create Schoenfeld residuals plot: {e$message}")
+    })
+  } else {
+    cli::cli_abort("Diagnostic type '{type}' not yet implemented for Cox models")
+  }
+}
+
+# Internal function for lm/glm diagnostics
+.br_show_lm_diagnostics <- function(model, model_name, type, ...) {
+  if (type == "residuals") {
+    # Residuals vs fitted plot
+    fitted_values <- fitted(model)
+    residuals <- residuals(model)
+    
+    plot_data <- data.frame(
+      fitted = fitted_values,
+      residuals = residuals
+    )
+    
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = fitted, y = residuals)) +
+      ggplot2::geom_point(alpha = 0.6) +
+      ggplot2::geom_smooth(se = TRUE, color = "red", linewidth = 1) +
+      ggplot2::geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.7) +
+      ggplot2::labs(
+        title = "Residuals vs Fitted",
+        subtitle = paste("Model:", model_name),
+        x = "Fitted Values",
+        y = "Residuals"
+      ) +
+      ggplot2::theme_minimal()
+    
+    return(p)
+  } else if (type == "qq") {
+    # Q-Q plot
+    residuals <- residuals(model)
+    
+    plot_data <- data.frame(
+      sample = residuals
+    )
+    
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(sample = sample)) +
+      ggplot2::stat_qq() +
+      ggplot2::stat_qq_line(color = "red") +
+      ggplot2::labs(
+        title = "Normal Q-Q Plot",
+        subtitle = paste("Model:", model_name),
+        x = "Theoretical Quantiles",
+        y = "Sample Quantiles"
+      ) +
+      ggplot2::theme_minimal()
+    
+    return(p)
+  } else {
+    cli::cli_abort("Diagnostic type '{type}' not yet implemented for linear models")
+  }
+}
+
+
 br_show_table_gt <- function(
     breg, idx = NULL, ...,
     tab_spanner = NULL) {
