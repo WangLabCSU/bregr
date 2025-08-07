@@ -49,6 +49,8 @@ br_get_results(obj, tidy = FALSE, ...)
 \item{idx}{Index or names (focal variables) of the model(s) to return.
 Default returns all.}
 
+\item{new_names}{Character vector to replace existing model names.}
+
 \item{tidy}{If \code{TRUE} return tidy (compact) results, otherwise return comprehensive results.
 The tidy results are obtained from \code{\link[broom:reexports]{broom::tidy()}} while comprehensive results are obtained from
 \code{\link[broom.helpers:tidy_plus_plus]{broom.helpers::tidy_plus_plus()}}. The results can be configured when run with \code{\link[=br_run]{br_run()}}.}

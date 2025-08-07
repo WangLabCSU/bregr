@@ -160,6 +160,7 @@ br_get_model_names <- function(obj) {
 }
 
 #' @rdname accessors
+#' @param new_names Character vector to replace existing model names.
 #' @export
 br_rename_models <- function(obj, new_names) {
   assert_breg_obj(obj)

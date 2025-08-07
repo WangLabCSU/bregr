@@ -357,7 +357,17 @@ runner_ <- function(m, data, dots) {
   # data: data frame for modeling
   # dots: arguments passing to parse model parameters
   # x: focal variables
-  model <- rlang::eval_bare(rlang::parse_expr(m))
+  model <- rlang::try_fetch(
+    rlang::eval_bare(rlang::parse_expr(m)),
+    error = function(e) {
+      cli::cli_inform("modeling failed for expression: {.code {m}}")
+      cli::cli_warn(e$message)
+      NULL
+    }
+  )
+  if (is.null(model)) {
+    return(list(model = NULL, result = NULL, result_tidy = NULL))
+  }
 
   # NOTE:
   # broom.helpers::model_* funs
