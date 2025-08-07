@@ -698,7 +698,7 @@ br_show_nomogram <- function(
             variable = var_name,
             value = level_values,
             points = points_log,
-            var_type = var_type,
+            var_type = "categorical",
             stringsAsFactors = FALSE
           )
         }
@@ -759,8 +759,8 @@ br_show_nomogram <- function(
     var_data <- plot_data[plot_data$variable == var, ]
     if (var_data$var_type[1] == "continuous") {
       # For continuous variables, show min and max values
-      min_val <- min(var_data$value, na.rm = TRUE)
-      max_val <- max(var_data$value, na.rm = TRUE)
+      min_val <- min(as.numeric(var_data$value), na.rm = TRUE)
+      max_val <- max(as.numeric(var_data$value), na.rm = TRUE)
       p <- p + ggplot2::annotate("text", 
                                x = min(var_data$points_norm), 
                                y = var, 
