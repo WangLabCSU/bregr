@@ -26,6 +26,7 @@ functionality."><meta property="og:image" content="https://wanglabcsu.github.io/
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/bregr-group-by.html">Group Regression Analysis and Visualization</a></li>
     <li><a class="dropdown-item" href="../articles/model-config.html">Model Configurations</a></li>
+    <li><a class="dropdown-item" href="../articles/save-model-file.html">Save Models to Local Disk</a></li>
     <li><a class="dropdown-item" href="../articles/supported-models.html">Supported Models</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -69,7 +70,7 @@ functionality.</p>
 <span></span>
 <span><span class="fu">br_get_config</span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">br_get_models</span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span>
+<span><span class="fu">br_get_models</span><span class="op">(</span><span class="va">obj</span>, idx <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">br_get_model</span><span class="op">(</span><span class="va">obj</span>, <span class="va">idx</span><span class="op">)</span></span>
 <span></span>
@@ -85,7 +86,8 @@ functionality.</p>
 
 
 <dt id="arg-idx">idx<a class="anchor" aria-label="anchor" href="#arg-idx"></a></dt>
-<dd><p>Index or names (focal variables) of the model(s) to return.</p></dd>
+<dd><p>Index or names (focal variables) of the model(s) to return.
+Default returns all.</p></dd>
 
 
 <dt id="arg-tidy">tidy<a class="anchor" aria-label="anchor" href="#arg-tidy"></a></dt>
@@ -105,7 +107,7 @@ The tidy results are obtained from <code><a href="https://broom.tidymodels.org/r
 <li><p><code>br_get_n_x()</code> and <code>br_get_n_x2()</code> return the length of terms <code>x</code> and <code>x2</code>.</p></li>
 <li><p><code>br_get_group_by()</code> returns variable(s) for group analysis.</p></li>
 <li><p><code>br_get_config()</code> returns modeling method and extra arguments.</p></li>
-<li><p><code>br_get_models()</code> returns all constructed models.</p></li>
+<li><p><code>br_get_models()</code> returns all or a subset of constructed models.</p></li>
 <li><p><code>br_get_model()</code> returns a subset of constructed models.</p></li>
 <li><p><code>br_get_results()</code> returns modeling result <code>data.frame</code>.</p></li>
 </ul></div>
@@ -197,6 +199,8 @@ The tidy results are obtained from <code><a href="https://broom.tidymodels.org/r
 <span class="r-out co"><span class="r-pr">#&gt;</span> Residual Deviance: 422.7 	AIC: 181.4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="fu">br_get_model</span><span class="op">(</span><span class="va">m</span>, <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`br_get_model()` was deprecated in bregr 1.1.0.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use `br_get_models()` instead.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Call:  stats::glm(formula = mpg ~ cyl + vs, family = stats::gaussian, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     data = data)</span>
