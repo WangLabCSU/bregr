@@ -27,6 +27,8 @@
 #' For Cox-PH models, it should be a length-2 vector in the format `c("time", "status")`.
 #' @param x Character vector specifying focal independent terms (predictors).
 #' @param x2 Character vector specifying control independent terms (predictor, optional).
+#' To remove the intercept from models, include `"-1"` in x2 (e.g., `c("var1", "var2", "-1")`).
+#' Do not include intercept removal terms like `"-1"` in focal variables (x).
 #' @param method Method for model construction.
 #' A name or a list specifying custom model setting.
 #' A string representing a complex method setting is acceptable,
@@ -85,7 +87,15 @@
 #'   method = "gaussian"
 #' )
 #'
-#' # 3. Customized model -----------
+#' # 3. Model without intercept -----
+#' m_no_intercept <- breg(mtcars) |>
+#'   br_set_y("mpg") |>
+#'   br_set_x("cyl") |>
+#'   br_set_x2(c("wt", "hp", "-1")) |> # Include "-1" in x2 to remove intercept
+#'   br_set_model("gaussian") |>
+#'   br_run()
+#'
+#' # 4. Customized model -----------
 #' dt <- data.frame(x = rnorm(100))
 #' dt$y <- rpois(100, exp(1 + dt$x))
 #' m5 <- breg(dt) |>
@@ -99,6 +109,7 @@
 #' assert_breg_obj(m2)
 #' assert_breg_obj(m3)
 #' assert_breg_obj(m4)
+#' assert_breg_obj(m_no_intercept)
 #' assert_breg_obj(m5)
 #' @seealso [accessors] for accessing `breg` object properties.
 NULL
@@ -148,6 +159,26 @@ br_set_x <- function(obj, ...) {
     unlist() |>
     as.character()
   assert_character(x, allow_na = FALSE)
+
+  # Check for intercept-related terms in focal variables  
+  intercept_patterns <- character(0)
+  for (term in x) {
+    # Check for common intercept removal patterns
+    if (grepl("(^|\\s+)-\\s*1(\\s+|$)", term) ||
+        grepl("(^|\\s+)\\+\\s*0(\\s+|$)", term) ||
+        term == "-1" || term == "+0") {
+      intercept_patterns <- c(intercept_patterns, term)
+    }
+  }
+  
+  if (length(intercept_patterns) > 0) {
+    cli::cli_warn(
+      c("Intercept removal terms detected in focal variables: {.val {intercept_patterns}}",
+        "i" = "To remove intercepts, include {.val -1} in control variables (x2) instead of focal variables (x).",
+        "i" = "Example: br_set_x('cyl') |> br_set_x2(c('wt', 'hp', '-1'))",
+        "!" = "Including intercept terms in focal variables may affect focal term filtering results.")
+    )
+  }
 
   x <- repair_names(x)
   x_ <- get_vars(x)

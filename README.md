@@ -149,6 +149,24 @@ Two global options have been introduced to control whether models are
 saved as local files (`bregr.save_model`, default is `FALSE`) and where
 they should be saved (`bregr.path`, default uses a temporary path).
 
+### Removing Intercepts
+
+To remove the intercept from regression models, include `"-1"` in the control variables (`x2`), not in focal variables (`x`):
+
+``` r
+# Correct: Include -1 in control variables (x2)
+mds_no_intercept <- br_pipeline(
+  lung,
+  y = c("time", "status"),
+  x = "ph.ecog",
+  x2 = c("age", "sex", "-1"),  # -1 removes intercept
+  method = "coxph"
+)
+
+# Incorrect: Do not include -1 in focal variables (x)
+# This may affect focal term filtering results
+```
+
 ### Output Inspection
 
 Use `br_get_*()` function family to access attributes and data of result
