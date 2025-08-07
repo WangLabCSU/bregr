@@ -39,6 +39,8 @@ Imports:
     vctrs (>= 0.5.0)
 Suggests: 
     broom.mixed,
+    digest,
+    fs,
     furrr,
     future,
     ggnewscale,
@@ -48,12 +50,11 @@ Suggests:
     knitr,
     lme4,
     merDeriv,
+    qs,
     rmarkdown,
     testthat (>= 3.0.0),
-    visreg,
-    qs,
-    fs,
-    digest
+    UCSCXenaShiny,
+    visreg
 VignetteBuilder: 
     knitr
 Config/testthat/edition: 3
