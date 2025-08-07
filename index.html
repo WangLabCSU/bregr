@@ -81,9 +81,9 @@
 </h2>
 <p>Batch regression streamlines analyses where:</p>
 <ul>
-<li>Each model shares <strong>identical control variables</strong> (<span class="math inline">$`c_1`$</span>, <span class="math inline">$`c_2`$</span>, …).</li>
+<li>Each model shares <strong>identical control variables</strong> (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mn>1</mn></msub><annotation encoding="application/x-tex">c_1</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mn>2</mn></msub><annotation encoding="application/x-tex">c_2</annotation></semantics></math>, …).</li>
 <li>
-<strong>Focal predictors</strong> (<span class="math inline">$`x_1`$</span>, <span class="math inline">$`x_2`$</span>, …) or <strong>response variables</strong> (<span class="math inline">$`y_1`$</span>, <span class="math inline">$`y_2`$</span>, …) vary systematically.</li>
+<strong>Focal predictors</strong> (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>1</mn></msub><annotation encoding="application/x-tex">x_1</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>2</mn></msub><annotation encoding="application/x-tex">x_2</annotation></semantics></math>, …) or <strong>response variables</strong> (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>1</mn></msub><annotation encoding="application/x-tex">y_1</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mn>2</mn></msub><annotation encoding="application/x-tex">y_2</annotation></semantics></math>, …) vary systematically.</li>
 </ul>
 <p>A simplified overview of batch regression modeling is given below for illustration:</p>
 <p align="center">
@@ -163,6 +163,7 @@
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/all.equal.html" class="external-link">all.equal</a></span><span class="op">(</span><span class="va">mds</span>, <span class="va">mds_p</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<p>Two global options have been introduced to control whether models are saved as local files (<code>bregr.save_model</code>, default is <code>FALSE</code>) and where they should be saved (<code>bregr.path</code>, default uses a temporary path).</p>
 </div>
 <div class="section level3">
 <h3 id="output-inspection">Output Inspection<a class="anchor" aria-label="anchor" href="#output-inspection"></a>
@@ -383,12 +384,12 @@
 </h2>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">covr</span><span class="fu">::</span><span class="fu">package_coverage</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; bregr Coverage: 78.60%</span></span>
+<span><span class="co">#&gt; bregr Coverage: 77.37%</span></span>
 <span><span class="co">#&gt; R/98-utils.R: 37.18%</span></span>
-<span><span class="co">#&gt; R/04-show.R: 78.15%</span></span>
+<span><span class="co">#&gt; R/02-pipeline.R: 78.01%</span></span>
+<span><span class="co">#&gt; R/04-show.R: 78.45%</span></span>
 <span><span class="co">#&gt; R/06-avail.R: 78.57%</span></span>
-<span><span class="co">#&gt; R/03-accessors.R: 82.86%</span></span>
-<span><span class="co">#&gt; R/02-pipeline.R: 83.15%</span></span>
+<span><span class="co">#&gt; R/03-accessors.R: 80.00%</span></span>
 <span><span class="co">#&gt; R/01-class.R: 90.70%</span></span>
 <span><span class="co">#&gt; R/99-zzz.R: 90.91%</span></span>
 <span><span class="co">#&gt; R/05-polar.R: 95.19%</span></span></code></pre></div>

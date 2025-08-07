@@ -100,7 +100,7 @@ saved as local files (<code>bregr.save_model</code>, default is
 <span>  <span class="fu"><a href="../reference/pipeline.html">br_set_x2</a></span><span class="op">(</span><span class="st">"vs"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/pipeline.html">br_set_model</a></span><span class="op">(</span><span class="st">"gaussian"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/pipeline.html">br_run</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; model save is enabled with result path <span style="color: #0000BB;">/tmp/RtmpHb7fIa</span></span></span>
+<span><span class="co">#&gt; model save is enabled with result path <span style="color: #0000BB;">/tmp/Rtmp7aNLY3</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">This message is displayed once per session.</span></span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>bregr.save_model <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -109,13 +109,13 @@ verify this by examining the model objects:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m</span><span class="op">@</span><span class="va">models</span></span>
 <span><span class="co">#&gt; $cyl</span></span>
-<span><span class="co">#&gt; /tmp/RtmpHb7fIa/17e87f2ed0f5366a7e8d66d14d0a9339.qs</span></span>
+<span><span class="co">#&gt; /tmp/Rtmp7aNLY3/2a779506546d9ef75ac59cbf12bf4cbd.qs</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $disp</span></span>
-<span><span class="co">#&gt; /tmp/RtmpHb7fIa/1790dbde887f71869bf56719ea6a54a4.qs</span></span>
+<span><span class="co">#&gt; /tmp/Rtmp7aNLY3/d765d4f4eab9341f52fcd554da9ccf07.qs</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $hp</span></span>
-<span><span class="co">#&gt; /tmp/RtmpHb7fIa/26aaff3b649fe6eb374111f6fc0f72a3.qs</span></span></code></pre></div>
+<span><span class="co">#&gt; /tmp/Rtmp7aNLY3/1e54fae537e9cad7aa9102f7e854ab63.qs</span></span></code></pre></div>
 <p>We can retrieve the saved models using the following commands:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/accessors.html">br_get_models</a></span><span class="op">(</span><span class="va">m</span>, <span class="fl">1</span><span class="op">)</span></span>
