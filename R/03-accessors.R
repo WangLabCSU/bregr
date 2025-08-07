@@ -188,3 +188,88 @@ br_get_results <- function(obj, tidy = FALSE, ...) {
   }
   dplyr::filter(results, ...)
 }
+
+#' Predict method for breg objects
+#'
+#' @description
+#' `r lifecycle::badge('experimental')`
+#'
+#' Generate predictions from fitted models in a `breg` object.
+#' For Cox regression models, returns linear predictors (log relative hazard).
+#' For other models, returns predicted values.
+#'
+#' @param obj A `breg` object with fitted models.
+#' @param newdata Optional data frame for predictions. If NULL, uses original data.
+#' @param model_idx Index or name of the model to use for prediction. 
+#' If NULL, uses the first model.
+#' @param type Type of prediction. For Cox models: "lp" (linear predictor, default) 
+#' or "risk" (relative risk). For other models: "response" (default) or "link".
+#' @returns A numeric vector of predictions.
+#' @export
+#' @family accessors
+#' @examples
+#' \donttest{
+#' # Cox regression example
+#' if (requireNamespace("survival", quietly = TRUE)) {
+#'   lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
+#'   mds <- br_pipeline(
+#'     lung,
+#'     y = c("time", "status"),
+#'     x = c("age", "ph.ecog"),
+#'     x2 = "sex",
+#'     method = "coxph"
+#'   )
+#'   scores <- br_predict(mds)
+#'   head(scores)
+#' }
+#' }
+br_predict <- function(obj, newdata = NULL, model_idx = NULL, type = NULL) {
+  assert_breg_obj(obj)
+  
+  # Get the model to use
+  if (is.null(model_idx)) {
+    model_idx <- 1
+  }
+  
+  model <- br_get_models(obj, model_idx)
+  if (length(model_idx) == 1) {
+    model <- list(model)
+    names(model) <- names(br_get_models(obj))[model_idx]
+  }
+  model <- model[[1]]
+  
+  # Get data for prediction
+  if (is.null(newdata)) {
+    newdata <- br_get_data(obj)
+  }
+  
+  # Determine prediction type
+  model_class <- class(model)[1]
+  if (is.null(type)) {
+    if (model_class == "coxph") {
+      type <- "lp"  # linear predictor (log relative hazard)
+    } else {
+      type <- "response"  # predicted response
+    }
+  }
+  
+  # Generate predictions
+  tryCatch({
+    if (model_class == "coxph") {
+      # For Cox models, use predict.coxph
+      predictions <- predict(model, newdata = newdata, type = type)
+    } else {
+      # For other models, use generic predict
+      predictions <- predict(model, newdata = newdata, type = type)
+    }
+    
+    # Ensure we return a numeric vector
+    if (is.matrix(predictions)) {
+      predictions <- as.numeric(predictions)
+    }
+    
+    predictions
+  }, error = function(e) {
+    cli::cli_abort("Failed to generate predictions: {e$message}")
+  })
+}
