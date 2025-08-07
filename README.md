@@ -136,7 +136,7 @@ mds_p <- br_pipeline(
   method = "coxph",
   run_parallel = 3
 )
-#> Warning: running in parallel is not recommended for small number of focal terms
+#> Warning: running in parallel is typically not recommended for small number (<100) of focal terms
 #> exponentiate estimates of model(s) constructed from coxph method at default
 ```
 

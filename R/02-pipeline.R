@@ -257,7 +257,7 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
 
   if (run_parallel > 1) {
     if (length(obj@n_x) < 100) {
-      cli::cli_warn("running in parallel is not recommended for small number of focal terms")
+      cli::cli_warn("running in parallel is typically not recommended for small number (<100) of focal terms")
     }
   }
 
