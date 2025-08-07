@@ -41,7 +41,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="bregr-development-version">bregr (development version)<a class="anchor" aria-label="anchor" href="#bregr-development-version"></a></h2>
-<ul><li>Supported error handling when model construction failed.</li>
+<ul><li>Updated <code><a href="../reference/pipeline.html">br_set_x()</a></code> and <code><a href="../reference/pipeline.html">br_set_x2()</a></code> to properly handle different input types, including valid column names (in R), invalid column names, and model formula terms.</li>
+<li>Supported error handling when model construction failed.</li>
 <li>Added <code><a href="../reference/accessors.html">br_get_model_names()</a></code> and <code><a href="../reference/accessors.html">br_rename_models()</a></code> to get and set model names.</li>
 <li>Soft-deprecated <code><a href="../reference/accessors.html">br_get_model()</a></code> by merging it with <code><a href="../reference/accessors.html">br_get_models()</a></code>.</li>
 <li>Introduced global options “bregr.save_model” and “bregr.path”, configurable via <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code>.</li>
