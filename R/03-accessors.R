@@ -14,7 +14,7 @@
 #' - `br_get_n_x()` and `br_get_n_x2()` return the length of terms `x` and `x2`.
 #' - `br_get_group_by()` returns variable(s) for group analysis.
 #' - `br_get_config()` returns modeling method and extra arguments.
-#' - `br_get_models()` returns all constructed models.
+#' - `br_get_models()` returns all or a subset of constructed models.
 #' - `br_get_model()` returns a subset of constructed models.
 #' - `br_get_results()` returns modeling result `data.frame`.
 #'
@@ -104,39 +104,50 @@ br_get_config <- function(obj) {
 }
 
 #' @rdname accessors
+#' @param idx Index or names (focal variables) of the model(s) to return.
+#' Default returns all.
 #' @export
-br_get_models <- function(obj) {
+br_get_models <- function(obj, idx = NULL) {
   assert_breg_obj(obj)
   mds <- obj@models
-  rlang::check_installed("fs", "qs")
-  if (!insight::is_model(mds[[1]]) && fs::is_file(mds[[1]])) {
-    mds <- map(mds, qs::qread)
+  len <- length(mds)
+
+  # mds could be files, models, or model construction text
+  if (is.null(idx)) {
+    if (!insight::is_model(mds[[1]]) && fs::is_file(mds[[1]])) {
+      if (len > 1000) {
+        cli::cli_inform("directly retrieve >1000 models may resource-consuming, subsetting with {.arg idx} is more recommended")
+      }
+      mds <- map(mds, qs::qread)
+    }
+  } else {
+    if (is.numeric(idx)) {
+      idx <- as.integer(idx)
+      if (any(idx < 1 | idx > len)) {
+        cli_abort("{.arg idx} index out of range (input model integer indexs)")
+      }
+    } else if (is.character(idx)) {
+      idx <- as.character(idx)
+      if (!all(idx %in% names(mds))) {
+        cli_abort("{.arg idx} index out of range (input focal variable names)")
+      }
+    }
+
+    mds <- mds[idx]
+    rlang::check_installed("fs", "qs")
+    if (!insight::is_model(mds[[1]]) && fs::is_file(mds[[1]])) {
+      mds <- map(mds, qs::qread)
+    }
+    if (length(idx) == 1) mds <- mds[[1]]
   }
   mds
 }
 
 #' @rdname accessors
-#' @param idx Index or names (focal variables) of the model(s) to return.
 #' @export
 br_get_model <- function(obj, idx) {
-  assert_breg_obj(obj)
-  if (is.numeric(idx)) {
-    idx <- as.integer(idx)
-    if (idx < 1 || idx > length(obj@models)) {
-      cli_abort("{.arg idx} index out of range (input model integer indexs)")
-    }
-  } else if (is.character(idx)) {
-    idx <- as.character(idx)
-    if (!all(idx %in% names(obj@models))) {
-      cli_abort("{.arg idx} index out of range (input focal variable names)")
-    }
-  }
-
-  if (length(idx) == 1) {
-    br_get_models(obj)[[idx]]
-  } else {
-    br_get_models(obj)[idx]
-  }
+  lifecycle::deprecate_soft("1.1.0", "br_get_model()", "br_get_models()")
+  br_get_models(obj, idx)
 }
 # parameters::model_parameters()
 

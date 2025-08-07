@@ -30,7 +30,7 @@ br_show_risk_network <- function(breg, ...) {
   x <- br_get_x(breg)
   method <- br_get_config(breg)$method
   exponentiate <- attr(breg, "exponentiate")
-  if (insight::model_name(br_get_model(breg, 1)) != "coxph") {
+  if (insight::model_name(br_get_models(breg, 1)) != "coxph") {
     cli_abort("this function is designed for Cox-PH model analysis")
   }
   cli_inform("please note only continuous focal terms analyzed and visualized")

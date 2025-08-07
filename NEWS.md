@@ -1,17 +1,17 @@
 # bregr (development version)
 
-* Added global options "bregr.save_model" and "bregr.path", users can
-  set them with `options()`.
-* Supported parallel computation on all platforms with **furrr**.
-* Handled lifecyle deprecated issues in functions from **ggplot2**.
-* Properly set default `exponentiate` option in `br_run()`.
-* Added `c("poisson", "quasipoisson")` to `br_avail_methods_use_exp()`.
-* Added `log_first` option to `br_show_forest()`.
-* Supported many models from **broom.helpers**.
-* Used `:` to combine interaction term system-wide.
-* Added multiple vignettes for introducing **bregr**.
-* Fixed the issue where dropping multiple columns failed in `br_show_forest()`.
-* Resolved the problem where `br_get_model()` couldn't correctly process multiple strings as input for the `idx` parameter.
+* Soft-deprecated `br_get_model()` by merging it with `br_get_models()`.
+* Introduced global options "bregr.save_model" and "bregr.path", configurable via `options()`.
+* Enabled cross-platform parallel computation through integration with **furrr**.
+* Addressed lifecycle deprecation warnings in functions from **ggplot2**.
+* Set the default `exponentiate` option appropriately in `br_run()`.
+* Expanded `br_avail_methods_use_exp()` to include `c("poisson", "quasipoisson")`.
+* Added a `log_first` option to `br_show_forest()`.
+* Enhanced compatibility with multiple models from **broom.helpers**.
+* Implemented the use of `:` for interaction term combinations throughout the package.
+* Created several new vignettes to introduce the capabilities of **bregr**.
+* Fixed a bug where dropping multiple columns failed in `br_show_forest()`.
+* Resolved an issue where `br_get_model()` couldn't properly process multiple string inputs for the `idx` parameter.
 
 # bregr 1.0.0
 

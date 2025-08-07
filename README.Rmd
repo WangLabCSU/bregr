@@ -128,6 +128,7 @@ mds_p <- br_pipeline(
 all.equal(mds, mds_p)
 ```
 
+Two global options have been introduced to control whether models are saved as local files (`bregr.save_model`, default is `FALSE`) and where they should be saved (`bregr.path`, default uses a temporary path).
 
 ### Output Inspection
 

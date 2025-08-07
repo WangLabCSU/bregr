@@ -407,6 +407,8 @@ runner_ <- function(m, data, dots) {
     if (md_path == "") {
       md_path <- fs::path_temp()
     }
+    cli::cli_inform("model save is enabled with result path {md_path}",
+                    .frequency = "once", .frequency_id = md_path)
     fs::dir_create(md_path)
     dg <- digest::digest(model)
     md_file <- fs::path(md_path, dg, ext = "qs")

@@ -33,7 +33,7 @@ test_that("Function br_show_forest_ggstats() @ L301", {
 })
 
 
-test_that("Function br_show_forest_ggstatsplot() @ L350", {
+test_that("Function br_show_forest_ggstatsplot() @ L344", {
   
   if (rlang::is_installed("ggstats")) {
     m <- br_pipeline(mtcars,
@@ -49,7 +49,7 @@ test_that("Function br_show_forest_ggstatsplot() @ L350", {
 })
 
 
-test_that("Function br_show_fitted_line() @ L390", {
+test_that("Function br_show_fitted_line() @ L384", {
   
   if (rlang::is_installed("visreg")) {
     m <- br_pipeline(mtcars,
@@ -69,7 +69,7 @@ test_that("Function br_show_fitted_line() @ L390", {
 })
 
 
-test_that("Function br_show_fitted_line_2d() @ L429", {
+test_that("Function br_show_fitted_line_2d() @ L423", {
   
   if (rlang::is_installed("visreg")) {
     m <- br_pipeline(mtcars,
@@ -86,7 +86,7 @@ test_that("Function br_show_fitted_line_2d() @ L429", {
 })
 
 
-test_that("Function br_show_table() @ L469", {
+test_that("Function br_show_table() @ L463", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
@@ -104,7 +104,7 @@ test_that("Function br_show_table() @ L469", {
 })
 
 
-test_that("Function br_show_table_gt() @ L506", {
+test_that("Function br_show_table_gt() @ L500", {
   
   if (rlang::is_installed("gtsummary")) {
     m <- br_pipeline(mtcars,

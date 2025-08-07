@@ -302,14 +302,8 @@ br_show_forest_ggstats <- function(breg, idx = NULL, ...) {
   assert_breg_obj_with_results(breg)
   rlang::check_installed("ggstats")
 
-  mds <- if (!is.null(idx)) {
-    br_get_model(breg, idx)
-  } else {
-    br_get_models(breg)
-  }
-  if (length(mds) == 1) {
-    mds <- mds[[1]]
-  }
+  mds <- br_get_models(breg, idx)
+
   .f <- if (identical(class(mds), "list")) {
     ggstats::ggcoef_compare
   } else {
@@ -354,7 +348,7 @@ br_show_forest_ggstatsplot <- function(breg, idx = 1, ...) {
   }
   rlang::check_installed("ggstatsplot")
 
-  mod <- br_get_model(breg, idx)
+  mod <- br_get_models(breg, idx)
   ggstatsplot::ggcoefstats(mod, ...)
 }
 
@@ -394,7 +388,7 @@ br_show_fitted_line <- function(breg, idx = 1, ...) {
   }
   rlang::check_installed("visreg")
   cli_inform("subset model list with idx: {.val {idx}}")
-  mod <- br_get_model(breg, idx)
+  mod <- br_get_models(breg, idx)
   cal <- if (isS4(mod)) mod@call else mod$call
   cli_inform("model call: {rlang::expr_deparse(cal)}")
   visreg::visreg(mod, data = broom.helpers::model_get_model_frame(mod), ...)
@@ -433,7 +427,7 @@ br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
   }
   rlang::check_installed("visreg")
 
-  mod <- br_get_model(breg, idx)
+  mod <- br_get_models(breg, idx)
   cal <- if (isS4(mod)) mod@call else mod$call
   cli_inform("model call: {rlang::expr_deparse(cal)}")
   visreg::visreg2d(mod, data = broom.helpers::model_get_model_frame(mod), ...)
