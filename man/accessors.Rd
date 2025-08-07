@@ -12,6 +12,8 @@
 \alias{br_get_config}
 \alias{br_get_models}
 \alias{br_get_model}
+\alias{br_get_model_names}
+\alias{br_rename_models}
 \alias{br_get_results}
 \title{Accessor functions for \code{breg} objects}
 \usage{
@@ -34,6 +36,10 @@ br_get_config(obj)
 br_get_models(obj, idx = NULL)
 
 br_get_model(obj, idx)
+
+br_get_model_names(obj)
+
+br_rename_models(obj, new_names)
 
 br_get_results(obj, tidy = FALSE, ...)
 }
@@ -59,6 +65,8 @@ Output depends on the function called:
 \item \code{br_get_config()} returns modeling method and extra arguments.
 \item \code{br_get_models()} returns all or a subset of constructed models.
 \item \code{br_get_model()} returns a subset of constructed models.
+\item \code{br_get_model_names()} returns all model names.
+\item \code{br_rename_models()} returns a renamed object.
 \item \code{br_get_results()} returns modeling result \code{data.frame}.
 }
 }

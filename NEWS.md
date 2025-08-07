@@ -1,5 +1,6 @@
 # bregr (development version)
 
+* Added `br_get_model_names()` and `br_rename_models()` to get and set model names.
 * Soft-deprecated `br_get_model()` by merging it with `br_get_models()`.
 * Introduced global options "bregr.save_model" and "bregr.path", configurable via `options()`.
 * Enabled cross-platform parallel computation through integration with **furrr**.

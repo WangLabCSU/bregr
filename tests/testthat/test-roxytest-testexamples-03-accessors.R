@@ -2,7 +2,7 @@
 
 # File R/"03-accessors.R": @testexamples
 
-test_that("[unknown alias] @ L47", {
+test_that("[unknown alias] @ L49", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",

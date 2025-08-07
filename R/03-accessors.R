@@ -16,6 +16,8 @@
 #' - `br_get_config()` returns modeling method and extra arguments.
 #' - `br_get_models()` returns all or a subset of constructed models.
 #' - `br_get_model()` returns a subset of constructed models.
+#' - `br_get_model_names()` returns all model names.
+#' - `br_rename_models()` returns a renamed object.
 #' - `br_get_results()` returns modeling result `data.frame`.
 #'
 #' @name accessors
@@ -149,7 +151,26 @@ br_get_model <- function(obj, idx) {
   lifecycle::deprecate_soft("1.1.0", "br_get_model()", "br_get_models()")
   br_get_models(obj, idx)
 }
-# parameters::model_parameters()
+
+#' @rdname accessors
+#' @export
+br_get_model_names <- function(obj) {
+  assert_breg_obj(obj)
+  names(obj@models)
+}
+
+#' @rdname accessors
+#' @export
+br_rename_models <- function(obj, new_names) {
+  assert_breg_obj(obj)
+  assert_character_len(new_names, len = length(obj@models))
+
+  old_names <- br_get_model_names(obj)
+  names(obj@models) <- new_names
+  cli::cli_inform("rename model names from {.val {old_names}} to {.val {new_names}}")
+  obj
+}
+
 
 #' @rdname accessors
 #' @param tidy If `TRUE` return tidy (compact) results, otherwise return comprehensive results.
