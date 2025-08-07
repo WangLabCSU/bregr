@@ -530,3 +530,195 @@ br_show_table_gt <- function(
   }
   t
 }
+
+#' Show a circular forest plot for regression results
+#'
+#' @description
+#' `r lifecycle::badge('stable')`
+#'
+#' This function creates a circular (polar) forest plot from regression results,
+#' providing an alternative visualization to the traditional linear forest plot.
+#' The function uses the same input as [br_show_forest()] but displays the results
+#' in a circular format using [ggplot2::coord_polar()].
+#'
+#' @inheritParams br_show_forest
+#' @param style Character string specifying the style of circular forest plot.
+#' Options are:
+#' - `"points"` (default): Display point estimates with error bars in circular format
+#' - `"bars"`: Display as bars with points overlaid (inspired by reference code 2)
+#' @param reference_line Logical indicating whether to show reference lines.
+#' If `TRUE`, adds dashed horizontal lines at y = 0 and other meaningful values.
+#' @param ... Additional arguments passed to ggplot2 functions.
+#' @returns A ggplot object
+#' @export
+#' @family br_show
+#' @examples
+#' m <- br_pipeline(mtcars,
+#'   y = "mpg",
+#'   x = colnames(mtcars)[2:4],
+#'   x2 = "vs",
+#'   method = "gaussian"
+#' )
+#' br_show_forest_circle(m)
+#' br_show_forest_circle(m, clean = TRUE, style = "bars")
+#' @testexamples
+#' assert_s3_class(br_show_forest_circle(m), "ggplot")
+br_show_forest_circle <- function(
+    breg,
+    clean = TRUE,
+    rm_controls = FALSE,
+    style = c("points", "bars"),
+    reference_line = TRUE,
+    subset = NULL,
+    drop = NULL,
+    log_first = FALSE) {
+  
+  assert_breg_obj_with_results(breg)
+  assert_bool(rm_controls)
+  assert_bool(reference_line)
+  style <- match.arg(style)
+  
+  # Get the data using the same logic as br_show_forest
+  dt <- br_get_results(breg)
+  x2 <- br_get_x2(breg)
+
+  if (log_first) {
+    dt <- dt |> dplyr::mutate(
+      estimate = log(.data$estimate),
+      conf.high = log(.data$conf.high),
+      conf.low = log(.data$conf.low)
+    )
+  }
+  
+  exponentiate <- attr(breg, "exponentiate")
+  ref_line_value <- if (exponentiate && !log_first) 1L else 0L
+
+  if (rm_controls) {
+    dt <- dt |> dplyr::filter(.data$Focal_variable == .data$variable)
+  }
+  
+  subset <- rlang::enquo(subset)
+  if (!rlang::quo_is_null(subset)) {
+    dt <- dt |> dplyr::filter(!!subset)
+  }
+
+  has_group <- !is.null(br_get_group_by(breg))
+  
+  # Clean data following br_show_forest logic but adapted for circular plot
+  if (clean) {
+    dt <- dt |>
+      dplyr::mutate(
+        label = if_else(
+          vctrs::vec_equal(.data$variable, .data$label, na_equal = TRUE),
+          "", .data$label
+        )
+      )
+  }
+
+  # Create a unique identifier for positioning
+  dt <- dt |>
+    dplyr::mutate(
+      id = dplyr::row_number(),
+      conf.low = if_else(is.na(.data$conf.low), .data$estimate, .data$conf.low),
+      conf.high = if_else(
+        is.na(.data$conf.high),
+        .data$estimate,
+        .data$conf.high
+      )
+    )
+
+  # Handle grouping for colors
+  if (has_group) {
+    color_var <- "Group_variable"
+  } else if ("Focal_variable" %in% colnames(dt) && length(unique(dt$Focal_variable)) > 1) {
+    color_var <- "Focal_variable"
+  } else {
+    color_var <- "variable"
+  }
+
+  # Base plot
+  if (style == "points") {
+    # Style 1: Points with error bars (similar to reference code 1)
+    p <- ggplot2::ggplot(dt, ggplot2::aes(x = factor(.data$id), y = .data$estimate)) +
+      ggplot2::geom_point(ggplot2::aes(color = .data[[color_var]]), size = 2) +
+      ggplot2::geom_errorbar(
+        ggplot2::aes(ymin = .data$conf.low, ymax = .data$conf.high, color = .data[[color_var]]),
+        width = 0.2
+      ) +
+      ggplot2::coord_polar(start = 0)
+  } else {
+    # Style 2: Bars with points overlaid (similar to reference code 2)
+    dt$bar_height <- 1  # Base height for bars
+    
+    p <- ggplot2::ggplot(dt) +
+      ggplot2::geom_col(
+        ggplot2::aes(x = factor(.data$id), y = .data$bar_height, fill = .data[[color_var]]),
+        alpha = 0.3, width = 1
+      ) +
+      ggplot2::geom_point(
+        ggplot2::aes(x = factor(.data$id), y = .data$estimate + 2, color = .data[[color_var]]),
+        size = 1.5
+      ) +
+      ggplot2::geom_segment(
+        ggplot2::aes(
+          x = factor(.data$id),
+          y = .data$conf.low + 2,
+          yend = .data$conf.high + 2,
+          color = .data[[color_var]]
+        ),
+        linewidth = 0.8
+      ) +
+      ggplot2::coord_polar()
+  }
+
+  # Add reference lines if requested
+  if (reference_line) {
+    if (style == "points") {
+      p <- p + ggplot2::geom_hline(
+        yintercept = ref_line_value,
+        linetype = "dashed",
+        color = "black",
+        linewidth = 0.8
+      )
+    } else {
+      p <- p + ggplot2::geom_hline(
+        yintercept = ref_line_value + 2,
+        linetype = "dashed",
+        color = "black",
+        linewidth = 0.8
+      )
+    }
+  }
+
+  # Theming and labels
+  p <- p +
+    ggplot2::theme_void() +
+    ggplot2::theme(
+      legend.position = "right",
+      plot.title = ggplot2::element_text(hjust = 0.5, size = 14),
+      legend.title = ggplot2::element_text(size = 10),
+      legend.text = ggplot2::element_text(size = 8)
+    ) +
+    ggplot2::labs(
+      title = "Circular Forest Plot",
+      color = gsub("_", " ", color_var),
+      fill = gsub("_", " ", color_var)
+    )
+
+  # Add custom colors if there are multiple groups
+  n_groups <- length(unique(dt[[color_var]]))
+  if (n_groups > 1) {
+    # Use a simple color palette
+    colors <- c("#006D2C", "#FDB462", "#6A51A3", "#2B8CBE", "#E31A1C", "#FF7F00", "#1F78B4", "#33A02C")
+    if (n_groups > length(colors)) {
+      colors <- rainbow(n_groups)
+    }
+    colors <- colors[1:n_groups]
+    
+    p <- p +
+      ggplot2::scale_color_manual(values = colors) +
+      ggplot2::scale_fill_manual(values = colors)
+  }
+
+  return(p)
+}

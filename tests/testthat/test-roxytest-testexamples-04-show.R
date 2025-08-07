@@ -119,3 +119,15 @@ test_that("Function br_show_table_gt() @ L500", {
   expect_true(TRUE)
 })
 
+
+test_that("Function br_show_forest_circle() @ L536", {
+  
+  m <- br_pipeline(mtcars,
+    y = "mpg",
+    x = colnames(mtcars)[2:4],
+    x2 = "vs",
+    method = "gaussian"
+  )
+  assert_s3_class(br_show_forest_circle(m), "ggplot")
+})
+
