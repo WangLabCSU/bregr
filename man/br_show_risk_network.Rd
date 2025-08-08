@@ -37,6 +37,7 @@ Other br_show:
 \code{\link{br_show_forest}()},
 \code{\link{br_show_forest_ggstats}()},
 \code{\link{br_show_forest_ggstatsplot}()},
+\code{\link{br_show_residuals}()},
 \code{\link{br_show_table}()},
 \code{\link{br_show_table_gt}()}
 
