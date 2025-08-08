@@ -1,5 +1,6 @@
 # bregr (development version)
 
+* Added `br_show_residuals()` to show residuals vs fitted plot for regression models.
 * Updated `br_set_x()` and `br_set_x2()` to properly handle different input
 types, including valid column names (in R), invalid column names, and
 model formula terms.
@@ -7,7 +8,7 @@ model formula terms.
 * Added `br_get_model_names()` and `br_rename_models()` to get and set model names.
 * Soft-deprecated `br_get_model()` by merging it with `br_get_models()`.
 * Introduced global options "bregr.save_model" and "bregr.path", configurable via `options()`.
-* Enabled cross-platform parallel computation through integration with **furrr**.
+* Enabled cross-platform parallel computation through integration with **furrr**, introduced global option "bregr.use_furrr" (default is `TRUE` for `run_parallel > 1`).
 * Addressed lifecycle deprecation warnings in functions from **ggplot2**.
 * Set the default `exponentiate` option appropriately in `br_run()`.
 * Expanded `br_avail_methods_use_exp()` to include `c("poisson", "quasipoisson")`.
