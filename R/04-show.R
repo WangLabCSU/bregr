@@ -542,6 +542,12 @@ br_show_table_gt <- function(
 #' individualized predictions and risk scores. For survival models, it includes
 #' survival probability predictions at specified time points.
 #'
+#' The nomogram displays:
+#' - A points scale (0-100) for scoring variable contributions
+#' - Individual variable scales with their ranges and point contributions  
+#' - A total points scale for summing individual variable points
+#' - Survival probability scales for clinical predictions at specified time points
+#'
 #' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
 #' @param idx Length-1 vector. Index or name (focal variable) of the model.
 #' Only one model is supported for nomogram visualization.
@@ -636,107 +642,36 @@ br_show_nomogram <- function(
   model_results <- results |>
     dplyr::filter(.data$Focal_variable == focal_var)
   
-  # Create a simplified nomogram using ggplot2
-  # This implements a basic nomogram structure with survival predictions
+  # Create a nomogram using ggplot2 following medical nomogram conventions
   .create_nomogram_plot(mod, model_results, model_data, funlabel, fun, fun.at, lp, points, total.points, surv.at, time.inc, ...)
 }
 
-# Helper function to create nomogram plot
+# Helper function to create nomogram plot following medical nomogram conventions
 .create_nomogram_plot <- function(model, results, data, funlabel, fun, fun.at, lp, points, total.points, surv.at, time.inc, ...) {
   
-  # Extract model coefficients
+  # Extract model coefficients (use log scale for Cox models)
   coefs <- stats::coef(model)
   
-  # Get variable information from results
-  var_info <- results |>
-    dplyr::filter(!.data$reference_row %in% TRUE, !is.na(.data$estimate)) |>
-    dplyr::select(.data$variable, .data$estimate, .data$var_type, .data$var_class, .data$label) |>
-    dplyr::distinct()
+  # Get variable information from results - handle all variables in the model
+  all_vars <- results |>
+    dplyr::select(.data$variable, .data$estimate, .data$var_type, .data$var_class, .data$label, .data$reference_row) |>
+    dplyr::distinct() |>
+    dplyr::arrange(.data$variable)
   
-  if (nrow(var_info) == 0) {
-    cli_abort("No valid coefficients found for nomogram creation")
+  if (nrow(all_vars) == 0) {
+    cli_abort("No variables found for nomogram creation")
   }
   
-  # Create nomogram data structure
-  nomogram_data <- list()
+  # Calculate nomogram structure like rms package
+  nomogram_scales <- .build_nomogram_scales(model, all_vars, data, coefs)
   
-  # Calculate ranges and scales for each variable
-  for (i in seq_len(nrow(var_info))) {
-    var_name <- var_info$variable[i]
-    var_type <- var_info$var_type[i]
-    var_class <- var_info$var_class[i]
-    
-    if (var_name %in% names(data)) {
-      if (var_type == "continuous") {
-        var_range <- range(data[[var_name]], na.rm = TRUE)
-        var_seq <- seq(var_range[1], var_range[2], length.out = 10)
-        
-        # Calculate points contribution
-        coef_val <- var_info$estimate[i]
-        # Convert to log scale if estimates are exponentiated
-        if (coef_val > 0 && abs(log(coef_val)) > abs(coef_val)) {
-          coef_val <- log(coef_val)
-        }
-        
-        points_contrib <- coef_val * (var_seq - min(var_seq, na.rm = TRUE))
-        
-        nomogram_data[[var_name]] <- data.frame(
-          variable = var_name,
-          value = var_seq,
-          points = points_contrib,
-          var_type = var_type,
-          stringsAsFactors = FALSE
-        )
-      } else if (var_class == "factor") {
-        var_levels <- levels(as.factor(data[[var_name]]))
-        
-        # For factor variables, use the estimates from results  
-        factor_results <- results |>
-          dplyr::filter(.data$variable == var_name, !is.na(.data$estimate), !.data$reference_row %in% TRUE)
-        
-        if (nrow(factor_results) > 0) {
-          # Include reference level (0 points) and other levels
-          level_values <- c("Reference", factor_results$label)
-          points_values <- c(0, factor_results$estimate)
-          
-          # Convert to log scale if estimates are exponentiated  
-          points_log <- ifelse(points_values > 0 & points_values != 1, log(points_values), points_values)
-          
-          nomogram_data[[var_name]] <- data.frame(
-            variable = var_name,
-            value = level_values,
-            points = points_log,
-            var_type = "categorical",
-            stringsAsFactors = FALSE
-          )
-        }
-      }
-    }
-  }
-  
-  # Combine all variable data
-  if (length(nomogram_data) == 0) {
-    cli_abort("Unable to create nomogram data from model results")
-  }
-  
-  plot_data <- do.call(rbind, nomogram_data)
-  
-  # Normalize points to 0-100 scale
-  if (points) {
-    max_abs_points <- max(abs(plot_data$points), na.rm = TRUE)
-    if (max_abs_points > 0) {
-      plot_data$points_norm <- (plot_data$points / max_abs_points) * 100
-    } else {
-      plot_data$points_norm <- plot_data$points
-    }
-  } else {
-    plot_data$points_norm <- plot_data$points
+  if (length(nomogram_scales$variables) == 0) {
+    cli_abort("Unable to create nomogram scales from model results")
   }
   
   # Calculate survival probabilities for Cox models
-  survival_data <- NULL
+  survival_scales <- NULL
   if (insight::model_name(model) == "coxph" && !is.null(surv.at) && length(surv.at) > 0) {
-    # Get baseline survival from the Cox model
     baseline_surv <- tryCatch({
       survival::survfit(model)
     }, error = function(e) {
@@ -745,159 +680,406 @@ br_show_nomogram <- function(
     })
     
     if (!is.null(baseline_surv)) {
-      # Calculate survival probabilities at specified time points
-      survival_data <- .calculate_survival_probabilities(
-        model, baseline_surv, surv.at, time.inc, plot_data
-      )
+      survival_scales <- .build_survival_scales(model, baseline_surv, surv.at, time.inc, nomogram_scales)
     }
   }
   
-  # Create the nomogram plot using ggplot2
-  p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$points_norm, y = .data$variable)) +
-    ggplot2::geom_point(size = 2, color = "blue") +
-    ggplot2::geom_segment(
-      data = plot_data |> dplyr::group_by(.data$variable) |> 
-        dplyr::summarise(
-          xmin = min(.data$points_norm, na.rm = TRUE),
-          xmax = max(.data$points_norm, na.rm = TRUE),
-          .groups = "drop"
-        ),
-      ggplot2::aes(x = .data$xmin, xend = .data$xmax, y = .data$variable, yend = .data$variable),
-      inherit.aes = FALSE,
-      color = "gray70"
-    ) +
-    ggplot2::scale_x_continuous(breaks = seq(0, 100, 20)) +
-    ggplot2::labs(
-      title = "Nomogram for Survival Model",
-      x = if (points) "Points (0-100)" else funlabel,
-      y = "Variables"
-    ) +
-    ggplot2::theme_minimal() +
-    ggplot2::theme(
-      plot.title = ggplot2::element_text(hjust = 0.5, face = "bold"),
-      panel.grid.minor = ggplot2::element_blank(),
-      panel.grid.major.y = ggplot2::element_blank(),
-      axis.text.y = ggplot2::element_text(face = "bold"),
-      strip.background = ggplot2::element_blank()
-    )
-  
-  # Add variable labels as annotations
-  for (var in unique(plot_data$variable)) {
-    var_data <- plot_data[plot_data$variable == var, ]
-    if (var_data$var_type[1] == "continuous") {
-      # For continuous variables, show min and max values
-      min_val <- min(as.numeric(var_data$value), na.rm = TRUE)
-      max_val <- max(as.numeric(var_data$value), na.rm = TRUE)
-      p <- p + ggplot2::annotate("text", 
-                               x = min(var_data$points_norm), 
-                               y = var, 
-                               label = paste(round(min_val, 2)), 
-                               hjust = 1.1, vjust = -0.5, size = 3)
-      p <- p + ggplot2::annotate("text", 
-                               x = max(var_data$points_norm), 
-                               y = var, 
-                               label = paste(round(max_val, 2)), 
-                               hjust = -0.1, vjust = -0.5, size = 3)
-    } else {
-      # For categorical variables, show level names
-      for (i in seq_len(nrow(var_data))) {
-        p <- p + ggplot2::annotate("text", 
-                                 x = var_data$points_norm[i], 
-                                 y = var, 
-                                 label = var_data$value[i], 
-                                 hjust = 0.5, vjust = -0.5, size = 3)
-      }
-    }
-  }
-  
-  # Add total points information if requested
-  if (total.points) {
-    total_range <- range(plot_data$points_norm, na.rm = TRUE)
-    
-    # Add total points scale
-    total_points_y <- length(unique(plot_data$variable)) + 1
-    p <- p + ggplot2::geom_segment(
-      ggplot2::aes(x = total_range[1], xend = total_range[2], 
-                   y = total_points_y, yend = total_points_y),
-      inherit.aes = FALSE, color = "black", size = 1
-    ) +
-    ggplot2::annotate("text", x = mean(total_range), y = total_points_y + 0.3, 
-                     label = "Total Points", hjust = 0.5, size = 4, face = "bold")
-    
-    # Add survival probability scales if available
-    if (!is.null(survival_data) && length(survival_data) > 0) {
-      for (i in seq_along(surv.at)) {
-        surv_time <- surv.at[i]
-        surv_key <- paste0("surv_", surv_time, "y")
-        
-        if (surv_key %in% names(survival_data)) {
-          surv_y <- total_points_y + 1 + i
-          
-          # Create survival probability scale
-          p <- p + ggplot2::geom_segment(
-            ggplot2::aes(x = total_range[1], xend = total_range[2], 
-                         y = surv_y, yend = surv_y),
-            inherit.aes = FALSE, color = "red", size = 1
-          ) +
-          ggplot2::annotate("text", x = mean(total_range), y = surv_y + 0.3,
-                           label = paste(surv_time, "-Year Survival Probability"), 
-                           hjust = 0.5, size = 4, face = "bold")
-          
-          # Add probability markers
-          prob_positions <- c(0.9, 0.7, 0.5, 0.3, 0.1)
-          for (prob in prob_positions) {
-            x_pos <- total_range[1] + (1 - prob) * diff(total_range)
-            p <- p + ggplot2::annotate("text", x = x_pos, y = surv_y - 0.2,
-                                     label = paste0(round(prob * 100, 0), "%"),
-                                     hjust = 0.5, size = 3)
-          }
-        }
-      }
-      
-      # Expand y-axis to accommodate survival scales
-      max_y <- total_points_y + 1 + length(surv.at)
-      current_vars <- unique(plot_data$variable)
-      all_levels <- c(current_vars, rep("", max_y - length(current_vars)))
-      p <- p + ggplot2::ylim(c(all_levels, ""))
-    }
-    
-    p <- p + ggplot2::labs(
-      caption = paste("Total Points Range:", round(total_range[1], 1), "to", round(total_range[2], 1))
-    )
-  }
-  
-  return(p)
+  # Create the nomogram plot
+  .plot_nomogram(nomogram_scales, survival_scales, points, total.points, lp, funlabel, surv.at)
 }
 
-# Helper function to calculate survival probabilities
-.calculate_survival_probabilities <- function(model, baseline_surv, surv.at, time.inc, plot_data) {
+# Build nomogram scales following rms conventions
+.build_nomogram_scales <- function(model, all_vars, data, coefs) {
   
-  # Convert survival times from years to the same units as model (typically days)
+  # Initialize scales
+  variable_scales <- list()
+  max_points <- 100
+  
+  # Get unique variables (excluding reference rows for factors)
+  unique_vars <- unique(all_vars$variable)
+  
+  # Process each variable
+  for (var_name in unique_vars) {
+    var_data <- all_vars[all_vars$variable == var_name, ]
+    
+    if (!var_name %in% names(data)) {
+      next
+    }
+    
+    var_type <- var_data$var_type[1]
+    var_class <- var_data$var_class[1]
+    
+    if (var_type == "continuous") {
+      # For continuous variables, create a range and calculate points
+      var_range <- range(data[[var_name]], na.rm = TRUE)
+      
+      # Get coefficient for this variable
+      if (var_name %in% names(coefs)) {
+        coef_val <- coefs[var_name]
+        
+        # Create sequence of values across the range
+        var_seq <- seq(var_range[1], var_range[2], length.out = 11)
+        
+        # Calculate points for each value (relative to minimum)
+        points_contrib <- coef_val * (var_seq - var_range[1])
+        
+        variable_scales[[var_name]] <- list(
+          variable = var_name,
+          type = "continuous", 
+          values = var_seq,
+          points = points_contrib,
+          range = var_range,
+          coefficient = coef_val
+        )
+      }
+      
+    } else if (var_class == "factor") {
+      # For factor variables, use levels and their estimates
+      
+      # Get all levels including reference
+      factor_data <- var_data[!is.na(var_data$estimate) | var_data$reference_row, ]
+      
+      if (nrow(factor_data) > 0) {
+        # Include reference level (0 points) 
+        ref_row <- factor_data[factor_data$reference_row %in% TRUE, ]
+        non_ref_rows <- factor_data[!factor_data$reference_row %in% TRUE & !is.na(factor_data$estimate), ]
+        
+        if (nrow(ref_row) > 0) {
+          level_names <- c(ref_row$label[1], non_ref_rows$label)
+          point_values <- c(0, non_ref_rows$estimate)
+        } else {
+          level_names <- non_ref_rows$label
+          point_values <- non_ref_rows$estimate
+        }
+        
+        variable_scales[[var_name]] <- list(
+          variable = var_name,
+          type = "factor",
+          values = level_names,
+          points = point_values,
+          levels = level_names
+        )
+      }
+    }
+  }
+  
+  # Normalize all points to 0-100 scale
+  all_points <- unlist(lapply(variable_scales, function(x) x$points))
+  if (length(all_points) > 0) {
+    max_abs_point <- max(abs(all_points), na.rm = TRUE)
+    if (max_abs_point > 0) {
+      for (i in seq_along(variable_scales)) {
+        variable_scales[[i]]$points_norm <- (variable_scales[[i]]$points / max_abs_point) * max_points
+      }
+    }
+  }
+  
+  # Calculate total points range
+  total_range <- range(unlist(lapply(variable_scales, function(x) x$points_norm)), na.rm = TRUE)
+  
+  return(list(
+    variables = variable_scales,
+    total_range = total_range,
+    max_points = max_points
+  ))
+}
+
+# Build survival probability scales
+.build_survival_scales <- function(model, baseline_surv, surv.at, time.inc, nomogram_scales) {
+  
+  # Convert survival times from years to model time units
   surv_times <- surv.at * time.inc
   
-  # Calculate range of linear predictors from the plot data
-  lp_range <- range(plot_data$points, na.rm = TRUE)
-  lp_seq <- seq(lp_range[1], lp_range[2], length.out = 20)
-  
-  survival_data <- list()
+  survival_scales <- list()
   
   for (i in seq_along(surv.at)) {
     surv_time <- surv_times[i]
     
-    # Get baseline survival at this time point
+    # Find closest time point in baseline survival
     time_idx <- which.min(abs(baseline_surv$time - surv_time))
-    if (length(time_idx) > 0) {
+    if (length(time_idx) > 0 && time_idx <= length(baseline_surv$surv)) {
       baseline_surv_t <- baseline_surv$surv[time_idx]
       
-      # Calculate survival probabilities for range of linear predictors
-      # S(t|x) = S0(t)^exp(β'x)
+      # Calculate range of linear predictors
+      lp_range <- nomogram_scales$total_range / nomogram_scales$max_points * 2  # Scale back to approximate LP
+      lp_seq <- seq(lp_range[1], lp_range[2], length.out = 21)
+      
+      # Calculate survival probabilities: S(t|x) = S0(t)^exp(LP)
       surv_probs <- baseline_surv_t^exp(lp_seq)
       
-      # Store the survival probabilities
-      survival_data[[paste0("surv_", surv.at[i], "y")]] <- surv_probs
-      survival_data[[paste0("lp_", surv.at[i], "y")]] <- lp_seq
+      # Map probabilities back to points scale
+      prob_at_points <- approx(lp_seq, surv_probs, 
+                              xout = seq(lp_range[1], lp_range[2], length.out = 11))
+      
+      survival_scales[[paste0("surv_", surv.at[i])]] <- list(
+        time_years = surv.at[i],
+        probabilities = prob_at_points$y,
+        points_scale = seq(nomogram_scales$total_range[1], nomogram_scales$total_range[2], length.out = 11)
+      )
     }
   }
   
-  return(survival_data)
+  return(survival_scales)
 }
+
+# Plot the nomogram using ggplot2
+.plot_nomogram <- function(nomogram_scales, survival_scales, points, total.points, lp, funlabel, surv.at) {
+  
+  # Prepare data for plotting
+  plot_data <- data.frame()
+  
+  # Add variable scales
+  for (i in seq_along(nomogram_scales$variables)) {
+    var_scale <- nomogram_scales$variables[[i]]
+    
+    # Create data frame for this variable
+    var_df <- data.frame(
+      variable = var_scale$variable,
+      axis_type = "variable",
+      x = var_scale$points_norm,
+      y = i,
+      label = if (var_scale$type == "continuous") {
+        round(var_scale$values, 1)
+      } else {
+        var_scale$values
+      },
+      stringsAsFactors = FALSE
+    )
+    
+    plot_data <- rbind(plot_data, var_df)
+  }
+  
+  n_vars <- length(nomogram_scales$variables)
+  
+  # Create the base plot
+  p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$x, y = .data$y)) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
+      panel.grid.major = ggplot2::element_blank(),
+      panel.grid.minor = ggplot2::element_blank(),
+      axis.text.x = ggplot2::element_blank(),
+      axis.ticks.x = ggplot2::element_blank(),
+      axis.text.y = ggplot2::element_text(size = 10, hjust = 1),
+      plot.title = ggplot2::element_text(hjust = 0.5, size = 14, face = "bold"),
+      plot.margin = ggplot2::margin(20, 20, 20, 20)
+    ) +
+    ggplot2::labs(
+      title = "Nomogram for Survival Prediction",
+      x = NULL,
+      y = NULL
+    )
+  
+  # Add variable axis lines and labels
+  for (i in seq_along(nomogram_scales$variables)) {
+    var_scale <- nomogram_scales$variables[[i]]
+    y_pos <- i
+    
+    # Add axis line
+    p <- p + ggplot2::annotate("segment", 
+                               x = min(var_scale$points_norm), 
+                               xend = max(var_scale$points_norm),
+                               y = y_pos, yend = y_pos,
+                               linewidth = 0.8, color = "black")
+    
+    # Add variable name
+    p <- p + ggplot2::annotate("text", 
+                               x = min(nomogram_scales$total_range) - 5, 
+                               y = y_pos,
+                               label = var_scale$variable, 
+                               hjust = 1, vjust = 0.5, 
+                               size = 3.5)
+    
+    # Add tick marks and labels
+    if (var_scale$type == "continuous") {
+      # For continuous, add ticks at regular intervals
+      tick_indices <- seq(1, length(var_scale$points_norm), by = 2)
+      for (j in tick_indices) {
+        x_pos <- var_scale$points_norm[j]
+        label_val <- round(var_scale$values[j], 1)
+        
+        # Tick mark
+        p <- p + ggplot2::annotate("segment", 
+                                   x = x_pos, xend = x_pos,
+                                   y = y_pos - 0.1, yend = y_pos + 0.1,
+                                   linewidth = 0.5, color = "black")
+        
+        # Label
+        p <- p + ggplot2::annotate("text", 
+                                   x = x_pos, y = y_pos + 0.3,
+                                   label = as.character(label_val), 
+                                   hjust = 0.5, vjust = 0, 
+                                   size = 2.5)
+      }
+    } else {
+      # For factors, add ticks for each level
+      for (j in seq_along(var_scale$points_norm)) {
+        x_pos <- var_scale$points_norm[j]
+        label_val <- var_scale$values[j]
+        
+        # Tick mark
+        p <- p + ggplot2::annotate("segment", 
+                                   x = x_pos, xend = x_pos,
+                                   y = y_pos - 0.1, yend = y_pos + 0.1,
+                                   linewidth = 0.5, color = "black")
+        
+        # Label
+        p <- p + ggplot2::annotate("text", 
+                                   x = x_pos, y = y_pos + 0.3,
+                                   label = as.character(label_val), 
+                                   hjust = 0.5, vjust = 0, 
+                                   size = 2.5)
+      }
+    }
+  }
+  
+  current_y <- n_vars + 1
+  
+  # Add points scale if requested
+  if (points) {
+    points_y <- current_y
+    current_y <- current_y + 1
+    
+    # Points axis line
+    p <- p + ggplot2::annotate("segment", 
+                               x = nomogram_scales$total_range[1], 
+                               xend = nomogram_scales$total_range[2],
+                               y = points_y, yend = points_y,
+                               linewidth = 1, color = "black")
+    
+    # Points label
+    p <- p + ggplot2::annotate("text", 
+                               x = min(nomogram_scales$total_range) - 5, 
+                               y = points_y,
+                               label = "Points", 
+                               hjust = 1, vjust = 0.5, 
+                               size = 3.5)
+    
+    # Points tick marks and labels
+    point_ticks <- seq(0, nomogram_scales$max_points, by = 20)
+    for (pt in point_ticks) {
+      if (pt >= nomogram_scales$total_range[1] && pt <= nomogram_scales$total_range[2]) {
+        # Tick mark
+        p <- p + ggplot2::annotate("segment", 
+                                   x = pt, xend = pt,
+                                   y = points_y - 0.1, yend = points_y + 0.1,
+                                   linewidth = 0.5, color = "black")
+        
+        # Label
+        p <- p + ggplot2::annotate("text", 
+                                   x = pt, y = points_y + 0.3,
+                                   label = as.character(pt), 
+                                   hjust = 0.5, vjust = 0, 
+                                   size = 2.5)
+      }
+    }
+  }
+  
+  # Add total points scale if requested
+  if (total.points) {
+    total_y <- current_y
+    current_y <- current_y + 1
+    
+    # Total points axis line
+    p <- p + ggplot2::annotate("segment", 
+                               x = nomogram_scales$total_range[1], 
+                               xend = nomogram_scales$total_range[2],
+                               y = total_y, yend = total_y,
+                               linewidth = 1, color = "black")
+    
+    # Total points label
+    p <- p + ggplot2::annotate("text", 
+                               x = min(nomogram_scales$total_range) - 5, 
+                               y = total_y,
+                               label = "Total Points", 
+                               hjust = 1, vjust = 0.5, 
+                               size = 3.5)
+    
+    # Total points ticks (same as points scale)
+    point_ticks <- seq(0, nomogram_scales$max_points, by = 20)
+    for (pt in point_ticks) {
+      if (pt >= nomogram_scales$total_range[1] && pt <= nomogram_scales$total_range[2]) {
+        # Tick mark
+        p <- p + ggplot2::annotate("segment", 
+                                   x = pt, xend = pt,
+                                   y = total_y - 0.1, yend = total_y + 0.1,
+                                   linewidth = 0.5, color = "black")
+        
+        # Label
+        p <- p + ggplot2::annotate("text", 
+                                   x = pt, y = total_y + 0.3,
+                                   label = as.character(pt), 
+                                   hjust = 0.5, vjust = 0, 
+                                   size = 2.5)
+      }
+    }
+  }
+  
+  # Add survival probability scales if available
+  if (!is.null(survival_scales) && length(survival_scales) > 0) {
+    for (i in seq_along(survival_scales)) {
+      surv_scale <- survival_scales[[i]]
+      surv_y <- current_y
+      current_y <- current_y + 1
+      
+      # Survival axis line
+      p <- p + ggplot2::annotate("segment", 
+                                 x = nomogram_scales$total_range[1], 
+                                 xend = nomogram_scales$total_range[2],
+                                 y = surv_y, yend = surv_y,
+                                 linewidth = 1, color = "red")
+      
+      # Survival label
+      p <- p + ggplot2::annotate("text", 
+                                 x = min(nomogram_scales$total_range) - 5, 
+                                 y = surv_y,
+                                 label = paste0(surv_scale$time_years, "-Year Survival"), 
+                                 hjust = 1, vjust = 0.5, 
+                                 size = 3.5)
+      
+      # Add probability tick marks
+      prob_values <- c(0.9, 0.7, 0.5, 0.3, 0.1)
+      for (prob in prob_values) {
+        # Find corresponding x position
+        prob_idx <- which.min(abs(surv_scale$probabilities - prob))
+        if (length(prob_idx) > 0 && prob_idx <= length(surv_scale$points_scale)) {
+          x_pos <- surv_scale$points_scale[prob_idx]
+          
+          # Tick mark
+          p <- p + ggplot2::annotate("segment", 
+                                     x = x_pos, xend = x_pos,
+                                     y = surv_y - 0.1, yend = surv_y + 0.1,
+                                     linewidth = 0.5, color = "red")
+          
+          # Label
+          p <- p + ggplot2::annotate("text", 
+                                     x = x_pos, y = surv_y + 0.3,
+                                     label = paste0(round(prob * 100), "%"), 
+                                     hjust = 0.5, vjust = 0, 
+                                     size = 2.5, color = "red")
+        }
+      }
+    }
+  }
+  
+  # Set y-axis limits and labels
+  y_labels <- c(sapply(nomogram_scales$variables, function(x) x$variable))
+  if (points) y_labels <- c(y_labels, "Points")
+  if (total.points) y_labels <- c(y_labels, "Total Points") 
+  if (!is.null(survival_scales)) {
+    surv_labels <- sapply(survival_scales, function(x) paste0(x$time_years, "-Year Survival"))
+    y_labels <- c(y_labels, surv_labels)
+  }
+  
+  p <- p + ggplot2::scale_y_continuous(
+    limits = c(0.5, current_y - 0.5),
+    breaks = seq_along(y_labels),
+    labels = y_labels
+  ) +
+  ggplot2::scale_x_continuous(
+    limits = c(min(nomogram_scales$total_range) - 20, max(nomogram_scales$total_range) + 10)
+  )
+  
+  return(p)
+}
+
+
