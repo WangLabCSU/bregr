@@ -534,7 +534,7 @@ br_show_table_gt <- function(
 #' Show residuals vs fitted plot for regression models
 #'
 #' @description
-#' `r lifecycle::badge('stable')`
+#' `r lifecycle::badge('experimental')`
 #'
 #' This function creates residual plots to diagnose model fit. It can display:
 #' - Residuals vs fitted values plots for individual models
@@ -542,10 +542,9 @@ br_show_table_gt <- function(
 #' - Customizable plot appearance through ggplot2
 #'
 #' @inheritParams br_show_forest
-#' @param idx Index or names (focal variables) of the model(s). If `NULL` (default), 
+#' @param idx Index or names (focal variables) of the model(s). If `NULL` (default),
 #' all models are included. If length-1, shows residuals for a single model.
 #' If length > 1, shows faceted plots for multiple models.
-#' @param ... Additional arguments passed to ggplot2 theming functions.
 #' @param plot_type Character string specifying the type of residual plot.
 #' Options: "fitted" (residuals vs fitted values, default), "qq" (Q-Q plot),
 #' "scale_location" (scale-location plot).
@@ -559,31 +558,31 @@ br_show_table_gt <- function(
 #'   x2 = "vs",
 #'   method = "gaussian"
 #' )
-#' 
+#'
 #' # Single model residual plot
 #' br_show_residuals(m, idx = 1)
-#' 
+#'
 #' # Multiple models
 #' br_show_residuals(m, idx = c(1, 2))
-#' 
+#'
 #' # All models
 #' br_show_residuals(m)
-#' 
+#'
 #' @testexamples
 #' expect_s3_class(br_show_residuals(m, idx = 1), "ggplot")
-br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted", ...) {
+br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted") {
   assert_breg_obj_with_results(breg)
   plot_type <- rlang::arg_match(plot_type, c("fitted", "qq", "scale_location"))
-  
+
   mds <- br_get_models(breg, idx)
-  
+
   # Check if single model or multiple models
   if (insight::is_model(mds)) {
     # Single model case
-    .plot_single_residuals(mds, plot_type, ...)
+    .plot_single_residuals(mds, plot_type)
   } else {
     # Multiple models case
-    .plot_multiple_residuals(mds, plot_type, ...)
+    .plot_multiple_residuals(mds, plot_type)
   }
 }
 
@@ -592,14 +591,14 @@ br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted", ...) {
   # Extract fitted values and residuals
   fitted_vals <- stats::fitted(model)
   residuals_vals <- stats::residuals(model)
-  
+
   # Create data frame for plotting
   plot_data <- data.frame(
     fitted = fitted_vals,
     residuals = residuals_vals,
     sqrt_abs_residuals = sqrt(abs(residuals_vals))
   )
-  
+
   # Create base plot based on plot_type
   if (plot_type == "fitted") {
     p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$fitted, y = .data$residuals)) +
@@ -633,7 +632,7 @@ br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted", ...) {
       ) +
       ggplot2::theme_minimal()
   }
-  
+
   return(p)
 }
 
@@ -641,14 +640,14 @@ br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted", ...) {
 .plot_multiple_residuals <- function(models, plot_type, ...) {
   # Extract residuals data for all models
   all_data <- list()
-  
+
   for (i in seq_along(models)) {
     model <- models[[i]]
     model_name <- if (is.null(names(models)[i])) paste("Model", i) else names(models)[i]
-    
+
     fitted_vals <- stats::fitted(model)
     residuals_vals <- stats::residuals(model)
-    
+
     all_data[[i]] <- data.frame(
       fitted = fitted_vals,
       residuals = residuals_vals,
@@ -657,10 +656,10 @@ br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted", ...) {
       stringsAsFactors = FALSE
     )
   }
-  
+
   # Combine all data
   plot_data <- do.call(rbind, all_data)
-  
+
   # Create faceted plot based on plot_type
   if (plot_type == "fitted") {
     p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$fitted, y = .data$residuals)) +
@@ -697,6 +696,6 @@ br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted", ...) {
       ) +
       ggplot2::theme_minimal()
   }
-  
+
   return(p)
 }
