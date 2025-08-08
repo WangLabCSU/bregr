@@ -46,7 +46,7 @@
 <li>Added <code><a href="../reference/accessors.html">br_get_model_names()</a></code> and <code><a href="../reference/accessors.html">br_rename_models()</a></code> to get and set model names.</li>
 <li>Soft-deprecated <code><a href="../reference/accessors.html">br_get_model()</a></code> by merging it with <code><a href="../reference/accessors.html">br_get_models()</a></code>.</li>
 <li>Introduced global options “bregr.save_model” and “bregr.path”, configurable via <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code>.</li>
-<li>Enabled cross-platform parallel computation through integration with <strong>furrr</strong>.</li>
+<li>Enabled cross-platform parallel computation through integration with <strong>furrr</strong>, introduced global option “bregr.use_furrr” (default is <code>TRUE</code> for <code>run_parallel &gt; 1</code>).</li>
 <li>Addressed lifecycle deprecation warnings in functions from <strong>ggplot2</strong>.</li>
 <li>Set the default <code>exponentiate</code> option appropriately in <code><a href="../reference/pipeline.html">br_run()</a></code>.</li>
 <li>Expanded <code><a href="../reference/avails.html">br_avail_methods_use_exp()</a></code> to include <code>c("poisson", "quasipoisson")</code>.</li>
