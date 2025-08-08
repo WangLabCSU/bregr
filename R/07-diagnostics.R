@@ -44,21 +44,31 @@
 br_test_ph <- function(breg, idx = NULL, transform = "km", ...) {
   assert_breg_obj_with_results(breg)
   
-  # Get all models if idx is NULL
+  # Get models based on idx
   if (is.null(idx)) {
+    # Get all models
     models <- br_get_models(breg)
   } else {
-    models <- br_get_models(breg, idx)
-    if (!is.list(models)) {
-      # Single model case - convert to list with proper naming
-      all_models <- br_get_models(breg)
-      model_name <- if (is.character(idx)) {
-        idx
+    # Get specific model(s)
+    all_models <- br_get_models(breg)
+    if (is.character(idx)) {
+      # Get by name
+      if (idx %in% names(all_models)) {
+        models <- list(all_models[[idx]])
+        names(models) <- idx
       } else {
-        names(all_models)[idx]
+        warning(paste("Model", idx, "not found"))
+        return(NULL)
       }
-      models <- list(models)
-      names(models) <- model_name
+    } else {
+      # Get by index
+      if (idx <= length(all_models)) {
+        models <- list(all_models[[idx]])
+        names(models) <- names(all_models)[idx]
+      } else {
+        warning(paste("Index", idx, "out of range"))
+        return(NULL)
+      }
     }
   }
   
@@ -133,21 +143,31 @@ br_test_ph <- function(breg, idx = NULL, transform = "km", ...) {
 br_diagnose <- function(breg, idx = NULL, ...) {
   assert_breg_obj_with_results(breg)
   
-  # Get all models if idx is NULL
+  # Get models based on idx
   if (is.null(idx)) {
+    # Get all models
     models <- br_get_models(breg)
   } else {
-    models <- br_get_models(breg, idx)
-    if (!is.list(models)) {
-      # Single model case - convert to list with proper naming
-      all_models <- br_get_models(breg)
-      model_name <- if (is.character(idx)) {
-        idx
+    # Get specific model(s)
+    all_models <- br_get_models(breg)
+    if (is.character(idx)) {
+      # Get by name
+      if (idx %in% names(all_models)) {
+        models <- list(all_models[[idx]])
+        names(models) <- idx
       } else {
-        names(all_models)[idx]
+        warning(paste("Model", idx, "not found"))
+        return(NULL)
       }
-      models <- list(models)
-      names(models) <- model_name
+    } else {
+      # Get by index
+      if (idx <= length(all_models)) {
+        models <- list(all_models[[idx]])
+        names(models) <- names(all_models)[idx]
+      } else {
+        warning(paste("Index", idx, "out of range"))
+        return(NULL)
+      }
     }
   }
   
