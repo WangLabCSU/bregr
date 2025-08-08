@@ -21,13 +21,13 @@ mds_cox <- br_pipeline(
 )
 
 # Generate model predictions (risk scores)
-risk_scores <- br_predict(mds_cox, model_idx = "age")
+risk_scores <- br_predict(mds_cox, idx = "age")
 print(paste("Generated", length(risk_scores), "risk score predictions"))
 
 # Create survival curves based on model scores
 p1 <- br_show_survival_curves(
   mds_cox, 
-  model_idx = "age",
+  idx = "age",
   n_groups = 3,
   title = "Survival Curves by Age Model Risk Score"
 )
@@ -35,7 +35,7 @@ p1 <- br_show_survival_curves(
 # Example 2: Using different number of groups
 p2 <- br_show_survival_curves(
   mds_cox,
-  model_idx = "ph.ecog", 
+  idx = "ph.ecog", 
   n_groups = 2,
   group_labels = c("Low Risk", "High Risk"),
   title = "Survival Curves by ECOG Performance Status Model"
@@ -53,7 +53,7 @@ mds_multi <- br_pipeline(
 # Create survival curves for different models
 p3 <- br_show_survival_curves(
   mds_multi,
-  model_idx = "ph.karno",
+  idx = "ph.karno",
   n_groups = 3,
   title = "Survival Curves by Karnofsky Performance Score Model"
 )

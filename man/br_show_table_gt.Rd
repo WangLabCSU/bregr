@@ -49,6 +49,7 @@ Other br_show:
 \code{\link{br_show_forest_ggstats}()},
 \code{\link{br_show_forest_ggstatsplot}()},
 \code{\link{br_show_risk_network}()},
+\code{\link{br_show_survival_curves}()},
 \code{\link{br_show_table}()}
 }
 \concept{br_show}

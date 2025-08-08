@@ -541,14 +541,13 @@ br_show_table_gt <- function(
 #' survival curves comparing different risk groups.
 #'
 #' @param breg A `breg` object with fitted Cox regression models.
-#' @param model_idx Index or name of the model to use for prediction. 
+#' @param idx Index or name of the model to use for prediction.
 #' If NULL, uses the first model.
 #' @param n_groups Number of groups to create based on score quantiles. Default is 3.
-#' @param group_labels Custom labels for the groups. If NULL, uses "Low", "Medium", "High" 
+#' @param group_labels Custom labels for the groups. If NULL, uses "Low", "Medium", "High"
 #' for 3 groups or "Q1", "Q2", etc. for other numbers.
 #' @param title Plot title. If NULL, generates automatic title.
 #' @param subtitle Plot subtitle.
-#' @param ... Additional arguments passed to survival plotting functions.
 #' @returns A ggplot2 object showing survival curves.
 #' @export
 #' @family br_show
@@ -568,53 +567,56 @@ br_show_table_gt <- function(
 #'   print(p)
 #' }
 #' }
-br_show_survival_curves <- function(breg, 
-                                    model_idx = NULL, 
+br_show_survival_curves <- function(breg,
+                                    idx = NULL,
                                     n_groups = 3,
                                     group_labels = NULL,
                                     title = NULL,
-                                    subtitle = NULL,
-                                    ...) {
+                                    subtitle = NULL) {
   assert_breg_obj_with_results(breg)
-  
+
+  # Get the model to use
+  if (is.null(idx)) {
+    cli::cli_inform("{.arg idx} not set, use the first model")
+    idx <- 1
+  } else {
+    if (length(idx) != 1) {
+      cli::cli_abort("please specify one model")
+    }
+  }
+  model <- br_get_models(breg, idx)
+
   # Check if we have survival models
-  model <- br_get_models(breg, model_idx %||% 1)
-  if (length(model_idx) == 1 || is.null(model_idx)) {
-    model <- list(model)
-    names(model) <- names(br_get_models(breg))[model_idx %||% 1]
-  }
-  model <- model[[1]]
-  
   if (!inherits(model, "coxph")) {
-    cli::cli_abort("Survival curves are only supported for Cox regression models (coxph)")
+    cli::cli_abort("survival curves are only supported for Cox regression models (coxph)")
   }
-  
+
   # Get predictions (risk scores)
-  scores <- br_predict(breg, model_idx = model_idx, type = "lp")
+  scores <- br_predict(breg, idx = idx, type = "lp")
   data <- br_get_data(breg)
-  
+
   # Get survival variables
   y_vars <- br_get_y(breg)
   if (length(y_vars) != 2) {
     cli::cli_abort("Expected 2 survival variables (time, status), got {length(y_vars)}")
   }
-  
+
   time_var <- y_vars[1]
   status_var <- y_vars[2]
-  
+
   # Create score groups
   score_quantiles <- quantile(scores, probs = seq(0, 1, length.out = n_groups + 1), na.rm = TRUE)
-  
+
   # Handle case where scores have little variation
   if (length(unique(score_quantiles)) <= 2) {
     cli::cli_warn("Score values have limited variation, grouping may not be meaningful")
   }
-  
-  score_groups <- cut(scores, 
-                      breaks = score_quantiles, 
+
+  score_groups <- cut(scores,
+                      breaks = score_quantiles,
                       include.lowest = TRUE,
                       labels = FALSE)
-  
+
   # Create group labels
   if (is.null(group_labels)) {
     if (n_groups == 3) {
@@ -627,7 +629,7 @@ br_show_survival_curves <- function(breg,
   } else if (length(group_labels) != n_groups) {
     cli::cli_abort("Length of group_labels ({length(group_labels)}) must match n_groups ({n_groups})")
   }
-  
+
   # Prepare data for survival analysis
   surv_data <- data |>
     dplyr::mutate(
@@ -637,16 +639,16 @@ br_show_survival_curves <- function(breg,
       .status = .data[[status_var]]
     ) |>
     dplyr::filter(!is.na(.data$.score_group))
-  
+
   # Create survival object
   surv_obj <- survival::Surv(surv_data$.time, surv_data$.status)
-  
+
   # Fit Kaplan-Meier curves for each group
   km_fit <- survival::survfit(surv_obj ~ .score_group, data = surv_data)
-  
+
   # Create survival curve data for plotting
   surv_summary <- summary(km_fit)
-  
+
   plot_data <- data.frame(
     time = surv_summary$time,
     surv = surv_summary$surv,
@@ -654,19 +656,19 @@ br_show_survival_curves <- function(breg,
     upper = surv_summary$upper,
     lower = surv_summary$lower
   )
-  
+
   # Clean group names
   plot_data$group <- gsub(".*=", "", plot_data$group)
-  
+
   # Create the plot
   if (is.null(title)) {
-    focal_var <- names(br_get_models(breg))[model_idx %||% 1]
+    focal_var <- names(br_get_models(breg))[idx %||% 1]
     title <- paste("Survival Curves by", focal_var, "Model Score")
   }
-  
+
   p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$time, y = .data$surv, color = .data$group)) +
     ggplot2::geom_step(linewidth = 1) +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin = .data$lower, ymax = .data$upper, fill = .data$group), 
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = .data$lower, ymax = .data$upper, fill = .data$group),
                          alpha = 0.3, color = NA) +
     ggplot2::scale_y_continuous(limits = c(0, 1), labels = function(x) paste0(x * 100, "%")) +
     ggplot2::labs(
@@ -683,14 +685,14 @@ br_show_survival_curves <- function(breg,
       plot.title = ggplot2::element_text(hjust = 0.5),
       plot.subtitle = ggplot2::element_text(hjust = 0.5)
     )
-  
+
   # Add log-rank test p-value if requested
   if (n_groups > 1) {
     logrank_test <- survival::survdiff(surv_obj ~ .score_group, data = surv_data)
     p_value <- pchisq(logrank_test$chisq, df = length(logrank_test$n) - 1, lower.tail = FALSE)
-    
+
     p <- p + ggplot2::labs(caption = paste("Log-rank test p-value:", format.pval(p_value, digits = 3)))
   }
-  
+
   return(p)
 }
