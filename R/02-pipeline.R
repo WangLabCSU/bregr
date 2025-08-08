@@ -305,14 +305,14 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   exponentiate <- dots[["exponentiate"]]
 
   if (is.null(group_by)) {
-    res <- runner(ms, obj@data, dots, obj@x, run_parallel)
+    res <- runner(ms, obj@data, dots, obj@y, obj@x, obj@x2, run_parallel)
   } else {
     obj@group_by <- group_by
     data_split <- obj@data |>
       named_group_split(obj@data[, group_by, drop = FALSE])
     data_split[["All"]] <- obj@data
     res_list <- map(data_split, function(data) {
-      runner(ms, data, dots, obj@x, run_parallel)
+      runner(ms, data, dots, obj@y, obj@x, obj@x2, run_parallel, group_by)
     })
     res <- list_transpose(res_list)
     res$models <- purrr::list_flatten(res$models)
@@ -335,7 +335,11 @@ set_future_strategy <- function() {
   }
 }
 
-runner <- function(ms, data, dots, x, run_parallel) {
+runner <- function(ms, data, dots, y, x, x2, run_parallel, group_by = NULL) {
+  # Subset data to only necessary columns before model construction
+  necessary_cols <- get_necessary_columns(y, x, x2, group_by, colnames(data))
+  data <- data[, necessary_cols, drop = FALSE]
+  
   log_n <- getOption("bregr.log_n", default = 100)
   assert_number_whole(log_n, min = 0, max = Inf, allow_infinite = TRUE)
   if (length(ms) >= log_n) {
