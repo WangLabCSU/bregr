@@ -407,7 +407,11 @@ runner <- function(ms, data, dots, x, run_parallel) {
 runner_ <- function(m, data, dots, opts = NULL) {
   options(opts)
   if (isTRUE(getOption("breg.run_logging", default = FALSE))) {
-    mcprogress::message_parallel(glue::glue("modeling: {m}"))
+    mcprogress::message_parallel(
+      str_replace_all(
+        glue::glue("modeling: {m}"),
+        "`", ""
+      ))
   }
   # m: model template
   # data: data frame for modeling
