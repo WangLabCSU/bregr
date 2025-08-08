@@ -19,9 +19,11 @@
 #'
 #' - `bregr.parallel_engine`: Selected engine for parallel computation,
 #' could be "future.apply", "furrr" or "parallel".
-#' - `bregr.log_n`: Enable logging in modeling runner with >=n models.
+#' - `bregr.log_n`: An integer `n` to enable logging in modeling
+#' runner with `>=n` models (default `n=100`).
 #' - `bregr.save_model`: If `TRUE`, save model to local disk.
-#' - `bregr.path`: A path for save model, default uses a temporary directory.
+#' - `bregr.path`: A path for save model, default uses a
+#' temporary directory.
 #'
 #' @returns
 #' An object of class `breg` with input values added to corresponding slot(s).
