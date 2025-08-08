@@ -43,8 +43,11 @@ merge_vars <- function(...) {
   vars_list <- list(...)
   rv <- NULL
   for (i in vars_list) {
-    v <- unique(sapply(i, get_vars))
-    if (length(v) > 0) rv <- union(rv, v)
+    if (length(i) > 0) {
+      # Apply get_vars to the entire vector at once
+      v <- get_vars(i)
+      if (length(v) > 0) rv <- union(rv, v)
+    }
   }
   rv
 }
