@@ -666,7 +666,7 @@ br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted") {
       ggplot2::geom_point(alpha = 0.6) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
       ggplot2::geom_smooth(method = "loess", se = FALSE, color = "blue", linewidth = 0.5) +
-      ggplot2::facet_wrap(~ model, scales = "free") +
+      ggplot2::facet_wrap(~model, scales = "free") +
       ggplot2::labs(
         x = "Fitted Values",
         y = "Residuals",
@@ -677,7 +677,7 @@ br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted") {
     p <- ggplot2::ggplot(plot_data, ggplot2::aes(sample = .data$residuals)) +
       ggplot2::stat_qq() +
       ggplot2::stat_qq_line(color = "red", linetype = "dashed") +
-      ggplot2::facet_wrap(~ model, scales = "free") +
+      ggplot2::facet_wrap(~model, scales = "free") +
       ggplot2::labs(
         x = "Theoretical Quantiles",
         y = "Sample Quantiles",
@@ -688,7 +688,7 @@ br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted") {
     p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$fitted, y = .data$sqrt_abs_residuals)) +
       ggplot2::geom_point(alpha = 0.6) +
       ggplot2::geom_smooth(method = "loess", se = FALSE, color = "red", linewidth = 0.5) +
-      ggplot2::facet_wrap(~ model, scales = "free") +
+      ggplot2::facet_wrap(~model, scales = "free") +
       ggplot2::labs(
         x = "Fitted Values",
         y = expression(sqrt(abs("Residuals"))),

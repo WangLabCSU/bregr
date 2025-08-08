@@ -88,6 +88,17 @@ Supports both GLM and Cox-PH models with options for focal/control terms and par
 Please note the difference between \href{https://easystats.github.io/insight/#variables}{variables} and
 \href{https://easystats.github.io/insight/#terms}{terms},
 e.g., \code{x + poly(x, 2)} has \emph{one} variable \code{x}, but \emph{two} terms \code{x} and \code{poly(x, 2)}.
+\subsection{Global options}{
+
+\strong{bregr} supported global options can be set with \code{options()}.
+Currently they are used in \code{br_run()}.
+\itemize{
+\item \code{bregr.parallel_engine}: Selected engine for parallel computation,
+could be "future.apply", "furrr" or "parallel".
+\item \code{bregr.save_model}: If \code{TRUE}, save model to local disk.
+\item \code{bregr.path}: A path for save model, default uses a temporary directory.
+}
+}
 }
 \section{Functions}{
 \itemize{

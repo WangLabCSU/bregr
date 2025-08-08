@@ -43,6 +43,7 @@ Suggests:
     fs,
     furrr,
     future,
+    future.apply,
     ggnewscale,
     ggstats,
     ggstatsplot,

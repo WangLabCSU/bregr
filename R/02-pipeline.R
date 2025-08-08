@@ -12,6 +12,16 @@
 #' [terms](https://easystats.github.io/insight/#terms),
 #' e.g., `x + poly(x, 2)` has *one* variable `x`, but *two* terms `x` and `poly(x, 2)`.
 #'
+#' ### Global options
+#'
+#' **bregr** supported global options can be set with `options()`.
+#' Currently they are used in `br_run()`.
+#'
+#' - `bregr.parallel_engine`: Selected engine for parallel computation,
+#' could be "future.apply", "furrr" or "parallel".
+#' - `bregr.save_model`: If `TRUE`, save model to local disk.
+#' - `bregr.path`: A path for save model, default uses a temporary directory.
+#'
 #' @returns
 #' An object of class `breg` with input values added to corresponding slot(s).
 #' For `br_run()`, the returned object is a `breg` object with results added to
@@ -324,27 +334,35 @@ set_future_strategy <- function() {
 
 runner <- function(ms, data, dots, x, run_parallel) {
   if (run_parallel > 1) {
-    use_furrr <- getOption("bregr.use_furrr", default = TRUE)
+    parallel_engine <- getOption("bregr.parallel_engine", default = "future.apply")
+    rlang::arg_match(
+      parallel_engine,
+      values = c("future.apply", "furrr", "parallel")
+    )
 
-    if (use_furrr) {
-      rlang::check_installed("future", "furrr")
+    if (parallel_engine %in% c("future.apply", "furrr")) {
+      rlang::check_installed("future")
 
       options(future.globals.maxSize = Inf)
       on.exit(options(future.globals.maxSize = NULL))
-
       oplan <- future::plan()
       future::plan(set_future_strategy(), workers = run_parallel)
       on.exit(future::plan(oplan))
 
-      res <- furrr::future_map(ms, runner_,
-                               data = data, dots = dots,
-                               .progress = TRUE,
-                               .options = furrr::furrr_options(seed = TRUE)
-      )
+      if (parallel_engine == "future.apply") {
+        rlang::check_installed("future.apply")
+        res <- future.apply::future_lapply(ms, runner_, data = data, dots = dots)
+      } else {
+        rlang::check_installed("furrr")
+        res <- furrr::future_map(
+          ms, runner_,
+          data = data, dots = dots,
+          .progress = TRUE
+        )
+      }
     } else {
       cli::cli_inform(c(
-        "{.pkg furrr} is disabled by option {.code options(bregr.use_furrr = FALSE)}",
-        "i" = "use {.fn parallel::mclapply()} instead, this does not work for Windows"
+        "i" = "use {.val parallel} for parallel computation instead, this does not work for Windows"
       ))
       res <- parallel::mclapply(ms, runner_, data = data, dots = dots, mc.cores = run_parallel)
     }
