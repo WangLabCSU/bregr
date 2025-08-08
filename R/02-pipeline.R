@@ -341,6 +341,7 @@ runner <- function(ms, data, dots, x, run_parallel) {
   if (length(ms) >= log_n) {
     cli::cli_inform(c("i" = "enable logging in modeling runner"))
     options(breg.run_logging = TRUE)
+    rlang::check_installed("mcprogress")
   }
 
   if (run_parallel > 1) {

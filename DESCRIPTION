@@ -50,6 +50,7 @@ Suggests:
     gtsummary,
     knitr,
     lme4,
+    mcprogress,
     merDeriv,
     qs,
     rmarkdown,
