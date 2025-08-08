@@ -95,6 +95,7 @@ Currently they are used in \code{br_run()}.
 \itemize{
 \item \code{bregr.parallel_engine}: Selected engine for parallel computation,
 could be "future.apply", "furrr" or "parallel".
+\item \code{bregr.log_n}: Enable logging in modeling runner with >=n models.
 \item \code{bregr.save_model}: If \code{TRUE}, save model to local disk.
 \item \code{bregr.path}: A path for save model, default uses a temporary directory.
 }

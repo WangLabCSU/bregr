@@ -19,6 +19,7 @@
 #'
 #' - `bregr.parallel_engine`: Selected engine for parallel computation,
 #' could be "future.apply", "furrr" or "parallel".
+#' - `bregr.log_n`: Enable logging in modeling runner with >=n models.
 #' - `bregr.save_model`: If `TRUE`, save model to local disk.
 #' - `bregr.path`: A path for save model, default uses a temporary directory.
 #'
@@ -333,6 +334,13 @@ set_future_strategy <- function() {
 }
 
 runner <- function(ms, data, dots, x, run_parallel) {
+  log_n <- getOption("bregr.log_n", default = 100)
+  assert_number_whole(log_n, min = 0, max = Inf, allow_infinite = TRUE)
+  if (length(ms) >= log_n) {
+    cli::cli_inform(c("i" = "enable logging in modeling runner"))
+    options(breg.run_logging = TRUE)
+  }
+
   if (run_parallel > 1) {
     parallel_engine <- getOption("bregr.parallel_engine", default = "parallel")
     rlang::arg_match(
@@ -363,18 +371,22 @@ runner <- function(ms, data, dots, x, run_parallel) {
         res <- furrr::future_map(
           ms, runner_,
           data = data, dots = dots,
-          opts = options(),
-          .progress = TRUE
+          opts = options()
         )
       }
     } else {
       cli::cli_inform(c(
         "i" = "use {.val parallel} for parallel computation, this does not work for Windows"
       ))
-      res <- parallel::mclapply(ms, runner_, data = data, dots = dots, mc.cores = run_parallel)
+      res <- parallel::mclapply(
+        ms, runner_,
+        data = data, dots = dots,
+        opts = options(),
+        mc.cores = run_parallel
+      )
     }
   } else {
-    res <- map(ms, runner_, data = data, dots = dots)
+    res <- map(ms, runner_, data = data, dots = dots, opts = options())
   }
 
   res <- list_transpose(res)
@@ -390,8 +402,9 @@ runner <- function(ms, data, dots, x, run_parallel) {
 }
 
 runner_ <- function(m, data, dots, opts = NULL) {
-  if (!is.null(opts)) {
-    options(opts)
+  options(opts)
+  if (isTRUE(getOption("breg.run_logging", default = FALSE))) {
+    mcprogress::message_parallel(glue::glue("modeling: {m}"))
   }
   # m: model template
   # data: data frame for modeling
