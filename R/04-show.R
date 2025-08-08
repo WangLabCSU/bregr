@@ -512,7 +512,7 @@ br_show_table <- function(breg, ..., args_table_format = list(), export = FALSE,
 #' For other models: "residuals" (default), "qq", "scale_location", "leverage".
 #' @param ... Additional arguments passed to plotting functions.
 #' @returns A ggplot2 object or list of plots.
-#' @export
+#' @noRd
 #' @family br_show
 #' @examples
 #' \dontrun{

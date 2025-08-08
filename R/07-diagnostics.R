@@ -22,7 +22,7 @@
 #' Options are "km" (Kaplan-Meier), "rank", "identity", or a function.
 #' @param ... Additional arguments passed to [survival::cox.zph()].
 #' @returns A list containing test results for each Cox model tested.
-#' @export
+#' @noRd
 #' @family br_diagnose
 #' @examples
 #' \dontrun{
@@ -50,8 +50,15 @@ br_test_ph <- function(breg, idx = NULL, transform = "km", ...) {
   } else {
     models <- br_get_models(breg, idx)
     if (!is.list(models)) {
+      # Single model case - convert to list with proper naming
+      all_models <- br_get_models(breg)
+      model_name <- if (is.character(idx)) {
+        idx
+      } else {
+        names(all_models)[idx]
+      }
       models <- list(models)
-      names(models) <- if (is.character(idx)) idx else names(br_get_models(breg))[idx]
+      names(models) <- model_name
     }
   }
   
@@ -65,7 +72,7 @@ br_test_ph <- function(breg, idx = NULL, transform = "km", ...) {
   }
   
   if (length(cox_models) == 0) {
-    cli::cli_warn("No Cox proportional hazards models found in the breg object.")
+    warning("No Cox proportional hazards models found in the breg object.")
     return(NULL)
   }
   
@@ -79,7 +86,7 @@ br_test_ph <- function(breg, idx = NULL, transform = "km", ...) {
       ph_test <- survival::cox.zph(model, transform = transform, ...)
       ph_results[[model_name]] <- ph_test
     }, error = function(e) {
-      cli::cli_warn("Failed to test proportional hazards assumption for model {.val {model_name}}: {e$message}")
+      warning(paste("Failed to test proportional hazards assumption for model", model_name, ":", e$message))
       ph_results[[model_name]] <- NULL
     })
   }
@@ -104,7 +111,7 @@ br_test_ph <- function(breg, idx = NULL, transform = "km", ...) {
 #' diagnoses all models in the breg object.
 #' @param ... Additional arguments passed to specific diagnostic functions.
 #' @returns A list containing diagnostic results for each model.
-#' @export
+#' @noRd
 #' @family br_diagnose
 #' @examples
 #' \dontrun{
@@ -132,8 +139,15 @@ br_diagnose <- function(breg, idx = NULL, ...) {
   } else {
     models <- br_get_models(breg, idx)
     if (!is.list(models)) {
+      # Single model case - convert to list with proper naming
+      all_models <- br_get_models(breg)
+      model_name <- if (is.character(idx)) {
+        idx
+      } else {
+        names(all_models)[idx]
+      }
       models <- list(models)
-      names(models) <- if (is.character(idx)) idx else names(br_get_models(breg))[idx]
+      names(models) <- model_name
     }
   }
   
@@ -215,7 +229,7 @@ br_diagnose <- function(breg, idx = NULL, ...) {
 #'
 #' @param x A `br_ph_test` object returned by [br_test_ph()].
 #' @param ... Additional arguments (currently unused).
-#' @export
+#' @noRd
 print.br_ph_test <- function(x, ...) {
   cli::cli_h1("Proportional Hazards Assumption Tests")
   
@@ -266,7 +280,7 @@ print.br_ph_test <- function(x, ...) {
 #'
 #' @param x A `br_diagnostics` object returned by [br_diagnose()].
 #' @param ... Additional arguments (currently unused).
-#' @export
+#' @noRd
 print.br_diagnostics <- function(x, ...) {
   cli::cli_h1("Model Diagnostics Summary")
   
