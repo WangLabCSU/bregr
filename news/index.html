@@ -41,12 +41,13 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="bregr-development-version">bregr (development version)<a class="anchor" aria-label="anchor" href="#bregr-development-version"></a></h2>
-<ul><li>Updated <code><a href="../reference/pipeline.html">br_set_x()</a></code> and <code><a href="../reference/pipeline.html">br_set_x2()</a></code> to properly handle different input types, including valid column names (in R), invalid column names, and model formula terms.</li>
+<ul><li>Added <code><a href="../reference/br_show_residuals.html">br_show_residuals()</a></code> to show residuals vs fitted plot for regression models.</li>
+<li>Updated <code><a href="../reference/pipeline.html">br_set_x()</a></code> and <code><a href="../reference/pipeline.html">br_set_x2()</a></code> to properly handle different input types, including valid column names (in R), invalid column names, and model formula terms.</li>
 <li>Supported error handling when model construction failed.</li>
 <li>Added <code><a href="../reference/accessors.html">br_get_model_names()</a></code> and <code><a href="../reference/accessors.html">br_rename_models()</a></code> to get and set model names.</li>
 <li>Soft-deprecated <code><a href="../reference/accessors.html">br_get_model()</a></code> by merging it with <code><a href="../reference/accessors.html">br_get_models()</a></code>.</li>
 <li>Introduced global options “bregr.save_model” and “bregr.path”, configurable via <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code>.</li>
-<li>Enabled cross-platform parallel computation through integration with <strong>furrr</strong>, introduced global option “bregr.use_furrr” (default is <code>TRUE</code> for <code>run_parallel &gt; 1</code>).</li>
+<li>Enabled cross-platform parallel computation through integration with <strong>furrr</strong>, <strong>future.apply</strong>, or <strong>parallel</strong>, and introduced global option “bregr.parallel_engine” (default is <code>TRUE</code> for <code>run_parallel &gt; 1</code>).</li>
 <li>Addressed lifecycle deprecation warnings in functions from <strong>ggplot2</strong>.</li>
 <li>Set the default <code>exponentiate</code> option appropriately in <code><a href="../reference/pipeline.html">br_run()</a></code>.</li>
 <li>Expanded <code><a href="../reference/avails.html">br_avail_methods_use_exp()</a></code> to include <code>c("poisson", "quasipoisson")</code>.</li>

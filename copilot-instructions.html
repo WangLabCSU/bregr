@@ -194,7 +194,7 @@
 <h3 id="making-changes">Making Changes<a class="anchor" aria-label="anchor" href="#making-changes"></a></h3>
 <ol style="list-style-type: decimal"><li>Edit R functions in <code>R/</code> directory</li>
 <li>Update documentation with roxygen2 comments</li>
-<li>Run <code>devtools::document()</code> to update man files</li>
+<li>Run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code> to update man files</li>
 <li>Test changes with <code>testthat::test_dir('tests/testthat')</code>
 </li>
 <li>Build and check package with <code>R CMD build</code> and <code>R CMD check</code>
@@ -206,7 +206,7 @@
 <li>Add roxygen2 documentation with <code>@export</code> if public function</li>
 <li>Add unit tests in <code>tests/testthat/</code>
 </li>
-<li>Update <code>NAMESPACE</code> with <code>devtools::document()</code>
+<li>Update <code>NAMESPACE</code> with <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code>
 </li>
 <li>Consider adding examples to vignettes if it’s a major feature</li>
 </ol></div>
@@ -241,7 +241,7 @@
 <div class="section level3">
 <h3 id="documentation-issues">Documentation Issues<a class="anchor" aria-label="anchor" href="#documentation-issues"></a></h3>
 <ul><li>
-<strong>Missing exports</strong>: Add <code>@export</code> to roxygen2 comments and run <code>devtools::document()</code>
+<strong>Missing exports</strong>: Add <code>@export</code> to roxygen2 comments and run <code><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">devtools::document()</a></code>
 </li>
 <li>
 <strong>Cross-reference errors</strong>: Check that referenced packages are available</li>
