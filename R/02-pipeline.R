@@ -334,7 +334,7 @@ set_future_strategy <- function() {
 
 runner <- function(ms, data, dots, x, run_parallel) {
   if (run_parallel > 1) {
-    parallel_engine <- getOption("bregr.parallel_engine", default = "future.apply")
+    parallel_engine <- getOption("bregr.parallel_engine", default = "parallel")
     rlang::arg_match(
       parallel_engine,
       values = c("future.apply", "furrr", "parallel")
@@ -342,6 +342,9 @@ runner <- function(ms, data, dots, x, run_parallel) {
 
     if (parallel_engine %in% c("future.apply", "furrr")) {
       rlang::check_installed("future")
+      cli::cli_inform(c(
+        "i" = "use {.val future} engine (including {.val future.apply} and {.val furrr}) for parallel computation, if you encounter performance issue or bug in RStudio, please switch to {.val parallel} engine"
+      ))
 
       options(future.globals.maxSize = Inf)
       on.exit(options(future.globals.maxSize = NULL))
@@ -351,18 +354,22 @@ runner <- function(ms, data, dots, x, run_parallel) {
 
       if (parallel_engine == "future.apply") {
         rlang::check_installed("future.apply")
-        res <- future.apply::future_lapply(ms, runner_, data = data, dots = dots)
+        res <- future.apply::future_lapply(ms, runner_,
+          data = data, dots = dots,
+          opts = options()
+        )
       } else {
         rlang::check_installed("furrr")
         res <- furrr::future_map(
           ms, runner_,
           data = data, dots = dots,
+          opts = options(),
           .progress = TRUE
         )
       }
     } else {
       cli::cli_inform(c(
-        "i" = "use {.val parallel} for parallel computation instead, this does not work for Windows"
+        "i" = "use {.val parallel} for parallel computation, this does not work for Windows"
       ))
       res <- parallel::mclapply(ms, runner_, data = data, dots = dots, mc.cores = run_parallel)
     }
@@ -382,7 +389,10 @@ runner <- function(ms, data, dots, x, run_parallel) {
   )
 }
 
-runner_ <- function(m, data, dots) {
+runner_ <- function(m, data, dots, opts = NULL) {
+  if (!is.null(opts)) {
+    options(opts)
+  }
   # m: model template
   # data: data frame for modeling
   # dots: arguments passing to parse model parameters

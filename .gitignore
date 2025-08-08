@@ -17,3 +17,6 @@ docs
 ..Rcheck/
 *.tar.gz
 bregr_*.tar.gz
+
+bregr_models
+.Rapp.history
