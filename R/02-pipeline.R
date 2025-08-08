@@ -324,27 +324,30 @@ set_future_strategy <- function() {
 
 runner <- function(ms, data, dots, x, run_parallel) {
   if (run_parallel > 1) {
-    rlang::check_installed("future", "furrr")
+    use_furrr <- getOption("bregr.use_furrr", default = TRUE)
 
-    options(future.globals.maxSize = Inf)
-    on.exit(options(future.globals.maxSize = NULL))
+    if (use_furrr) {
+      rlang::check_installed("future", "furrr")
 
-    oplan <- future::plan()
-    future::plan(set_future_strategy(), workers = run_parallel)
-    on.exit(future::plan(oplan))
+      options(future.globals.maxSize = Inf)
+      on.exit(options(future.globals.maxSize = NULL))
 
-    res <- furrr::future_map(ms, runner_,
-      data = data, dots = dots,
-      .progress = TRUE,
-      .options = furrr::furrr_options(seed = TRUE)
-    )
-    # res <- parallel::mclapply(ms, runner_, data = data, dots = dots, mc.cores = run_parallel)
-    # cl <- parallel::makeCluster(run_parallel)
-    # #doParallel::registerDoParallel(cl)
-    # doSNOW::registerDoSNOW(cl)
-    # res <- plyr::llply(ms, runner_, data = data, dots = dots,
-    #                    .parallel = TRUE, .progress = TRUE)
-    # on_exit(parallel::stopCluster(cl))
+      oplan <- future::plan()
+      future::plan(set_future_strategy(), workers = run_parallel)
+      on.exit(future::plan(oplan))
+
+      res <- furrr::future_map(ms, runner_,
+                               data = data, dots = dots,
+                               .progress = TRUE,
+                               .options = furrr::furrr_options(seed = TRUE)
+      )
+    } else {
+      cli::cli_inform(c(
+        "{.pkg furrr} is disabled by option {.code options(bregr.use_furrr = FALSE)}",
+        "i" = "use {.fn parallel::mclapply()} instead, this does not work for Windows"
+      ))
+      res <- parallel::mclapply(ms, runner_, data = data, dots = dots, mc.cores = run_parallel)
+    }
   } else {
     res <- map(ms, runner_, data = data, dots = dots)
   }
