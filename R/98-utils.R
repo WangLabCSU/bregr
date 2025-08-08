@@ -27,20 +27,20 @@ get_vars <- function(text) {
 get_necessary_columns <- function(y, x, x2, group_by, available_cols) {
   # Get all variable names from y, x, x2, and group_by
   necessary_vars <- merge_vars(y, x, x2, group_by)
-  
+
   # Filter to only include columns that actually exist in the data
   necessary_cols <- intersect(necessary_vars, available_cols)
-  
+
   # Always include .row_names if it exists (added by tibble constructor)
   if (".row_names" %in% available_cols) {
     necessary_cols <- union(necessary_cols, ".row_names")
   }
-  
+
   return(necessary_cols)
 }
 
 merge_vars <- function(...) {
-  vars_list <- list(...)
+  vars_list <- list(...) |> unlist()
   rv <- NULL
   for (i in vars_list) {
     v <- unique(sapply(i, get_vars))
