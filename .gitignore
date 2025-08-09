@@ -20,3 +20,5 @@ bregr_*.tar.gz
 
 bregr_models
 .Rapp.history
+*.png
+demo_fix.R
