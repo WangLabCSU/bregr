@@ -4,6 +4,7 @@
 ## usethis namespace: start
 #' @import vctrs
 #' @import cli
+#' @importFrom mirai .progress
 #' @importFrom survival Surv survdiff survfit coxph
 #' @importFrom lifecycle deprecated
 #' @importFrom rlang .data .env

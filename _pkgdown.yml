@@ -29,8 +29,12 @@ reference:
     - br_show_risk_network
     - br_show_forest_ggstats
     - br_show_forest_ggstatsplot
+  - title: Model Diagnostics and Use
+    desc: Inspect and visualize models for diagnostic purposes, and enable effective model utilization.
+    contents:
     - br_show_fitted_line
     - br_show_fitted_line_2d
+    - br_show_residuals
   - title: Table
     desc: Output results in table of different formats.
     contents:

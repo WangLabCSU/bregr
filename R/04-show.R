@@ -503,11 +503,7 @@ br_show_table_gt <- function(
   assert_breg_obj_with_results(breg)
   rlang::check_installed("gtsummary")
 
-  mds <- if (!is.null(idx)) {
-    br_get_model(breg, idx)
-  } else {
-    br_get_models(breg)
-  }
+  mds <- br_get_models(breg, idx)
   if (length(mds) == 1) {
     mds <- mds[[1]]
   }
@@ -568,11 +564,11 @@ br_show_table_gt <- function(
 #' }
 #' }
 br_show_survival_curves <- function(breg,
-                                    idx = NULL,
-                                    n_groups = 3,
-                                    group_labels = NULL,
-                                    title = NULL,
-                                    subtitle = NULL) {
+                                   idx = NULL,
+                                   n_groups = 3,
+                                   group_labels = NULL,
+                                   title = NULL,
+                                   subtitle = NULL) {
   assert_breg_obj_with_results(breg)
 
   # Get the model to use
@@ -613,9 +609,9 @@ br_show_survival_curves <- function(breg,
   }
 
   score_groups <- cut(scores,
-                      breaks = score_quantiles,
-                      include.lowest = TRUE,
-                      labels = FALSE)
+                     breaks = score_quantiles,
+                     include.lowest = TRUE,
+                     labels = FALSE)
 
   # Create group labels
   if (is.null(group_labels)) {
@@ -692,6 +688,175 @@ br_show_survival_curves <- function(breg,
     p_value <- pchisq(logrank_test$chisq, df = length(logrank_test$n) - 1, lower.tail = FALSE)
 
     p <- p + ggplot2::labs(caption = paste("Log-rank test p-value:", format.pval(p_value, digits = 3)))
+  }
+
+  return(p)
+}
+
+#' Show residuals vs fitted plot for regression models
+#'
+#' @description
+#' `r lifecycle::badge('experimental')`
+#'
+#' This function creates residual plots to diagnose model fit. It can display:
+#' - Residuals vs fitted values plots for individual models
+#' - Multiple residual plots when multiple models are selected
+#' - Customizable plot appearance through ggplot2
+#'
+#' @inheritParams br_show_forest
+#' @param idx Index or names (focal variables) of the model(s). If `NULL` (default),
+#' all models are included. If length-1, shows residuals for a single model.
+#' If length > 1, shows faceted plots for multiple models.
+#' @param plot_type Character string specifying the type of residual plot.
+#' Options: "fitted" (residuals vs fitted values, default), "qq" (Q-Q plot),
+#' "scale_location" (scale-location plot).
+#' @export
+#' @returns A ggplot object
+#' @family br_show
+#' @examples
+#' m <- br_pipeline(mtcars,
+#'   y = "mpg",
+#'   x = colnames(mtcars)[2:4],
+#'   x2 = "vs",
+#'   method = "gaussian"
+#' )
+#'
+#' # Single model residual plot
+#' br_show_residuals(m, idx = 1)
+#'
+#' # Multiple models
+#' br_show_residuals(m, idx = c(1, 2))
+#'
+#' # All models
+#' br_show_residuals(m)
+#'
+#' @testexamples
+#' expect_s3_class(br_show_residuals(m, idx = 1), "ggplot")
+br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted") {
+  assert_breg_obj_with_results(breg)
+  plot_type <- rlang::arg_match(plot_type, c("fitted", "qq", "scale_location"))
+
+  mds <- br_get_models(breg, idx)
+
+  # Check if single model or multiple models
+  if (insight::is_model(mds)) {
+    # Single model case
+    .plot_single_residuals(mds, plot_type)
+  } else {
+    # Multiple models case
+    .plot_multiple_residuals(mds, plot_type)
+  }
+}
+
+# Helper function for single model residual plot
+.plot_single_residuals <- function(model, plot_type, ...) {
+  # Extract fitted values and residuals
+  fitted_vals <- stats::fitted(model)
+  residuals_vals <- stats::residuals(model)
+
+  # Create data frame for plotting
+  plot_data <- data.frame(
+    fitted = fitted_vals,
+    residuals = residuals_vals,
+    sqrt_abs_residuals = sqrt(abs(residuals_vals))
+  )
+
+  # Create base plot based on plot_type
+  if (plot_type == "fitted") {
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$fitted, y = .data$residuals)) +
+      ggplot2::geom_point(alpha = 0.6) +
+      ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+      ggplot2::geom_smooth(method = "loess", se = FALSE, color = "blue", linewidth = 0.5) +
+      ggplot2::labs(
+        x = "Fitted Values",
+        y = "Residuals",
+        title = "Residuals vs Fitted"
+      ) +
+      ggplot2::theme_minimal()
+  } else if (plot_type == "qq") {
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(sample = .data$residuals)) +
+      ggplot2::stat_qq() +
+      ggplot2::stat_qq_line(color = "red", linetype = "dashed") +
+      ggplot2::labs(
+        x = "Theoretical Quantiles",
+        y = "Sample Quantiles",
+        title = "Q-Q Plot of Residuals"
+      ) +
+      ggplot2::theme_minimal()
+  } else if (plot_type == "scale_location") {
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$fitted, y = .data$sqrt_abs_residuals)) +
+      ggplot2::geom_point(alpha = 0.6) +
+      ggplot2::geom_smooth(method = "loess", se = FALSE, color = "red", linewidth = 0.5) +
+      ggplot2::labs(
+        x = "Fitted Values",
+        y = expression(sqrt(abs("Residuals"))),
+        title = "Scale-Location Plot"
+      ) +
+      ggplot2::theme_minimal()
+  }
+
+  return(p)
+}
+
+# Helper function for multiple models residual plots
+.plot_multiple_residuals <- function(models, plot_type, ...) {
+  # Extract residuals data for all models
+  all_data <- list()
+
+  for (i in seq_along(models)) {
+    model <- models[[i]]
+    model_name <- if (is.null(names(models)[i])) paste("Model", i) else names(models)[i]
+
+    fitted_vals <- stats::fitted(model)
+    residuals_vals <- stats::residuals(model)
+
+    all_data[[i]] <- data.frame(
+      fitted = fitted_vals,
+      residuals = residuals_vals,
+      sqrt_abs_residuals = sqrt(abs(residuals_vals)),
+      model = model_name,
+      stringsAsFactors = FALSE
+    )
+  }
+
+  # Combine all data
+  plot_data <- do.call(rbind, all_data)
+
+  # Create faceted plot based on plot_type
+  if (plot_type == "fitted") {
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$fitted, y = .data$residuals)) +
+      ggplot2::geom_point(alpha = 0.6) +
+      ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+      ggplot2::geom_smooth(method = "loess", se = FALSE, color = "blue", linewidth = 0.5) +
+      ggplot2::facet_wrap(~model, scales = "free") +
+      ggplot2::labs(
+        x = "Fitted Values",
+        y = "Residuals",
+        title = "Residuals vs Fitted"
+      ) +
+      ggplot2::theme_minimal()
+  } else if (plot_type == "qq") {
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(sample = .data$residuals)) +
+      ggplot2::stat_qq() +
+      ggplot2::stat_qq_line(color = "red", linetype = "dashed") +
+      ggplot2::facet_wrap(~model, scales = "free") +
+      ggplot2::labs(
+        x = "Theoretical Quantiles",
+        y = "Sample Quantiles",
+        title = "Q-Q Plot of Residuals"
+      ) +
+      ggplot2::theme_minimal()
+  } else if (plot_type == "scale_location") {
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$fitted, y = .data$sqrt_abs_residuals)) +
+      ggplot2::geom_point(alpha = 0.6) +
+      ggplot2::geom_smooth(method = "loess", se = FALSE, color = "red", linewidth = 0.5) +
+      ggplot2::facet_wrap(~model, scales = "free") +
+      ggplot2::labs(
+        x = "Fitted Values",
+        y = expression(sqrt(abs("Residuals"))),
+        title = "Scale-Location Plot"
+      ) +
+      ggplot2::theme_minimal()
   }
 
   return(p)
