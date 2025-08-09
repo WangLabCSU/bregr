@@ -28,20 +28,9 @@
   
   # Create scales for each variable
   nom_data <- list()
-  y_position <- length(coefs) + 2  # Start from top
+  y_position <- length(coefs) + 1  # Start from top (removed redundant Points scale)
   
-  # Points scale at the top
-  nom_data[[1]] <- data.frame(
-    y = y_position,
-    x = seq(point_range[1], point_range[2], length.out = 11),
-    label = seq(point_range[1], point_range[2], length.out = 11),
-    var_name = "Points",
-    type = "scale",
-    stringsAsFactors = FALSE
-  )
-  y_position <- y_position - 1
-  
-  # Variable scales - improved handling
+  # Variable scales - improved handling with proper line representations
   for (i in seq_along(coefs)) {
     var_name <- names(coefs)[i]
     coef_val <- coefs[i]
@@ -61,22 +50,36 @@
       var_data <- model_frame[[actual_var_name]]
       
       if (is.numeric(var_data)) {
-        # Continuous variable
+        # Continuous variable - create a proper scale with connecting line
         var_range <- range(var_data, na.rm = TRUE)
-        var_values <- seq(var_range[1], var_range[2], length.out = 9)
-        points <- (var_values - min(var_values)) * coef_val * point_scale_factor / diff(var_range) + 
-                  point_range[1] + (point_range[2] - point_range[1]) * 0.2
+        # More points for a smooth connecting line
+        n_line_points <- 21
+        var_values_line <- seq(var_range[1], var_range[2], length.out = n_line_points)
         
-        nom_data[[i + 1]] <- data.frame(
+        # Calculate points for the line
+        baseline_value <- min(var_values_line)
+        points_line <- (var_values_line - baseline_value) * coef_val * point_scale_factor / diff(var_range) + 
+                      point_range[1] + diff(point_range) * 0.1
+        
+        # Create labels and tick marks at meaningful intervals (every 5th point)
+        tick_indices <- seq(1, n_line_points, by = 5)
+        labels_line <- rep("", n_line_points)
+        labels_line[tick_indices] <- round(var_values_line[tick_indices], 1)
+        is_tick_line <- rep(FALSE, n_line_points)
+        is_tick_line[tick_indices] <- TRUE
+        
+        nom_data[[i]] <- data.frame(
           y = y_position,
-          x = points,
-          label = round(var_values, 1),
+          x = points_line,
+          label = labels_line,
           var_name = actual_var_name,
           type = "variable",
+          is_tick = is_tick_line,
           stringsAsFactors = FALSE
         )
+        
       } else if (is.factor(var_data)) {
-        # Categorical variable - improved handling
+        # Categorical variable - show line segment between reference and level
         levels_found <- levels(var_data)
         
         # For factor variables, we need to map coefficient to the right level
@@ -84,54 +87,73 @@
           # Extract level number from coefficient name
           level_num <- as.numeric(gsub(".*([0-9]+)$", "\\1", var_name))
           if (level_num <= length(levels_found)) {
-            # Reference level (level 1) gets baseline points
-            ref_points <- mean(point_range)
+            # Reference level gets baseline points
+            ref_points <- point_range[1] + diff(point_range) * 0.2
             # Current level gets points based on coefficient
             level_points <- ref_points + coef_val * point_scale_factor
             
-            points_vals <- c(ref_points, level_points)
-            labels_vals <- c(paste0(levels_found[1], " (ref)"), levels_found[level_num])
+            # Create line segment between the two points
+            n_line_points <- 11
+            line_x <- seq(ref_points, level_points, length.out = n_line_points)
+            line_labels <- rep("", n_line_points)
+            line_labels[1] <- paste0(levels_found[1], " (ref)")
+            line_labels[n_line_points] <- levels_found[level_num]
+            line_ticks <- rep(FALSE, n_line_points)
+            line_ticks[c(1, n_line_points)] <- TRUE
             
-            nom_data[[i + 1]] <- data.frame(
+            nom_data[[i]] <- data.frame(
               y = y_position,
-              x = points_vals,
-              label = labels_vals,
+              x = line_x,
+              label = line_labels,
               var_name = actual_var_name,
               type = "variable",
+              is_tick = line_ticks,
               stringsAsFactors = FALSE
             )
           }
         } else {
           # Simple two-level case
-          ref_points <- mean(point_range)
+          ref_points <- point_range[1] + diff(point_range) * 0.2
           level_points <- ref_points + coef_val * point_scale_factor
           
-          points_vals <- c(ref_points, level_points)
-          labels_vals <- c(paste0(levels_found[1], " (ref)"), 
-                          if(length(levels_found) > 1) levels_found[2] else "Other")
+          # Create line segment between the two points
+          n_line_points <- 11
+          line_x <- seq(ref_points, level_points, length.out = n_line_points)
+          line_labels <- rep("", n_line_points)
+          line_labels[1] <- paste0(levels_found[1], " (ref)")
+          line_labels[n_line_points] <- if(length(levels_found) > 1) levels_found[2] else "Other"
+          line_ticks <- rep(FALSE, n_line_points)
+          line_ticks[c(1, n_line_points)] <- TRUE
           
-          nom_data[[i + 1]] <- data.frame(
+          nom_data[[i]] <- data.frame(
             y = y_position,
-            x = points_vals,
-            label = labels_vals,
+            x = line_x,
+            label = line_labels,
             var_name = actual_var_name,
-            type = "variable",
+            type = "variable", 
+            is_tick = line_ticks,
             stringsAsFactors = FALSE
           )
         }
       }
     } else {
       # If variable not found in model frame, create a generic scale
-      points_vals <- c(mean(point_range) - abs(coef_val) * point_scale_factor * 0.5,
-                      mean(point_range),
-                      mean(point_range) + abs(coef_val) * point_scale_factor * 0.5)
+      n_line_points <- 11
+      points_vals <- seq(point_range[1] + diff(point_range) * 0.1,
+                        point_range[2] - diff(point_range) * 0.1, 
+                        length.out = n_line_points)
+      labels_vals <- rep("", n_line_points)
+      labels_vals[c(1, 6, 11)] <- c("Low", "Medium", "High")
+      tick_vals <- rep(FALSE, n_line_points)
+      tick_vals[c(1, 6, 11)] <- TRUE
       
-      nom_data[[i + 1]] <- data.frame(
+      nom_data[[i]] <- data.frame(
         y = y_position,
         x = points_vals,
-        label = c("Low", "Medium", "High"),
+        label = labels_vals,
         var_name = var_name,
         type = "variable",
+        is_tick = tick_vals,
         stringsAsFactors = FALSE
       )
     }
@@ -139,15 +161,24 @@
     y_position <- y_position - 1
   }
   
-  # Total points scale
+  # Total points scale with proper line
   y_position <- y_position - 0.5
-  total_points <- seq(point_range[1], point_range[2], length.out = 11)
+  n_total_points <- 21  # More points for smoother line
+  total_points <- seq(point_range[1], point_range[2], length.out = n_total_points)
+  total_labels <- rep("", n_total_points)
+  # Show labels every 4th point
+  label_indices <- seq(1, n_total_points, by = 4)
+  total_labels[label_indices] <- total_points[label_indices]
+  total_ticks <- rep(FALSE, n_total_points)
+  total_ticks[label_indices] <- TRUE
+  
   nom_data[[length(nom_data) + 1]] <- data.frame(
     y = y_position,
     x = total_points,
-    label = total_points,
+    label = total_labels,
     var_name = "Total Points",
     type = "scale",
+    is_tick = total_ticks,
     stringsAsFactors = FALSE
   )
   
@@ -178,12 +209,19 @@
         survival_probs <- pmax(0.01, pmin(0.99, survival_probs))
       }
       
+      # Create survival probability labels with fewer overlapping points
+      surv_labels <- rep("", length(total_points))
+      surv_labels[label_indices] <- paste0(round(survival_probs[label_indices] * 100, 1), "%")
+      surv_ticks <- rep(FALSE, length(total_points))
+      surv_ticks[label_indices] <- TRUE
+      
       nom_data[[length(nom_data) + 1]] <- data.frame(
         y = y_position,
         x = total_points,
-        label = paste0(round(survival_probs * 100, 1), "%"),
+        label = surv_labels,
         var_name = paste0(time_points[j], "-month survival"),
         type = "survival",
+        is_tick = surv_ticks,
         stringsAsFactors = FALSE
       )
     }
@@ -201,13 +239,16 @@
     # Add subtle grid lines for easier reading
     ggplot2::geom_vline(xintercept = seq(point_range[1], point_range[2], by = 10), 
                         color = "grey90", linewidth = 0.3) +
-    ggplot2::geom_point(size = 1.2, color = "black") +
-    ggplot2::geom_text(ggplot2::aes(label = .data$label), 
-                       vjust = -0.6, size = 2.8, color = "black") +
-    # Add connecting lines for scales
-    ggplot2::geom_line(data = plot_data[plot_data$type %in% c("scale", "survival"), ],
-                       ggplot2::aes(group = .data$y), 
-                       linewidth = 0.5, color = "black") +
+    # Add connecting lines for ALL scales
+    ggplot2::geom_line(ggplot2::aes(group = .data$y), 
+                       linewidth = 0.6, color = "black") +
+    # Add tick marks only for labeled points
+    ggplot2::geom_point(data = plot_data[plot_data$is_tick, ], 
+                       size = 1.8, color = "black") +
+    # Add labels only for tick marks, with improved positioning to prevent overlap
+    ggplot2::geom_text(data = plot_data[plot_data$is_tick & plot_data$label != "", ], 
+                       ggplot2::aes(label = .data$label), 
+                       vjust = -1.2, hjust = 0.5, size = 3, color = "black") +
     ggplot2::scale_y_continuous(
       breaks = unique(plot_data$y),
       labels = unique(plot_data$var_name)[order(unique(plot_data$y), decreasing = TRUE)],
@@ -266,18 +307,7 @@
   
   # Create scales for each variable
   nom_data <- list()
-  y_position <- length(coefs) + 3  # Start from top
-  
-  # Points scale at the top
-  nom_data[[1]] <- data.frame(
-    y = y_position,
-    x = seq(point_range[1], point_range[2], length.out = 11),
-    label = seq(point_range[1], point_range[2], length.out = 11),
-    var_name = "Points",
-    type = "scale",
-    stringsAsFactors = FALSE
-  )
-  y_position <- y_position - 1
+  y_position <- length(coefs) + 1  # Start from top (removed redundant Points scale)
   
   # Variable scales - improved handling similar to Cox model
   for (i in seq_along(coefs)) {
@@ -289,19 +319,30 @@
       var_data <- model_frame[[var_name]]
       
       if (is.numeric(var_data)) {
-        # Continuous variable
+        # Continuous variable - create proper scale with connecting line
         var_range <- range(var_data, na.rm = TRUE)
-        var_values <- seq(var_range[1], var_range[2], length.out = 9)
-        # Improved point scaling
-        points <- (var_values - min(var_values)) * coef_val * point_scale_factor / diff(var_range) + 
-                  point_range[1] + (point_range[2] - point_range[1]) * 0.2
+        n_line_points <- 21
+        var_values <- seq(var_range[1], var_range[2], length.out = n_line_points)
         
-        nom_data[[i + 1]] <- data.frame(
+        # Improved point scaling
+        baseline_value <- min(var_values)
+        points <- (var_values - baseline_value) * coef_val * point_scale_factor / diff(var_range) + 
+                  point_range[1] + diff(point_range) * 0.1
+        
+        # Create labels at meaningful intervals
+        tick_indices <- seq(1, n_line_points, by = 5)
+        labels_line <- rep("", n_line_points)
+        labels_line[tick_indices] <- round(var_values[tick_indices], 1)
+        is_tick_line <- rep(FALSE, n_line_points)
+        is_tick_line[tick_indices] <- TRUE
+        
+        nom_data[[i]] <- data.frame(
           y = y_position,
           x = points,
-          label = round(var_values, 1),
+          label = labels_line,
           var_name = var_name,
           type = "variable",
+          is_tick = is_tick_line,
           stringsAsFactors = FALSE
         )
       } else {
@@ -309,21 +350,27 @@
         if (is.factor(var_data)) {
           levels_found <- levels(var_data)
           if (length(levels_found) > 1) {
-            # Reference level gets mean points
+            # Reference level gets baseline points
             ref_level <- levels_found[1]
-            ref_points <- mean(point_range)
+            ref_points <- point_range[1] + diff(point_range) * 0.2
             level_points <- ref_points + coef_val * point_scale_factor
             
-            points_vals <- c(ref_points, level_points)
-            labels_vals <- c(paste0(ref_level, " (ref)"), 
-                            if (length(levels_found) > 1) levels_found[2] else "Other")
+            # Create line segment
+            n_line_points <- 11
+            line_x <- seq(ref_points, level_points, length.out = n_line_points)
+            line_labels <- rep("", n_line_points)
+            line_labels[1] <- paste0(ref_level, " (ref)")
+            line_labels[n_line_points] <- if (length(levels_found) > 1) levels_found[2] else "Other"
+            line_ticks <- rep(FALSE, n_line_points)
+            line_ticks[c(1, n_line_points)] <- TRUE
             
-            nom_data[[i + 1]] <- data.frame(
+            nom_data[[i]] <- data.frame(
               y = y_position,
-              x = points_vals,
-              label = labels_vals,
+              x = line_x,
+              label = line_labels,
               var_name = var_name,
               type = "variable",
+              is_tick = line_ticks,
               stringsAsFactors = FALSE
             )
           }
@@ -331,16 +378,22 @@
       }
     } else {
       # Generic scale for unknown variables
-      points_vals <- c(mean(point_range) - abs(coef_val) * point_scale_factor * 0.5,
-                      mean(point_range),
-                      mean(point_range) + abs(coef_val) * point_scale_factor * 0.5)
+      n_line_points <- 11
+      points_vals <- seq(point_range[1] + diff(point_range) * 0.1,
+                        point_range[2] - diff(point_range) * 0.1, 
+                        length.out = n_line_points)
+      labels_vals <- rep("", n_line_points)
+      labels_vals[c(1, 6, 11)] <- c("Low", "Medium", "High")
+      tick_vals <- rep(FALSE, n_line_points)
+      tick_vals[c(1, 6, 11)] <- TRUE
       
-      nom_data[[i + 1]] <- data.frame(
+      nom_data[[i]] <- data.frame(
         y = y_position,
         x = points_vals,
-        label = c("Low", "Medium", "High"),
+        label = labels_vals,
         var_name = var_name,
         type = "variable",
+        is_tick = tick_vals,
         stringsAsFactors = FALSE
       )
     }
@@ -348,35 +401,51 @@
     y_position <- y_position - 1
   }
   
-  # Total points scale
+  # Total points scale with proper line
   y_position <- y_position - 0.5
-  total_points <- seq(point_range[1], point_range[2], length.out = 11)
+  n_total_points <- 21
+  total_points <- seq(point_range[1], point_range[2], length.out = n_total_points)
+  total_labels <- rep("", n_total_points)
+  label_indices <- seq(1, n_total_points, by = 4)
+  total_labels[label_indices] <- total_points[label_indices]
+  total_ticks <- rep(FALSE, n_total_points)
+  total_ticks[label_indices] <- TRUE
+  
   nom_data[[length(nom_data) + 1]] <- data.frame(
     y = y_position,
     x = total_points,
-    label = total_points,
+    label = total_labels,
     var_name = "Total Points",
     type = "scale",
+    is_tick = total_ticks,
     stringsAsFactors = FALSE
   )
   
   # Prediction scale - improved mapping
   y_position <- y_position - 1
-  # More accurate mapping of total points to prediction values
-  # Use the actual relationship between coefficients and prediction
-  
-  # Calculate the range of linear predictors from the model
-  pred_range_actual <- range(stats::predict(model, type = "response"), na.rm = TRUE)
   
   # Map prediction values to points more accurately
-  pred_points <- seq(point_range[1], point_range[2], length.out = length(fun_at))
+  n_pred_points <- 21
+  pred_points <- seq(point_range[1], point_range[2], length.out = n_pred_points)
+  
+  # Create prediction labels at the specified fun_at values
+  pred_labels <- rep("", n_pred_points)
+  pred_ticks <- rep(FALSE, n_pred_points)
+  
+  # Place fun_at values evenly across the prediction scale
+  if (length(fun_at) > 0) {
+    pred_indices <- round(seq(1, n_pred_points, length.out = length(fun_at)))
+    pred_labels[pred_indices] <- fun_at
+    pred_ticks[pred_indices] <- TRUE
+  }
   
   nom_data[[length(nom_data) + 1]] <- data.frame(
     y = y_position,
     x = pred_points,
-    label = fun_at,
+    label = pred_labels,
     var_name = "Predicted Value",
     type = "prediction",
+    is_tick = pred_ticks,
     stringsAsFactors = FALSE
   )
   
@@ -392,13 +461,16 @@
     # Add subtle grid lines for easier reading
     ggplot2::geom_vline(xintercept = seq(point_range[1], point_range[2], by = 10), 
                         color = "grey90", linewidth = 0.3) +
-    ggplot2::geom_point(size = 1.2, color = "black") +
-    ggplot2::geom_text(ggplot2::aes(label = .data$label), 
-                       vjust = -0.6, size = 2.8, color = "black") +
-    # Add connecting lines for scales
-    ggplot2::geom_line(data = plot_data[plot_data$type %in% c("scale", "prediction"), ],
-                       ggplot2::aes(group = .data$y), 
-                       linewidth = 0.5, color = "black") +
+    # Add connecting lines for ALL scales
+    ggplot2::geom_line(ggplot2::aes(group = .data$y), 
+                       linewidth = 0.6, color = "black") +
+    # Add tick marks only for labeled points
+    ggplot2::geom_point(data = plot_data[plot_data$is_tick, ], 
+                       size = 1.8, color = "black") +
+    # Add labels only for tick marks, with improved positioning to prevent overlap
+    ggplot2::geom_text(data = plot_data[plot_data$is_tick & plot_data$label != "", ], 
+                       ggplot2::aes(label = .data$label), 
+                       vjust = -1.2, hjust = 0.5, size = 3, color = "black") +
     ggplot2::scale_y_continuous(
       breaks = unique(plot_data$y),
       labels = unique(plot_data$var_name)[order(unique(plot_data$y), decreasing = TRUE)],
