@@ -67,13 +67,13 @@ br_show_forest(m, clean = FALSE)
 }
 \seealso{
 Other br_show: 
-\code{\link{br_show_diagnostics}()},
 \code{\link{br_show_fitted_line}()},
 \code{\link{br_show_fitted_line_2d}()},
 \code{\link{br_show_forest_ggstats}()},
 \code{\link{br_show_forest_ggstatsplot}()},
 \code{\link{br_show_residuals}()},
 \code{\link{br_show_risk_network}()},
-\code{\link{br_show_table}()}
+\code{\link{br_show_table}()},
+\code{\link{br_show_table_gt}()}
 }
 \concept{br_show}
