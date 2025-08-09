@@ -40,7 +40,6 @@ Imports:
 Suggests: 
     broom.mixed,
     fs,
-    mirai,
     ggnewscale,
     ggstats,
     ggstatsplot,
@@ -48,8 +47,8 @@ Suggests:
     ids,
     knitr,
     lme4,
-    mcprogress,
     merDeriv,
+    mirai,
     qs,
     rmarkdown,
     testthat (>= 3.0.0),
