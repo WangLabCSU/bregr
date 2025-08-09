@@ -93,10 +93,6 @@ e.g., \code{x + poly(x, 2)} has \emph{one} variable \code{x}, but \emph{two} ter
 \strong{bregr} supported global options can be set with \code{options()}.
 Currently they are used in \code{br_run()}.
 \itemize{
-\item \code{bregr.parallel_engine}: Selected engine for parallel computation,
-could be "future.apply", "furrr" or "parallel".
-\item \code{bregr.log_n}: An integer \code{n} to enable logging in modeling
-runner with \verb{>=n} models (default \code{n=Inf}).
 \item \code{bregr.save_model}: If \code{TRUE}, save model to local disk.
 \item \code{bregr.path}: A path for save model, default uses a
 temporary directory.

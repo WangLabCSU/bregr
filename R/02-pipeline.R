@@ -17,10 +17,6 @@
 #' **bregr** supported global options can be set with `options()`.
 #' Currently they are used in `br_run()`.
 #'
-#' - `bregr.parallel_engine`: Selected engine for parallel computation,
-#' could be "future.apply", "furrr" or "parallel".
-#' - `bregr.log_n`: An integer `n` to enable logging in modeling
-#' runner with `>=n` models (default `n=Inf`).
 #' - `bregr.save_model`: If `TRUE`, save model to local disk.
 #' - `bregr.path`: A path for save model, default uses a
 #' temporary directory.
@@ -328,75 +324,29 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   obj
 }
 
-set_future_strategy <- function() {
-  if (packageVersion("future") >= "1.20.0") {
-    "multisession"
-  } else {
-    "multiprocess"
-  }
-}
-
 runner <- function(ms, data, dots, y, x, x2, run_parallel, group_by = NULL) {
   on.exit(invisible(gc()))
   # Subset data to only necessary columns before model construction
   necessary_cols <- get_necessary_columns(y, x, x2, group_by, colnames(data))
   data <- data[, necessary_cols, drop = FALSE]
 
-  log_n <- getOption("bregr.log_n", default = Inf)
-  assert_number_whole(log_n, min = 0, max = Inf, allow_infinite = TRUE)
-  if (length(ms) >= log_n) {
-    cli::cli_inform(c("i" = "enable logging in modeling runner"))
-    options(breg.run_logging = TRUE)
-    rlang::check_installed("mcprogress")
-  }
-
   if (run_parallel > 1) {
-    parallel_engine <- getOption("bregr.parallel_engine", default = "parallel")
-    rlang::arg_match(
-      parallel_engine,
-      values = c("future.apply", "furrr", "parallel")
-    )
-    options(bregr.run_rstudio = Sys.getenv("RSTUDIO") == "1")
-
-    if (parallel_engine %in% c("future.apply", "furrr")) {
-      rlang::check_installed("future")
-      cli::cli_inform(c(
-        "i" = "use {.val future} engine (including {.val future.apply} and {.val furrr}) for parallel computation, if you encounter performance issue or bug in RStudio, please switch to {.val parallel} engine"
-      ))
-
-      options(future.globals.maxSize = Inf)
-      on.exit(options(future.globals.maxSize = NULL))
-      oplan <- future::plan()
-      future::plan(set_future_strategy(), workers = run_parallel)
-      on.exit(future::plan(oplan))
-
-      if (parallel_engine == "future.apply") {
-        rlang::check_installed("future.apply")
-        res <- future.apply::future_lapply(ms, runner_,
-          data = data, dots = dots,
-          opts = options()
-        )
-      } else {
-        rlang::check_installed("furrr")
-        res <- furrr::future_map(
-          ms, runner_,
-          data = data, dots = dots,
-          opts = options()
-        )
-      }
-    } else {
-      cli::cli_inform(c(
-        "i" = "use {.val parallel} for parallel computation, this does not work for Windows"
-      ))
-      res <- parallel::mclapply(
-        ms, runner_,
+    mirai::daemons(run_parallel)
+    on.exit(mirai::daemons(0), add = TRUE)
+    mp <- mirai::mirai_map(
+      ms, runner_,
+      .args = list(
         data = data, dots = dots,
-        opts = options(),
-        mc.cores = run_parallel
+        opts = options()
       )
-    }
+    )
+    res <- mp[.progress]
   } else {
-    res <- map(ms, runner_, data = data, dots = dots, opts = options())
+    res <- map(
+      ms, runner_,
+      data = data, dots = dots,
+      opts = options()
+    )
   }
 
   res <- list_transpose(res)
@@ -417,18 +367,6 @@ runner_ <- function(m, data, dots, opts = NULL) {
   necessary_cols <- model_vars[model_vars %in% colnames(data)]
   data <- data[, necessary_cols, drop = FALSE]
   options(opts)
-  if (isTRUE(getOption("breg.run_logging", default = FALSE))) {
-    if (isTRUE(getOption("breg.run_rstudio", default = FALSE))) {
-      mcprogress::message_parallel(
-        str_replace_all(
-          glue::glue("modeling: {m}"),
-          "`", ""
-        )
-      )
-    } else {
-      cli::cli_inform("modeling: {m}")
-    }
-  }
   # m: model template
   # data: data frame for modeling
   # dots: arguments passing to parse model parameters

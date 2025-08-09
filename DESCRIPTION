@@ -40,9 +40,7 @@ Imports:
 Suggests: 
     broom.mixed,
     fs,
-    furrr,
-    future,
-    future.apply,
+    mirai,
     ggnewscale,
     ggstats,
     ggstatsplot,
