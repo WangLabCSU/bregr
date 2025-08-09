@@ -18,6 +18,7 @@ br_pipeline(
   x2 = NULL,
   group_by = NULL,
   n_workers = 1L,
+  run_parallel = lifecycle::deprecated(),
   model_args = list(),
   run_args = list()
 )
@@ -167,11 +168,13 @@ m4 <- br_pipeline(mtcars,
 # 3. Customized model -----------
 dt <- data.frame(x = rnorm(100))
 dt$y <- rpois(100, exp(1 + dt$x))
+\donttest{
 m5 <- breg(dt) |>
   br_set_y("y") |>
   br_set_x("x") |>
   br_set_model(method = 'quasi(variance = "mu", link = "log")') |>
   br_run()
+}
 
 }
 \seealso{

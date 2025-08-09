@@ -21,6 +21,7 @@
 #' - `br_get_results()` returns modeling result `data.frame`.
 #'
 #' @name accessors
+#' @family accessors
 #' @seealso [pipeline] for building `breg` objects.
 #' @examples
 #' m <- br_pipeline(mtcars,
@@ -187,4 +188,84 @@ br_get_results <- function(obj, tidy = FALSE, ...) {
     results <- obj@results
   }
   dplyr::filter(results, ...)
+}
+
+#' Predict method for breg objects
+#'
+#' @description
+#' `r lifecycle::badge('experimental')`
+#'
+#' Generate predictions from fitted models in a `breg` object.
+#' For Cox regression models, returns linear predictors (log relative hazard).
+#' For other models, returns predicted values.
+#'
+#' @param obj A `breg` object with fitted models.
+#' @param newdata Optional data frame for predictions. If NULL, uses original data.
+#' @param idx Model index, an integer or string.
+#' @param type Type of prediction. For Cox models: "lp" (linear predictor, default)
+#' or "risk" (relative risk). For other models: "response" (default) or "link".
+#' @returns Typically, a numeric vector of predictions.
+#' @export
+#' @family accessors
+#' @examples
+#' # Cox regression example
+#' if (requireNamespace("survival", quietly = TRUE)) {
+#'   lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
+#'   mds <- br_pipeline(
+#'     lung,
+#'     y = c("time", "status"),
+#'     x = c("age", "ph.ecog"),
+#'     x2 = "sex",
+#'     method = "coxph"
+#'   )
+#'   scores <- br_predict(mds)
+#'   head(scores)
+#' }
+br_predict <- function(obj, newdata = NULL, idx = NULL, type = NULL) {
+  assert_breg_obj_with_results(obj)
+
+  # Get the model to use
+  if (is.null(idx)) {
+    cli::cli_inform("{.arg idx} not set, use the first model")
+    idx <- 1
+  } else {
+    if (length(idx) != 1) {
+      cli::cli_abort("please specify one model")
+    }
+  }
+  model <- br_get_models(obj, idx)
+
+  # Get data for prediction
+  if (is.null(newdata)) {
+    newdata <- br_get_data(obj)
+  }
+
+  # Determine prediction type
+  model_class <- class(model)[1]
+  if (is.null(type)) {
+    if (model_class == "coxph") {
+      # https://www.rdocumentation.org/packages/survival/versions/3.8-3/topics/predict.coxph
+      type <- "lp" # linear predictor (log relative hazard)
+    } else {
+      type <- "response" # predicted response
+    }
+    cli::cli_inform("{.arg type} is not specified, use {type} for the model")
+  }
+
+  # Generate predictions
+  tryCatch(
+    {
+      predictions <- predict(model, newdata = newdata, type = type)
+
+      # Handle missing values
+      if (any(is.na(predictions))) {
+        cli::cli_warn("Some predictions are NA, consider checking your data for missing values")
+      }
+
+      predictions
+    },
+    error = function(e) {
+      cli::cli_abort("Failed to generate predictions: {e$message}")
+    }
+  )
 }

@@ -104,4 +104,8 @@ br_get_results(m, tidy = TRUE, term == "cyl")
 }
 \seealso{
 \link{pipeline} for building \code{breg} objects.
+
+Other accessors: 
+\code{\link{br_predict}()}
 }
+\concept{accessors}

@@ -17,4 +17,5 @@ copilot-instructions.md
 ^doc$
 ^Meta$
 ^icon$
+^examples$
 ^CRAN-SUBMISSION$
