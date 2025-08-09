@@ -9,7 +9,7 @@
 ^\.github$
 ^data-raw$
 ^\.vscode$
-
+copilot-instructions.md
 
 # flir files
 ^flir$

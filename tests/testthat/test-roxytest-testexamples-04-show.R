@@ -119,3 +119,25 @@ test_that("Function br_show_table_gt() @ L500", {
   expect_true(TRUE)
 })
 
+
+test_that("Function br_show_residuals() @ L569", {
+  
+  m <- br_pipeline(mtcars,
+    y = "mpg",
+    x = colnames(mtcars)[2:4],
+    x2 = "vs",
+    method = "gaussian"
+  )
+  
+  # Single model residual plot
+  br_show_residuals(m, idx = 1)
+  
+  # Multiple models
+  br_show_residuals(m, idx = c(1, 2))
+  
+  # All models
+  br_show_residuals(m)
+  
+  expect_s3_class(br_show_residuals(m, idx = 1), "ggplot")
+})
+
