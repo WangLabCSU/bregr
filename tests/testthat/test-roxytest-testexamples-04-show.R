@@ -120,7 +120,7 @@ test_that("Function br_show_table_gt() @ L500", {
 })
 
 
-test_that("Function br_show_residuals() @ L573", {
+test_that("Function br_show_residuals() @ L569", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",

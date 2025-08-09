@@ -503,11 +503,7 @@ br_show_table_gt <- function(
   assert_breg_obj_with_results(breg)
   rlang::check_installed("gtsummary")
 
-  mds <- if (!is.null(idx)) {
-    br_get_model(breg, idx)
-  } else {
-    br_get_models(breg)
-  }
+  mds <- br_get_models(breg, idx)
   if (length(mds) == 1) {
     mds <- mds[[1]]
   }

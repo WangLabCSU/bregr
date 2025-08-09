@@ -43,7 +43,9 @@
 #' Or a list with 4 elements, see [br_avail_method_config()]
 #' for examples.
 #' @param group_by A string specifying the group by column.
-#' @param run_parallel Integer, indicating cores to run the task, default is `1`.
+#' @param n_workers,run_parallel Integer, indicating integer number
+#' of workers to launch, default is `1L`. When `>1`,
+#' run modeling code in parallel in the background.
 #' @param ... Additional arguments depending on the called function.
 #' - `br_set_x()` for passing focal terms as characters.
 #' - `br_set_x2()` for passing control terms as characters.
@@ -117,15 +119,22 @@ NULL
 #' @export
 br_pipeline <- function(
     data, y, x, method, x2 = NULL,
-    group_by = NULL, run_parallel = 1L,
+    group_by = NULL,
+    n_workers = 1L, run_parallel = 1L,
     model_args = list(),
     run_args = list()) {
+
+  if (lifecycle::is_present(run_parallel)) {
+    lifecycle::deprecate_warn("1.1.0", "bregr::br_run(run_parallel = )", "bregr::br_run(n_workers = )")
+    n_workers <- run_parallel
+  }
+
   breg(data) |>
     br_set_y(y) |>
     br_set_x(x) |>
     br_set_x2(x2) |>
     br_set_model(method = method, !!!model_args) |>
-    br_run(group_by = group_by, run_parallel = run_parallel, !!!run_args)
+    br_run(group_by = group_by, n_workers = n_workers, !!!run_args)
 }
 
 #' @describeIn pipeline Set dependent variables for model construction.
@@ -264,13 +273,25 @@ br_set_model <- function(obj, method, ...) {
 
 #' @describeIn pipeline Run the regression analysis in batch.
 #' @export
-br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
+br_run <- function(obj, ...,
+                   group_by = NULL, n_workers = 1L,
+                   run_parallel = lifecycle::deprecated()) {
   assert_breg_obj(obj)
   assert_character(group_by, allow_na = FALSE, allow_null = TRUE)
-  assert_number_whole(run_parallel, min = 1, max = parallel::detectCores() - 1)
   on.exit(invisible(gc()))
 
-  if (run_parallel > 1) {
+  if (lifecycle::is_present(run_parallel)) {
+    # Signal the deprecation to the user
+    lifecycle::deprecate_warn("1.1.0", "bregr::br_run(run_parallel = )", "bregr::br_run(n_workers = )")
+    # Deal with the deprecated argument for compatibility
+    n_workers <- run_parallel
+  }
+  assert_number_whole(n_workers, min = 1)
+  if (n_workers > 1 && n_workers > parallel::detectCores() * 5) {
+    cli::cli_abort("a large worker number {n_workers} set for {.arg n_workers} (>{.code parallel::detectCores()*5})")
+  }
+
+  if (n_workers > 1) {
     if (obj@n_x < 100) {
       cli::cli_warn("running in parallel is typically not recommended for small number (<100) of focal terms")
     }
@@ -302,14 +323,14 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   exponentiate <- dots[["exponentiate"]]
 
   if (is.null(group_by)) {
-    res <- runner(ms, obj@data, dots, obj@y, obj@x, obj@x2, run_parallel)
+    res <- runner(ms, obj@data, dots, obj@y, obj@x, obj@x2, n_workers)
   } else {
     obj@group_by <- group_by
     data_split <- obj@data |>
       named_group_split(obj@data[, group_by, drop = FALSE])
     data_split[["All"]] <- obj@data
     res_list <- map(data_split, function(data) {
-      runner(ms, data, dots, obj@y, obj@x, obj@x2, run_parallel, group_by)
+      runner(ms, data, dots, obj@y, obj@x, obj@x2, n_workers, group_by)
     })
     res <- list_transpose(res_list)
     res$models <- purrr::list_flatten(res$models)
@@ -324,14 +345,14 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   obj
 }
 
-runner <- function(ms, data, dots, y, x, x2, run_parallel, group_by = NULL) {
+runner <- function(ms, data, dots, y, x, x2, n_workers, group_by = NULL) {
   on.exit(invisible(gc()))
   # Subset data to only necessary columns before model construction
   necessary_cols <- get_necessary_columns(y, x, x2, group_by, colnames(data))
   data <- data[, necessary_cols, drop = FALSE]
 
-  if (run_parallel > 1) {
-    mirai::daemons(run_parallel)
+  if (n_workers > 1) {
+    mirai::daemons(n_workers)
     on.exit(mirai::daemons(0), add = TRUE)
     mp <- mirai::mirai_map(
       ms, runner_,

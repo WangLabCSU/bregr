@@ -17,7 +17,7 @@ br_pipeline(
   method,
   x2 = NULL,
   group_by = NULL,
-  run_parallel = 1L,
+  n_workers = 1L,
   model_args = list(),
   run_args = list()
 )
@@ -30,7 +30,13 @@ br_set_x2(obj, ...)
 
 br_set_model(obj, method, ...)
 
-br_run(obj, ..., group_by = NULL, run_parallel = 1L)
+br_run(
+  obj,
+  ...,
+  group_by = NULL,
+  n_workers = 1L,
+  run_parallel = lifecycle::deprecated()
+)
 }
 \arguments{
 \item{data}{A \code{data.frame} containing all necessary variables for analysis.
@@ -53,7 +59,9 @@ for examples.}
 
 \item{group_by}{A string specifying the group by column.}
 
-\item{run_parallel}{Integer, indicating cores to run the task, default is \code{1}.}
+\item{n_workers, run_parallel}{Integer, indicating integer number
+of workers to launch, default is \code{1L}. When \verb{>1},
+run modeling code in parallel in the background.}
 
 \item{model_args}{A list of arguments passed to \code{br_set_model()}.}
 

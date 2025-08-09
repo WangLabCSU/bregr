@@ -6,6 +6,7 @@ types, including valid column names (in R), invalid column names, and
 model formula terms.
 * Supported error handling when model construction failed.
 * Added `br_get_model_names()` and `br_rename_models()` to get and set model names.
+* Soft-deprecated `run_parallel` in `br_run()`.
 * Soft-deprecated `br_get_model()` by merging it with `br_get_models()`.
 * Introduced global options "bregr.save_model" and "bregr.path", configurable via `options()`.
 * Enabled cross-platform parallel computation.

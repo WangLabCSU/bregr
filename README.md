@@ -134,7 +134,7 @@ mds_p <- br_pipeline(
   x = colnames(lung)[6:10],
   x2 = c("age", "sex"),
   method = "coxph",
-  run_parallel = 3
+  n_workers = 3
 )
 #> Warning: running in parallel is typically not recommended for small number (<100) of focal terms
 #> exponentiate estimates of model(s) constructed from coxph method at default
