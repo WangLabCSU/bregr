@@ -867,3 +867,85 @@ br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted") {
 
   return(p)
 }
+
+
+#' Show nomogram for regression models
+#'
+#' @description
+#' \`r lifecycle::badge('experimental')\`
+#'
+#' Creates a nomogram (graphical calculator) for regression models, particularly
+#' useful for Cox proportional hazards models. A nomogram allows visual calculation
+#' of predicted outcomes by assigning points to variable values and summing them
+#' to get total points that correspond to predicted probabilities.
+#'
+#' @param breg A \`breg\` object with fitted regression models.
+#' @param idx Index or name of the model to use for the nomogram.
+#' If NULL, uses the first model.
+#' @param time_points For Cox models, time points at which to show survival probabilities.
+#' Default is c(12, 24, 36) representing months.
+#' @param fun_at For non-survival models, the function values at which to show predictions.
+#' @param point_range Range of points to use in the nomogram scale. Default is c(0, 100).
+#' @param title Plot title. If NULL, generates automatic title.
+#' @param subtitle Plot subtitle.
+#' @returns A ggplot2 object showing the nomogram.
+#' @export
+#' @family br_show
+#' @examples
+#' \donttest{
+#' # Cox regression nomogram
+#' if (requireNamespace("survival", quietly = TRUE)) {
+#'   lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
+#'   lung$ph.ecog <- factor(lung$ph.ecog)
+#'   mds <- br_pipeline(
+#'     lung,
+#'     y = c("time", "status"),
+#'     x = c("age", "ph.ecog"),
+#'     x2 = "sex",
+#'     method = "coxph"
+#'   )
+#'   p <- br_show_nomogram(mds)
+#'   print(p)
+#' }
+#' 
+#' # Linear regression nomogram
+#' mds_lm <- br_pipeline(
+#'   mtcars,
+#'   y = "mpg",
+#'   x = c("hp", "wt"),
+#'   x2 = "vs",
+#'   method = "gaussian"
+#' )
+#' br_show_nomogram(mds_lm, fun_at = c(15, 20, 25, 30))
+#' }
+br_show_nomogram <- function(breg,
+                            idx = NULL,
+                            time_points = c(12, 24, 36),
+                            fun_at = NULL,
+                            point_range = c(0, 100),
+                            title = NULL,
+                            subtitle = NULL) {
+  assert_breg_obj_with_results(breg)
+  
+  # Get the model to use
+  if (is.null(idx)) {
+    cli::cli_inform("{.arg idx} not set, use the first model")
+    idx <- 1
+  } else {
+    if (length(idx) != 1) {
+      cli::cli_abort("please specify one model")
+    }
+  }
+  
+  model <- br_get_models(breg, idx)
+  model_name <- if (is.null(names(br_get_models(breg))[idx])) paste("Model", idx) else names(br_get_models(breg))[idx]
+  
+  # Check model type and dispatch to appropriate function
+  if (inherits(model, "coxph")) {
+    .create_coxph_nomogram(model, time_points, point_range, title, subtitle, model_name)
+  } else if (inherits(model, c("lm", "glm"))) {
+    .create_lm_nomogram(model, fun_at, point_range, title, subtitle, model_name)
+  } else {
+    cli::cli_abort("Nomograms are currently supported for Cox regression (coxph) and linear/generalized linear models (lm/glm)")
+  }
+}
