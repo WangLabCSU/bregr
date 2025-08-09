@@ -447,16 +447,19 @@ runner <- function(ms, data, dots, y, x, x2, n_workers, group_by = NULL) {
   data <- data[, necessary_cols, drop = FALSE]
 
   if (n_workers > 1) {
-    mirai::daemons(n_workers)
-    on.exit(mirai::daemons(0), add = TRUE)
-    mp <- mirai::mirai_map(
-      ms, runner_,
-      .args = list(
-        data = data, dots = dots,
-        opts = options()
-      )
+    res <- with(
+      mirai::daemons(n_workers),
+      {
+        mp <- mirai::mirai_map(
+          ms, runner_,
+          .args = list(
+            data = data, dots = dots,
+            opts = options()
+          )
+        )
+        mp[.progress]
+      }
     )
-    res <- mp[.progress]
   } else {
     res <- map(
       ms, runner_,
