@@ -135,6 +135,8 @@ The tidy results are obtained from <code><a href="https://broom.tidymodels.org/r
 <span class="r-in"><span>  x2 <span class="op">=</span> <span class="st">"vs"</span>,</span></span>
 <span class="r-in"><span>  method <span class="op">=</span> <span class="st">"gaussian"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>The `run_parallel` argument of `br_run()` is deprecated as of bregr 1.1.0.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use the `n_workers` argument instead.</span>
 <span class="r-in"><span><span class="fu">br_get_data</span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 32 × 12</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    .row_names    mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb</span>
@@ -209,9 +211,7 @@ The tidy results are obtained from <code><a href="https://broom.tidymodels.org/r
 <span class="r-out co"><span class="r-pr">#&gt;</span> Null Deviance:	    1126 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Residual Deviance: 422.7 	AIC: 181.4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span><span class="fu">br_get_model</span><span class="op">(</span><span class="va">m</span>, <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`br_get_model()` was deprecated in bregr 1.1.0.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use `br_get_models()` instead.</span>
+<span class="r-in"><span><span class="fu">br_get_models</span><span class="op">(</span><span class="va">m</span>, <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Call:  stats::glm(formula = mpg ~ cyl + vs, family = stats::gaussian, </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     data = data)</span>

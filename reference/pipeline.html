@@ -62,7 +62,7 @@ Supports both GLM and Cox-PH models with options for focal/control terms and par
 <span>  <span class="va">method</span>,</span>
 <span>  x2 <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  group_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  run_parallel <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  n_workers <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  model_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  run_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
@@ -75,7 +75,13 @@ Supports both GLM and Cox-PH models with options for focal/control terms and par
 <span></span>
 <span><span class="fu">br_set_model</span><span class="op">(</span><span class="va">obj</span>, <span class="va">method</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">br_run</span><span class="op">(</span><span class="va">obj</span>, <span class="va">...</span>, group_by <span class="op">=</span> <span class="cn">NULL</span>, run_parallel <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">br_run</span><span class="op">(</span></span>
+<span>  <span class="va">obj</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  group_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_workers <span class="op">=</span> <span class="fl">1L</span>,</span>
+<span>  run_parallel <span class="op">=</span> <span class="fu">lifecycle</span><span class="fu">::</span><span class="fu"><a href="https://lifecycle.r-lib.org/reference/deprecated.html" class="external-link">deprecated</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -114,8 +120,10 @@ for examples.</p></dd>
 <dd><p>A string specifying the group by column.</p></dd>
 
 
-<dt id="arg-run-parallel">run_parallel<a class="anchor" aria-label="anchor" href="#arg-run-parallel"></a></dt>
-<dd><p>Integer, indicating cores to run the task, default is <code>1</code>.</p></dd>
+<dt id="arg-n-workers-run-parallel">n_workers, run_parallel<a class="anchor" aria-label="anchor" href="#arg-n-workers-run-parallel"></a></dt>
+<dd><p>Integer, indicating integer number
+of workers to launch, default is <code>1L</code>. When <code>&gt;1</code>,
+run modeling code in parallel in the background.</p></dd>
 
 
 <dt id="arg-model-args">model_args<a class="anchor" aria-label="anchor" href="#arg-model-args"></a></dt>
@@ -156,11 +164,7 @@ e.g., <code>x + poly(x, 2)</code> has <em>one</em> variable <code>x</code>, but 
 
 
 <p><strong>bregr</strong> supported global options can be set with <code><a href="https://rdrr.io/r/base/options.html" class="external-link">options()</a></code>.
-Currently they are used in <code>br_run()</code>.</p><ul><li><p><code>bregr.parallel_engine</code>: Selected engine for parallel computation,
-could be "future.apply", "furrr" or "parallel".</p></li>
-<li><p><code>bregr.log_n</code>: An integer <code>n</code> to enable logging in modeling
-runner with <code>&gt;=n</code> models (default <code>n=Inf</code>).</p></li>
-<li><p><code>bregr.save_model</code>: If <code>TRUE</code>, save model to local disk.</p></li>
+Currently they are used in <code>br_run()</code>.</p><ul><li><p><code>bregr.save_model</code>: If <code>TRUE</code>, save model to local disk.</p></li>
 <li><p><code>bregr.path</code>: A path for save model, default uses a
 temporary directory.</p></li>
 </ul></div>
