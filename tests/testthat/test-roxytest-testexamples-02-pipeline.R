@@ -2,7 +2,7 @@
 
 # File R/"02-pipeline.R": @testexamples
 
-test_that("[unknown alias] @ L116", {
+test_that("[unknown alias] @ L120", {
   
   library(bregr)
   # 1. Pipeline -------------------------
