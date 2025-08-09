@@ -20,7 +20,12 @@ br_pipeline(
   n_workers = 1L,
   run_parallel = lifecycle::deprecated(),
   model_args = list(),
-  run_args = list()
+  run_args = list(),
+  filter_x = FALSE,
+  filter_na_prop = 0.8,
+  filter_sd_min = 1e-06,
+  filter_var_min = 1e-06,
+  filter_min_levels = 2
 )
 
 br_set_y(obj, y)
@@ -36,7 +41,12 @@ br_run(
   ...,
   group_by = NULL,
   n_workers = 1L,
-  run_parallel = lifecycle::deprecated()
+  run_parallel = lifecycle::deprecated(),
+  filter_x = FALSE,
+  filter_na_prop = 0.8,
+  filter_sd_min = 1e-06,
+  filter_var_min = 1e-06,
+  filter_min_levels = 2
 )
 }
 \arguments{
@@ -67,6 +77,16 @@ run modeling code in parallel in the background.}
 \item{model_args}{A list of arguments passed to \code{br_set_model()}.}
 
 \item{run_args}{A list of arguments passed to \code{br_run()}.}
+
+\item{filter_x}{Logical, whether to enable pre-filtering of focal variables. Default is \code{FALSE}.}
+
+\item{filter_na_prop}{Numeric, maximum proportion of NA values allowed for a variable. Default is \code{0.8}.}
+
+\item{filter_sd_min}{Numeric, minimum standard deviation required for a variable. Default is \code{1e-6}.}
+
+\item{filter_var_min}{Numeric, minimum variance required for a variable. Default is \code{1e-6}.}
+
+\item{filter_min_levels}{Numeric, minimum number of unique levels required for categorical variables. Default is \code{2}.}
 
 \item{obj}{An object of class \code{breg}.}
 
@@ -166,9 +186,10 @@ m4 <- br_pipeline(mtcars,
 )
 
 # 3. Customized model -----------
+\dontrun{
 dt <- data.frame(x = rnorm(100))
 dt$y <- rpois(100, exp(1 + dt$x))
-\donttest{
+
 m5 <- breg(dt) |>
   br_set_y("y") |>
   br_set_x("x") |>

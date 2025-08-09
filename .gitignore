@@ -22,3 +22,6 @@ bregr_models
 .Rapp.history
 *.png
 demo_fix.R
+
+# Test artifacts
+tests/testthat/Rplots.pdf

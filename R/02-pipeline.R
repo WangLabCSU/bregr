@@ -55,6 +55,10 @@
 #' For logistic, and Cox-PH regressions models, `exponentiate` is set to `TRUE` at default.
 #' @param model_args A list of arguments passed to `br_set_model()`.
 #' @param run_args A list of arguments passed to `br_run()`.
+#' @param filter_x Logical, whether to enable pre-filtering of focal variables. Default is `FALSE`.
+#' @param filter_na_prop Numeric, maximum proportion of NA values allowed for a variable. Default is `0.8`.
+#' @param filter_sd_min Numeric, minimum standard deviation required for a variable. Default is `1e-6`.
+#' @param filter_var_min Numeric, minimum variance required for a variable. Default is `1e-6`.
 #' @examples
 #' library(bregr)
 #' # 1. Pipeline -------------------------
@@ -97,9 +101,10 @@
 #' )
 #'
 #' # 3. Customized model -----------
+#' \dontrun{
 #' dt <- data.frame(x = rnorm(100))
 #' dt$y <- rpois(100, exp(1 + dt$x))
-#' \donttest{
+#'
 #' m5 <- breg(dt) |>
 #'   br_set_y("y") |>
 #'   br_set_x("x") |>
@@ -123,7 +128,12 @@ br_pipeline <- function(
     group_by = NULL,
     n_workers = 1L, run_parallel = lifecycle::deprecated(),
     model_args = list(),
-    run_args = list()) {
+    run_args = list(),
+    filter_x = FALSE,
+    filter_na_prop = 0.8,
+    filter_sd_min = 1e-6,
+    filter_var_min = 1e-6,
+    filter_min_levels = 2) {
   if (lifecycle::is_present(run_parallel)) {
     lifecycle::deprecate_warn("1.1.0", "bregr::br_run(run_parallel = )", "bregr::br_run(n_workers = )")
     n_workers <- run_parallel
@@ -134,7 +144,13 @@ br_pipeline <- function(
     br_set_x(x) |>
     br_set_x2(x2) |>
     br_set_model(method = method, !!!model_args) |>
-    br_run(group_by = group_by, n_workers = n_workers, !!!run_args)
+    br_run(
+      group_by = group_by, n_workers = n_workers,
+      filter_x = filter_x, filter_na_prop = filter_na_prop,
+      filter_sd_min = filter_sd_min, filter_var_min = filter_var_min,
+      filter_min_levels = filter_min_levels,
+      !!!run_args
+    )
 }
 
 #' @describeIn pipeline Set dependent variables for model construction.
@@ -272,12 +288,28 @@ br_set_model <- function(obj, method, ...) {
 }
 
 #' @describeIn pipeline Run the regression analysis in batch.
+#' @param filter_x Logical, whether to enable pre-filtering of focal variables. Default is `FALSE`.
+#' @param filter_na_prop Numeric, maximum proportion of NA values allowed for a variable. Default is `0.8`.
+#' @param filter_sd_min Numeric, minimum standard deviation required for a variable. Default is `1e-6`.
+#' @param filter_var_min Numeric, minimum variance required for a variable. Default is `1e-6`.
+#' @param filter_min_levels Numeric, minimum number of unique levels required for categorical variables. Default is `2`.
 #' @export
 br_run <- function(obj, ...,
                    group_by = NULL, n_workers = 1L,
-                   run_parallel = lifecycle::deprecated()) {
+                   run_parallel = lifecycle::deprecated(),
+                   filter_x = FALSE,
+                   filter_na_prop = 0.8,
+                   filter_sd_min = 1e-6,
+                   filter_var_min = 1e-6,
+                   filter_min_levels = 2) {
   assert_breg_obj(obj)
   assert_character(group_by, allow_na = FALSE, allow_null = TRUE)
+  if (br_get_n_x(obj) < 1) {
+    cli::cli_abort("{.fn br_set_x} must run before {.fn br_run}")
+  }
+  if (length(br_get_y(obj)) < 1) {
+    cli::cli_abort("{.fn br_set_y} must run before {.fn br_run}")
+  }
   on.exit(invisible(gc()))
 
   if (lifecycle::is_present(run_parallel)) {
@@ -304,6 +336,69 @@ br_run <- function(obj, ...,
     assert_not_overlap(group_by, obj@x2,
       msg = "{.arg group_by} variables should not overlap with modeling (control) variables"
     )
+  }
+
+  # Apply variable filtering if enabled
+  original_x <- obj@x
+  if (filter_x) {
+    assert_logical(filter_x, allow_na = FALSE)
+    assert_number_decimal(filter_na_prop, min = 0, max = 1)
+    assert_number_decimal(filter_sd_min, min = 0)
+    assert_number_decimal(filter_var_min, min = 0)
+    assert_number_whole(filter_min_levels, min = 1)
+
+    filter_result <- filter_variables_x(
+      obj@data, obj@x,
+      filter_na_prop = filter_na_prop,
+      filter_sd_min = filter_sd_min,
+      filter_var_min = filter_var_min,
+      filter_min_levels = filter_min_levels
+    )
+
+    obj@x <- filter_result$filtered_x
+
+    # Inform user about filtering results
+    if (filter_result$filter_summary$filtered > 0) {
+      cli::cli_inform(
+        "Pre-filtering removed {filter_result$filter_summary$filtered} out of {filter_result$filter_summary$total} focal variables ({round(filter_result$filter_summary$prop_filtered * 100, 1)}%)"
+      )
+      if (length(filter_result$filtered_out) <= 10) {
+        cli::cli_inform("Filtered variables: {.val {filter_result$filtered_out}}")
+      } else {
+        cli::cli_inform("Filtered variables (showing first 10): {.val {filter_result$filtered_out[1:10]}} ...")
+      }
+    } else {
+      cli::cli_inform("Pre-filtering: no variables were filtered out")
+    }
+
+    # Update models to reflect filtered variables
+    if (length(obj@x) > 0) {
+      config <- br_get_config(obj)
+
+      # Get the proper method configuration
+      if (!rlang::is_list(config$method)) {
+        method_config <- br_avail_method_config(config$method)
+      } else {
+        method_config <- config$method
+      }
+
+      models <- gen_template(
+        obj@y, obj@x, obj@x2,
+        method_config$f_call,
+        method_config$f_cnst_y,
+        method_config$args_method,
+        paste0(
+          method_config$args_data,
+          ", ",
+          config$extra
+        )
+      ) |>
+        as.list()
+      names(models) <- obj@x
+      obj@models <- models
+    } else {
+      cli::cli_abort("All focal variables were filtered out. Consider relaxing filtering criteria.")
+    }
   }
 
   ms <- br_get_models(obj)
