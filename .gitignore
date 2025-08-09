@@ -20,3 +20,7 @@ bregr_*.tar.gz
 
 bregr_models
 .Rapp.history
+
+# Test output files (nomogram plots, etc.)
+*.png
+!man/figures/*.png

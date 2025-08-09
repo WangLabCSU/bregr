@@ -802,9 +802,14 @@ br_show_nomogram <- function(
       
       # Convert points back to linear predictor scale
       # Assuming the points are normalized to 0-100, we need to scale back
-      max_abs_coef <- max(abs(unlist(lapply(nomogram_scales$variables, function(x) {
-        if (!is.null(x$coefficient)) x$coefficient else max(abs(x$points), na.rm = TRUE)
-      })), na.rm = TRUE))
+      coef_values <- unlist(lapply(nomogram_scales$variables, function(x) {
+        if (!is.null(x$coefficient)) {
+          x$coefficient 
+        } else {
+          max(abs(x$points), na.rm = TRUE)
+        }
+      }))
+      max_abs_coef <- max(abs(coef_values), na.rm = TRUE)
       
       if (max_abs_coef > 0) {
         # Scale points back to approximate linear predictor values
@@ -842,20 +847,221 @@ br_show_nomogram <- function(
   return(survival_scales)
 }
 
-# Plot the nomogram using ggplot2
+# Plot the nomogram using ggplot2 - clean implementation without duplications
 .plot_nomogram <- function(nomogram_scales, survival_scales, points, total.points, lp, funlabel, surv.at) {
   
-  # Calculate layout parameters
-  n_vars <- length(nomogram_scales$variables)
-  current_y <- 1
+  if (length(nomogram_scales$variables) == 0) {
+    cli_warn("No variables available for nomogram plotting")
+    return(ggplot2::ggplot() + ggplot2::theme_void())
+  }
   
-  # Determine the x-axis range for consistent alignment
-  x_min <- min(nomogram_scales$total_range) - 25
-  x_max <- max(nomogram_scales$total_range) + 10
-  axis_start <- nomogram_scales$total_range[1]
-  axis_end <- nomogram_scales$total_range[2]
+  # Calculate layout with proper spacing
+  row_height <- 1
+  current_y <- 0
   
-  # Create base plot with no default data
+  # Set up consistent axis range  
+  axis_range <- nomogram_scales$total_range
+  if (length(axis_range) != 2 || is.na(axis_range[1]) || is.na(axis_range[2])) {
+    axis_range <- c(0, 100)
+  }
+  
+  x_start <- axis_range[1]
+  x_end <- axis_range[2] 
+  x_margin <- 15
+  x_min <- x_start - x_margin
+  x_max <- x_end + 5
+  
+  # Initialize plot data storage
+  plot_elements <- list()
+  row_labels <- list()
+  
+  # Process each variable
+  for (i in seq_along(nomogram_scales$variables)) {
+    var_scale <- nomogram_scales$variables[[i]]
+    current_y <- current_y + row_height
+    
+    # Store row label
+    row_labels[[length(row_labels) + 1]] <- list(
+      x = x_min - 2,
+      y = current_y,
+      label = var_scale$variable
+    )
+    
+    # Add axis line
+    plot_elements[[length(plot_elements) + 1]] <- list(
+      type = "segment",
+      x = x_start, xend = x_end,
+      y = current_y, yend = current_y,
+      color = "black", linewidth = 0.8
+    )
+    
+    # Add tick marks based on variable type
+    if (var_scale$type == "continuous" && length(var_scale$values) > 0) {
+      # Show every other tick to avoid overcrowding
+      tick_indices <- seq(1, length(var_scale$values), by = max(1, floor(length(var_scale$values) / 6)))
+      for (j in tick_indices) {
+        if (j <= length(var_scale$points_norm)) {
+          x_pos <- var_scale$points_norm[j]
+          if (x_pos >= x_start && x_pos <= x_end) {
+            # Tick mark
+            plot_elements[[length(plot_elements) + 1]] <- list(
+              type = "segment",
+              x = x_pos, xend = x_pos,
+              y = current_y - 0.1, yend = current_y + 0.1,
+              color = "black", linewidth = 0.5
+            )
+            # Tick label  
+            plot_elements[[length(plot_elements) + 1]] <- list(
+              type = "text",
+              x = x_pos, y = current_y + 0.3,
+              label = round(var_scale$values[j], 1),
+              hjust = 0.5, vjust = 0, size = 2.8
+            )
+          }
+        }
+      }
+    } else if (var_scale$type == "factor" && length(var_scale$values) > 0) {
+      # Show all factor levels
+      for (j in seq_along(var_scale$values)) {
+        if (j <= length(var_scale$points_norm)) {
+          x_pos <- var_scale$points_norm[j]
+          if (x_pos >= x_start && x_pos <= x_end) {
+            # Tick mark
+            plot_elements[[length(plot_elements) + 1]] <- list(
+              type = "segment", 
+              x = x_pos, xend = x_pos,
+              y = current_y - 0.1, yend = current_y + 0.1,
+              color = "black", linewidth = 0.5
+            )
+            # Tick label
+            plot_elements[[length(plot_elements) + 1]] <- list(
+              type = "text",
+              x = x_pos, y = current_y + 0.3,
+              label = var_scale$values[j],
+              hjust = 0.5, vjust = 0, size = 2.8
+            )
+          }
+        }
+      }
+    }
+  }
+  
+  # Add points scale
+  if (points) {
+    current_y <- current_y + row_height
+    
+    row_labels[[length(row_labels) + 1]] <- list(
+      x = x_min - 2, y = current_y, label = "Points"
+    )
+    
+    plot_elements[[length(plot_elements) + 1]] <- list(
+      type = "segment",
+      x = x_start, xend = x_end,
+      y = current_y, yend = current_y,
+      color = "black", linewidth = 1
+    )
+    
+    # Points ticks every 20 points
+    point_ticks <- seq(0, 100, by = 20)
+    for (pt in point_ticks) {
+      if (pt >= x_start && pt <= x_end) {
+        plot_elements[[length(plot_elements) + 1]] <- list(
+          type = "segment",
+          x = pt, xend = pt,
+          y = current_y - 0.1, yend = current_y + 0.1,
+          color = "black", linewidth = 0.5
+        )
+        plot_elements[[length(plot_elements) + 1]] <- list(
+          type = "text",
+          x = pt, y = current_y + 0.3,
+          label = pt, hjust = 0.5, vjust = 0, size = 2.8
+        )
+      }
+    }
+  }
+  
+  # Add total points scale
+  if (total.points) {
+    current_y <- current_y + row_height
+    
+    row_labels[[length(row_labels) + 1]] <- list(
+      x = x_min - 2, y = current_y, label = "Total Points"
+    )
+    
+    plot_elements[[length(plot_elements) + 1]] <- list(
+      type = "segment",
+      x = x_start, xend = x_end, 
+      y = current_y, yend = current_y,
+      color = "black", linewidth = 1
+    )
+    
+    # Total points ticks
+    point_ticks <- seq(0, 100, by = 20)
+    for (pt in point_ticks) {
+      if (pt >= x_start && pt <= x_end) {
+        plot_elements[[length(plot_elements) + 1]] <- list(
+          type = "segment",
+          x = pt, xend = pt,
+          y = current_y - 0.1, yend = current_y + 0.1,
+          color = "black", linewidth = 0.5
+        )
+        plot_elements[[length(plot_elements) + 1]] <- list(
+          type = "text",
+          x = pt, y = current_y + 0.3,
+          label = pt, hjust = 0.5, vjust = 0, size = 2.8
+        )
+      }
+    }
+  }
+  
+  # Add survival scales
+  if (!is.null(survival_scales) && length(survival_scales) > 0) {
+    for (i in seq_along(survival_scales)) {
+      surv_scale <- survival_scales[[i]]
+      current_y <- current_y + row_height
+      
+      survival_label <- paste0(surv_scale$time_years, "-Year Survival")
+      row_labels[[length(row_labels) + 1]] <- list(
+        x = x_min - 2, y = current_y, label = survival_label
+      )
+      
+      plot_elements[[length(plot_elements) + 1]] <- list(
+        type = "segment",
+        x = x_start, xend = x_end,
+        y = current_y, yend = current_y, 
+        color = "red", linewidth = 1
+      )
+      
+      # Add survival probability ticks with better spacing
+      if (length(surv_scale$probabilities) > 5) {
+        prob_indices <- round(seq(1, length(surv_scale$probabilities), length.out = 5))
+        spacing <- (x_end - x_start) / 4
+        
+        for (j in seq_along(prob_indices)) {
+          prob_idx <- prob_indices[j]
+          prob_val <- surv_scale$probabilities[prob_idx]
+          x_pos <- x_start + (j - 1) * spacing
+          
+          if (!is.na(prob_val) && prob_val >= 0.05 && prob_val <= 0.95) {
+            plot_elements[[length(plot_elements) + 1]] <- list(
+              type = "segment",
+              x = x_pos, xend = x_pos,
+              y = current_y - 0.1, yend = current_y + 0.1,
+              color = "red", linewidth = 0.5
+            )
+            plot_elements[[length(plot_elements) + 1]] <- list(
+              type = "text", 
+              x = x_pos, y = current_y + 0.3,
+              label = paste0(round(prob_val * 100), "%"),
+              hjust = 0.5, vjust = 0, size = 2.8, color = "red"
+            )
+          }
+        }
+      }
+    }
+  }
+  
+  # Build the plot
   p <- ggplot2::ggplot() +
     ggplot2::theme_void() +
     ggplot2::theme(
@@ -863,221 +1069,49 @@ br_show_nomogram <- function(
       plot.margin = ggplot2::margin(20, 20, 20, 20)
     ) +
     ggplot2::labs(
-      title = "Nomogram for Survival Prediction",
-      x = NULL,
-      y = NULL
+      title = "Nomogram for Survival Prediction"
     )
   
-  # Track all y positions and labels for proper axis setup
-  y_positions <- c()
-  y_labels_list <- c()
-  
-  # Add variable scales
-  for (i in seq_along(nomogram_scales$variables)) {
-    var_scale <- nomogram_scales$variables[[i]]
-    y_pos <- current_y
-    y_positions <- c(y_positions, y_pos)
-    y_labels_list <- c(y_labels_list, var_scale$variable)
-    
-    # Add axis line for this variable (use full axis length for consistency)
-    p <- p + ggplot2::annotate("segment", 
-                               x = axis_start, xend = axis_end,
-                               y = y_pos, yend = y_pos,
-                               linewidth = 0.8, color = "black")
-    
-    # Add tick marks and labels for this variable
-    if (var_scale$type == "continuous") {
-      # For continuous variables, show selected tick marks
-      tick_indices <- seq(1, length(var_scale$points_norm), by = 2)
-      for (j in tick_indices) {
-        x_pos <- var_scale$points_norm[j]
-        label_val <- round(var_scale$values[j], 1)
-        
-        # Only add ticks within the axis range
-        if (x_pos >= axis_start && x_pos <= axis_end) {
-          # Tick mark
-          p <- p + ggplot2::annotate("segment", 
-                                     x = x_pos, xend = x_pos,
-                                     y = y_pos - 0.1, yend = y_pos + 0.1,
-                                     linewidth = 0.5, color = "black")
-          
-          # Label above the tick
-          p <- p + ggplot2::annotate("text", 
-                                     x = x_pos, y = y_pos + 0.25,
-                                     label = as.character(label_val), 
-                                     hjust = 0.5, vjust = 0, 
-                                     size = 2.8)
-        }
-      }
-    } else {
-      # For factors, show all levels
-      for (j in seq_along(var_scale$points_norm)) {
-        x_pos <- var_scale$points_norm[j]
-        label_val <- var_scale$values[j]
-        
-        # Only add ticks within the axis range
-        if (x_pos >= axis_start && x_pos <= axis_end) {
-          # Tick mark
-          p <- p + ggplot2::annotate("segment", 
-                                     x = x_pos, xend = x_pos,
-                                     y = y_pos - 0.1, yend = y_pos + 0.1,
-                                     linewidth = 0.5, color = "black")
-          
-          # Label above the tick
-          p <- p + ggplot2::annotate("text", 
-                                     x = x_pos, y = y_pos + 0.25,
-                                     label = as.character(label_val), 
-                                     hjust = 0.5, vjust = 0, 
-                                     size = 2.8)
-        }
-      }
-    }
-    
-    current_y <- current_y + 1
-  }
-  
-  # Add points scale if requested
-  if (points) {
-    y_pos <- current_y
-    y_positions <- c(y_positions, y_pos)
-    y_labels_list <- c(y_labels_list, "Points")
-    
-    # Points axis line
-    p <- p + ggplot2::annotate("segment", 
-                               x = axis_start, xend = axis_end,
-                               y = y_pos, yend = y_pos,
-                               linewidth = 1, color = "black")
-    
-    # Points tick marks and labels
-    point_ticks <- seq(0, nomogram_scales$max_points, by = 20)
-    for (pt in point_ticks) {
-      if (pt >= axis_start && pt <= axis_end) {
-        # Tick mark
-        p <- p + ggplot2::annotate("segment", 
-                                   x = pt, xend = pt,
-                                   y = y_pos - 0.1, yend = y_pos + 0.1,
-                                   linewidth = 0.5, color = "black")
-        
-        # Label
-        p <- p + ggplot2::annotate("text", 
-                                   x = pt, y = y_pos + 0.25,
-                                   label = as.character(pt), 
-                                   hjust = 0.5, vjust = 0, 
-                                   size = 2.8)
-      }
-    }
-    
-    current_y <- current_y + 1
-  }
-  
-  # Add total points scale if requested
-  if (total.points) {
-    y_pos <- current_y
-    y_positions <- c(y_positions, y_pos)
-    y_labels_list <- c(y_labels_list, "Total Points")
-    
-    # Total points axis line
-    p <- p + ggplot2::annotate("segment", 
-                               x = axis_start, xend = axis_end,
-                               y = y_pos, yend = y_pos,
-                               linewidth = 1, color = "black")
-    
-    # Total points ticks
-    point_ticks <- seq(0, nomogram_scales$max_points, by = 20)
-    for (pt in point_ticks) {
-      if (pt >= axis_start && pt <= axis_end) {
-        # Tick mark
-        p <- p + ggplot2::annotate("segment", 
-                                   x = pt, xend = pt,
-                                   y = y_pos - 0.1, yend = y_pos + 0.1,
-                                   linewidth = 0.5, color = "black")
-        
-        # Label
-        p <- p + ggplot2::annotate("text", 
-                                   x = pt, y = y_pos + 0.25,
-                                   label = as.character(pt), 
-                                   hjust = 0.5, vjust = 0, 
-                                   size = 2.8)
-      }
-    }
-    
-    current_y <- current_y + 1
-  }
-  
-  # Add survival probability scales if available
-  if (!is.null(survival_scales) && length(survival_scales) > 0) {
-    for (i in seq_along(survival_scales)) {
-      surv_scale <- survival_scales[[i]]
-      y_pos <- current_y
-      y_positions <- c(y_positions, y_pos)
-      y_labels_list <- c(y_labels_list, paste0(surv_scale$time_years, "-Year Survival"))
+  # Add all plot elements
+  for (elem in plot_elements) {
+    if (elem$type == "segment") {
+      p <- p + ggplot2::annotate("segment",
+                                 x = elem$x, xend = elem$xend,
+                                 y = elem$y, yend = elem$yend,
+                                 color = elem$color,
+                                 linewidth = elem$linewidth)
+    } else if (elem$type == "text") {
+      text_args <- list(geom = "text",
+                        x = elem$x, y = elem$y,
+                        label = elem$label,
+                        hjust = elem$hjust, vjust = elem$vjust,
+                        size = elem$size)
+      if (!is.null(elem$color)) text_args$color <- elem$color
       
-      # Survival axis line
-      p <- p + ggplot2::annotate("segment", 
-                                 x = axis_start, xend = axis_end,
-                                 y = y_pos, yend = y_pos,
-                                 linewidth = 1, color = "red")
-      
-      # Add probability tick marks - spread them out to avoid overlapping
-      prob_values <- c(0.9, 0.7, 0.5, 0.3, 0.1)
-      
-      # Calculate well-spaced positions for probability labels
-      prob_positions <- seq(axis_start, axis_end, length.out = length(prob_values))
-      
-      for (j in seq_along(prob_values)) {
-        prob <- prob_values[j]
-        x_pos <- prob_positions[j]
-        
-        # Find the closest probability value from the scale for this position
-        # This ensures the labels correspond roughly to the actual survival function
-        if (length(surv_scale$probabilities) > 0) {
-          actual_prob_idx <- round(j * length(surv_scale$probabilities) / length(prob_values))
-          actual_prob_idx <- max(1, min(actual_prob_idx, length(surv_scale$probabilities)))
-          display_prob <- surv_scale$probabilities[actual_prob_idx]
-          
-          # Only show if it's a reasonable probability (between 0.05 and 0.95)
-          if (!is.na(display_prob) && display_prob >= 0.05 && display_prob <= 0.95) {
-            # Tick mark
-            p <- p + ggplot2::annotate("segment", 
-                                       x = x_pos, xend = x_pos,
-                                       y = y_pos - 0.1, yend = y_pos + 0.1,
-                                       linewidth = 0.5, color = "red")
-            
-            # Label with proper spacing
-            p <- p + ggplot2::annotate("text", 
-                                       x = x_pos, y = y_pos + 0.25,
-                                       label = paste0(round(display_prob * 100), "%"), 
-                                       hjust = 0.5, vjust = 0, 
-                                       size = 2.8, color = "red")
-          }
-        }
-      }
-      
-      current_y <- current_y + 1
+      p <- p + do.call(ggplot2::annotate, text_args)
     }
   }
   
-  # Add y-axis labels on the left side (avoiding duplication)
-  for (i in seq_along(y_positions)) {
-    p <- p + ggplot2::annotate("text", 
-                               x = x_min, 
-                               y = y_positions[i],
-                               label = y_labels_list[i], 
-                               hjust = 1, vjust = 0.5, 
-                               size = 3.5, fontface = "plain")
+  # Add row labels (left side)
+  for (label_info in row_labels) {
+    p <- p + ggplot2::annotate("text",
+                               x = label_info$x, y = label_info$y,
+                               label = label_info$label,
+                               hjust = 1, vjust = 0.5,
+                               size = 3.5)
   }
   
-  # Set axis limits properly (no y-axis labels to avoid duplication)
+  # Set limits without any axis elements
   p <- p + 
-    ggplot2::scale_y_continuous(
-      limits = c(0.5, current_y - 0.5),
-      breaks = NULL,
-      labels = NULL
-    ) +
     ggplot2::scale_x_continuous(
-      limits = c(x_min, x_max),
-      breaks = NULL,
-      labels = NULL
+      limits = c(x_min - 5, x_max),
+      expand = c(0, 0),
+      breaks = NULL, labels = NULL
+    ) +
+    ggplot2::scale_y_continuous(
+      limits = c(-0.5, current_y + 0.5),
+      expand = c(0, 0),
+      breaks = NULL, labels = NULL
     )
   
   return(p)
@@ -1251,4 +1285,3 @@ br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted") {
 
   return(p)
 }
->>>>>>> origin/main
