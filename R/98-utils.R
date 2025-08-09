@@ -193,17 +193,17 @@ filter_variables_x <- function(data, x, filter_na_prop = 0.8, filter_sd_min = 1e
       filter_summary = list(total = 0, kept = 0, filtered = 0, prop_filtered = 0)
     ))
   }
-  
+
   # Get variable names from terms (handle complex terms like I(x^2))
   x_vars <- sapply(x, get_vars)
   x_simple <- x_vars[sapply(x_vars, function(v) length(v) == 1)]
-  
+
   # For complex terms with multiple variables, we keep them for now
   # Only filter simple single-variable terms
   complex_terms <- x[sapply(x_vars, function(v) length(v) != 1)]
   simple_terms <- x[sapply(x_vars, function(v) length(v) == 1)]
   simple_vars <- x_simple
-  
+
   if (length(simple_vars) == 0) {
     return(list(
       filtered_x = x,
@@ -211,7 +211,7 @@ filter_variables_x <- function(data, x, filter_na_prop = 0.8, filter_sd_min = 1e
       filter_summary = list(total = length(x), kept = length(x), filtered = 0, prop_filtered = 0)
     ))
   }
-  
+
   # Check which variables are available in data
   available_vars <- intersect(simple_vars, colnames(data))
   if (length(available_vars) == 0) {
@@ -221,27 +221,27 @@ filter_variables_x <- function(data, x, filter_na_prop = 0.8, filter_sd_min = 1e
       filter_summary = list(total = length(x), kept = length(x), filtered = 0, prop_filtered = 0)
     ))
   }
-  
+
   # Filter based on criteria
   filtered_out_vars <- character(0)
-  
+
   for (var in available_vars) {
     var_data <- data[[var]]
-    
+
     # Check NA proportion (applies to all variable types)
     na_prop <- sum(is.na(var_data)) / length(var_data)
     if (na_prop > filter_na_prop) {
       filtered_out_vars <- c(filtered_out_vars, var)
       next
     }
-    
+
     # Get non-NA values for further checks
     non_na_values <- var_data[!is.na(var_data)]
     if (length(non_na_values) < 2) {
       filtered_out_vars <- c(filtered_out_vars, var)
       next
     }
-    
+
     # Handle numeric variables
     if (is.numeric(var_data)) {
       # Check standard deviation
@@ -250,14 +250,14 @@ filter_variables_x <- function(data, x, filter_na_prop = 0.8, filter_sd_min = 1e
         filtered_out_vars <- c(filtered_out_vars, var)
         next
       }
-      
+
       # Check variance
       var_var <- var(non_na_values, na.rm = TRUE)
       if (is.na(var_var) || var_var < filter_var_min) {
         filtered_out_vars <- c(filtered_out_vars, var)
         next
       }
-    } 
+    }
     # Handle categorical variables (character, factor, logical)
     else if (is.character(var_data) || is.factor(var_data) || is.logical(var_data)) {
       # Check number of unique levels
@@ -269,11 +269,11 @@ filter_variables_x <- function(data, x, filter_na_prop = 0.8, filter_sd_min = 1e
     }
     # For other variable types, keep them (e.g., Date, POSIXt, etc.)
   }
-  
+
   # Map filtered variables back to terms
   filtered_out_terms <- simple_terms[simple_vars %in% filtered_out_vars]
   kept_terms <- setdiff(x, filtered_out_terms)
-  
+
   # Create summary
   filter_summary <- list(
     total = length(x),
@@ -281,7 +281,7 @@ filter_variables_x <- function(data, x, filter_na_prop = 0.8, filter_sd_min = 1e
     filtered = length(filtered_out_terms),
     prop_filtered = length(filtered_out_terms) / length(x)
   )
-  
+
   list(
     filtered_x = kept_terms,
     filtered_out = filtered_out_terms,

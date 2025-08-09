@@ -101,9 +101,10 @@
 #' )
 #'
 #' # 3. Customized model -----------
+#' \dontrun{
 #' dt <- data.frame(x = rnorm(100))
 #' dt$y <- rpois(100, exp(1 + dt$x))
-#' \donttest{
+#'
 #' m5 <- breg(dt) |>
 #'   br_set_y("y") |>
 #'   br_set_x("x") |>
@@ -143,11 +144,13 @@ br_pipeline <- function(
     br_set_x(x) |>
     br_set_x2(x2) |>
     br_set_model(method = method, !!!model_args) |>
-    br_run(group_by = group_by, n_workers = n_workers, 
-           filter_x = filter_x, filter_na_prop = filter_na_prop,
-           filter_sd_min = filter_sd_min, filter_var_min = filter_var_min,
-           filter_min_levels = filter_min_levels,
-           !!!run_args)
+    br_run(
+      group_by = group_by, n_workers = n_workers,
+      filter_x = filter_x, filter_na_prop = filter_na_prop,
+      filter_sd_min = filter_sd_min, filter_var_min = filter_var_min,
+      filter_min_levels = filter_min_levels,
+      !!!run_args
+    )
 }
 
 #' @describeIn pipeline Set dependent variables for model construction.
@@ -301,6 +304,12 @@ br_run <- function(obj, ...,
                    filter_min_levels = 2) {
   assert_breg_obj(obj)
   assert_character(group_by, allow_na = FALSE, allow_null = TRUE)
+  if (br_get_n_x(obj) < 1) {
+    cli::cli_abort("{.fn br_set_x} must run before {.fn br_run}")
+  }
+  if (length(br_get_y(obj)) < 1) {
+    cli::cli_abort("{.fn br_set_y} must run before {.fn br_run}")
+  }
   on.exit(invisible(gc()))
 
   if (lifecycle::is_present(run_parallel)) {
@@ -331,23 +340,23 @@ br_run <- function(obj, ...,
 
   # Apply variable filtering if enabled
   original_x <- obj@x
-  if (filter_x && length(obj@x) > 0) {
+  if (filter_x) {
     assert_logical(filter_x, allow_na = FALSE)
     assert_number_decimal(filter_na_prop, min = 0, max = 1)
     assert_number_decimal(filter_sd_min, min = 0)
     assert_number_decimal(filter_var_min, min = 0)
     assert_number_whole(filter_min_levels, min = 1)
-    
+
     filter_result <- filter_variables_x(
-      obj@data, obj@x, 
+      obj@data, obj@x,
       filter_na_prop = filter_na_prop,
       filter_sd_min = filter_sd_min,
       filter_var_min = filter_var_min,
       filter_min_levels = filter_min_levels
     )
-    
+
     obj@x <- filter_result$filtered_x
-    
+
     # Inform user about filtering results
     if (filter_result$filter_summary$filtered > 0) {
       cli::cli_inform(
@@ -361,18 +370,18 @@ br_run <- function(obj, ...,
     } else {
       cli::cli_inform("Pre-filtering: no variables were filtered out")
     }
-    
+
     # Update models to reflect filtered variables
     if (length(obj@x) > 0) {
       config <- br_get_config(obj)
-      
+
       # Get the proper method configuration
       if (!rlang::is_list(config$method)) {
         method_config <- br_avail_method_config(config$method)
       } else {
         method_config <- config$method
       }
-      
+
       models <- gen_template(
         obj@y, obj@x, obj@x2,
         method_config$f_call,

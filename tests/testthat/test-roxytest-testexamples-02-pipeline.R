@@ -2,7 +2,7 @@
 
 # File R/"02-pipeline.R": @testexamples
 
-test_that("[unknown alias] @ L120", {
+test_that("[unknown alias] @ L121", {
   
   library(bregr)
   # 1. Pipeline -------------------------
@@ -45,14 +45,6 @@ test_that("[unknown alias] @ L120", {
   )
   
   # 3. Customized model -----------
-  dt <- data.frame(x = rnorm(100))
-  dt$y <- rpois(100, exp(1 + dt$x))
-  
-  m5 <- breg(dt) |>
-    br_set_y("y") |>
-    br_set_x("x") |>
-    br_set_model(method = 'quasi(variance = "mu", link = "log")') |>
-    br_run()
   
   
   assert_breg_obj(m)

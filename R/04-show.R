@@ -656,7 +656,7 @@ br_show_survival_curves <- function(breg,
 
   # Clean group names while preserving factor level order
   plot_data$group <- gsub(".*=", "", plot_data$group)
-  
+
   # Convert back to factor with the same level order as the original group_labels
   # to ensure correct legend ordering
   plot_data$group <- factor(plot_data$group, levels = group_labels)

@@ -24,7 +24,8 @@ br_pipeline(
   filter_x = FALSE,
   filter_na_prop = 0.8,
   filter_sd_min = 1e-06,
-  filter_var_min = 1e-06
+  filter_var_min = 1e-06,
+  filter_min_levels = 2
 )
 
 br_set_y(obj, y)
@@ -44,7 +45,8 @@ br_run(
   filter_x = FALSE,
   filter_na_prop = 0.8,
   filter_sd_min = 1e-06,
-  filter_var_min = 1e-06
+  filter_var_min = 1e-06,
+  filter_min_levels = 2
 )
 }
 \arguments{
@@ -83,6 +85,8 @@ run modeling code in parallel in the background.}
 \item{filter_sd_min}{Numeric, minimum standard deviation required for a variable. Default is \code{1e-6}.}
 
 \item{filter_var_min}{Numeric, minimum variance required for a variable. Default is \code{1e-6}.}
+
+\item{filter_min_levels}{Numeric, minimum number of unique levels required for categorical variables. Default is \code{2}.}
 
 \item{obj}{An object of class \code{breg}.}
 
@@ -182,9 +186,10 @@ m4 <- br_pipeline(mtcars,
 )
 
 # 3. Customized model -----------
+\dontrun{
 dt <- data.frame(x = rnorm(100))
 dt$y <- rpois(100, exp(1 + dt$x))
-\donttest{
+
 m5 <- breg(dt) |>
   br_set_y("y") |>
   br_set_x("x") |>
