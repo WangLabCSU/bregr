@@ -20,7 +20,7 @@
 #' - `bregr.parallel_engine`: Selected engine for parallel computation,
 #' could be "future.apply", "furrr" or "parallel".
 #' - `bregr.log_n`: An integer `n` to enable logging in modeling
-#' runner with `>=n` models (default `n=100`).
+#' runner with `>=n` models (default `n=Inf`).
 #' - `bregr.save_model`: If `TRUE`, save model to local disk.
 #' - `bregr.path`: A path for save model, default uses a
 #' temporary directory.
@@ -272,6 +272,7 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   assert_breg_obj(obj)
   assert_character(group_by, allow_na = FALSE, allow_null = TRUE)
   assert_number_whole(run_parallel, min = 1, max = parallel::detectCores() - 1)
+  on.exit(invisible(gc()))
 
   if (run_parallel > 1) {
     if (obj@n_x < 100) {
@@ -336,11 +337,12 @@ set_future_strategy <- function() {
 }
 
 runner <- function(ms, data, dots, y, x, x2, run_parallel, group_by = NULL) {
+  on.exit(invisible(gc()))
   # Subset data to only necessary columns before model construction
   necessary_cols <- get_necessary_columns(y, x, x2, group_by, colnames(data))
   data <- data[, necessary_cols, drop = FALSE]
-  
-  log_n <- getOption("bregr.log_n", default = 100)
+
+  log_n <- getOption("bregr.log_n", default = Inf)
   assert_number_whole(log_n, min = 0, max = Inf, allow_infinite = TRUE)
   if (length(ms) >= log_n) {
     cli::cli_inform(c("i" = "enable logging in modeling runner"))
@@ -354,6 +356,7 @@ runner <- function(ms, data, dots, y, x, x2, run_parallel, group_by = NULL) {
       parallel_engine,
       values = c("future.apply", "furrr", "parallel")
     )
+    options(bregr.run_rstudio = Sys.getenv("RSTUDIO") == "1")
 
     if (parallel_engine %in% c("future.apply", "furrr")) {
       rlang::check_installed("future")
@@ -409,13 +412,19 @@ runner <- function(ms, data, dots, y, x, x2, run_parallel, group_by = NULL) {
 }
 
 runner_ <- function(m, data, dots, opts = NULL) {
+  on.exit(invisible(gc()))
   options(opts)
   if (isTRUE(getOption("breg.run_logging", default = FALSE))) {
-    mcprogress::message_parallel(
-      str_replace_all(
-        glue::glue("modeling: {m}"),
-        "`", ""
-      ))
+    if (isTRUE(getOption("breg.run_rstudio", default = FALSE))) {
+      mcprogress::message_parallel(
+        str_replace_all(
+          glue::glue("modeling: {m}"),
+          "`", ""
+        )
+      )
+    } else {
+      cli::cli_inform("modeling: {m}")
+    }
   }
   # m: model template
   # data: data frame for modeling
@@ -476,7 +485,7 @@ runner_ <- function(m, data, dots, opts = NULL) {
   }
 
   if (isTRUE(as.logical(getOption("bregr.save_model", default = FALSE)))) {
-    rlang::check_installed(c("fs", "digest", "qs"))
+    rlang::check_installed(c("fs", "ids", "qs"))
     md_path <- getOption("bregr.path", default = "")
     if (md_path == "") {
       md_path <- fs::path_temp()
@@ -485,7 +494,12 @@ runner_ <- function(m, data, dots, opts = NULL) {
       .frequency = "once", .frequency_id = md_path
     )
     fs::dir_create(md_path)
-    dg <- digest::digest(model)
+    dg <- suppressWarnings(ids::uuid(1, use_time = TRUE))
+    if (!rlang::is_string(dg)) {
+      cli::cli_abort(
+        "failed to generate uuid for file, please check"
+      )
+    }
     md_file <- fs::path(md_path, dg, ext = "qs")
     qs::qsave(model, file = md_file)
     model <- md_file

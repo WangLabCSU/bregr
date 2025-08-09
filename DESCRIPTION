@@ -39,7 +39,6 @@ Imports:
     vctrs (>= 0.5.0)
 Suggests: 
     broom.mixed,
-    digest,
     fs,
     furrr,
     future,
@@ -48,6 +47,7 @@ Suggests:
     ggstats,
     ggstatsplot,
     gtsummary,
+    ids,
     knitr,
     lme4,
     mcprogress,
