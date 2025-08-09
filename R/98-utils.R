@@ -185,7 +185,7 @@ utils::globalVariables(
 )
 
 # Variable filtering functions for br_run pre-filtering
-filter_variables_x <- function(data, x, filter_na_prop = 0.8, filter_sd_min = 1e-6, filter_var_min = 1e-6) {
+filter_variables_x <- function(data, x, filter_na_prop = 0.8, filter_sd_min = 1e-6, filter_var_min = 1e-6, filter_min_levels = 2) {
   if (length(x) == 0) {
     return(list(
       filtered_x = character(0),
@@ -228,38 +228,46 @@ filter_variables_x <- function(data, x, filter_na_prop = 0.8, filter_sd_min = 1e
   for (var in available_vars) {
     var_data <- data[[var]]
     
-    # Skip if not numeric
-    if (!is.numeric(var_data)) {
-      next
-    }
-    
-    # Check NA proportion
+    # Check NA proportion (applies to all variable types)
     na_prop <- sum(is.na(var_data)) / length(var_data)
     if (na_prop > filter_na_prop) {
       filtered_out_vars <- c(filtered_out_vars, var)
       next
     }
     
-    # Get non-NA values for variance/sd checks
+    # Get non-NA values for further checks
     non_na_values <- var_data[!is.na(var_data)]
     if (length(non_na_values) < 2) {
       filtered_out_vars <- c(filtered_out_vars, var)
       next
     }
     
-    # Check standard deviation
-    var_sd <- sd(non_na_values, na.rm = TRUE)
-    if (is.na(var_sd) || var_sd < filter_sd_min) {
-      filtered_out_vars <- c(filtered_out_vars, var)
-      next
+    # Handle numeric variables
+    if (is.numeric(var_data)) {
+      # Check standard deviation
+      var_sd <- sd(non_na_values, na.rm = TRUE)
+      if (is.na(var_sd) || var_sd < filter_sd_min) {
+        filtered_out_vars <- c(filtered_out_vars, var)
+        next
+      }
+      
+      # Check variance
+      var_var <- var(non_na_values, na.rm = TRUE)
+      if (is.na(var_var) || var_var < filter_var_min) {
+        filtered_out_vars <- c(filtered_out_vars, var)
+        next
+      }
+    } 
+    # Handle categorical variables (character, factor, logical)
+    else if (is.character(var_data) || is.factor(var_data) || is.logical(var_data)) {
+      # Check number of unique levels
+      n_unique_levels <- length(unique(non_na_values))
+      if (n_unique_levels < filter_min_levels) {
+        filtered_out_vars <- c(filtered_out_vars, var)
+        next
+      }
     }
-    
-    # Check variance
-    var_var <- var(non_na_values, na.rm = TRUE)
-    if (is.na(var_var) || var_var < filter_var_min) {
-      filtered_out_vars <- c(filtered_out_vars, var)
-      next
-    }
+    # For other variable types, keep them (e.g., Date, POSIXt, etc.)
   }
   
   # Map filtered variables back to terms

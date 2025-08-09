@@ -131,7 +131,8 @@ br_pipeline <- function(
     filter_x = FALSE,
     filter_na_prop = 0.8,
     filter_sd_min = 1e-6,
-    filter_var_min = 1e-6) {
+    filter_var_min = 1e-6,
+    filter_min_levels = 2) {
   if (lifecycle::is_present(run_parallel)) {
     lifecycle::deprecate_warn("1.1.0", "bregr::br_run(run_parallel = )", "bregr::br_run(n_workers = )")
     n_workers <- run_parallel
@@ -145,6 +146,7 @@ br_pipeline <- function(
     br_run(group_by = group_by, n_workers = n_workers, 
            filter_x = filter_x, filter_na_prop = filter_na_prop,
            filter_sd_min = filter_sd_min, filter_var_min = filter_var_min,
+           filter_min_levels = filter_min_levels,
            !!!run_args)
 }
 
@@ -287,6 +289,7 @@ br_set_model <- function(obj, method, ...) {
 #' @param filter_na_prop Numeric, maximum proportion of NA values allowed for a variable. Default is `0.8`.
 #' @param filter_sd_min Numeric, minimum standard deviation required for a variable. Default is `1e-6`.
 #' @param filter_var_min Numeric, minimum variance required for a variable. Default is `1e-6`.
+#' @param filter_min_levels Numeric, minimum number of unique levels required for categorical variables. Default is `2`.
 #' @export
 br_run <- function(obj, ...,
                    group_by = NULL, n_workers = 1L,
@@ -294,7 +297,8 @@ br_run <- function(obj, ...,
                    filter_x = FALSE,
                    filter_na_prop = 0.8,
                    filter_sd_min = 1e-6,
-                   filter_var_min = 1e-6) {
+                   filter_var_min = 1e-6,
+                   filter_min_levels = 2) {
   assert_breg_obj(obj)
   assert_character(group_by, allow_na = FALSE, allow_null = TRUE)
   on.exit(invisible(gc()))
@@ -332,12 +336,14 @@ br_run <- function(obj, ...,
     assert_number_decimal(filter_na_prop, min = 0, max = 1)
     assert_number_decimal(filter_sd_min, min = 0)
     assert_number_decimal(filter_var_min, min = 0)
+    assert_number_whole(filter_min_levels, min = 1)
     
     filter_result <- filter_variables_x(
       obj@data, obj@x, 
       filter_na_prop = filter_na_prop,
       filter_sd_min = filter_sd_min,
-      filter_var_min = filter_var_min
+      filter_var_min = filter_var_min,
+      filter_min_levels = filter_min_levels
     )
     
     obj@x <- filter_result$filtered_x

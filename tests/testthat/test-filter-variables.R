@@ -18,7 +18,8 @@ test_that("Variable filtering works correctly", {
     c("good_var", "high_na_var", "constant_var", "near_constant_var", "low_var", "categorical_var"),
     filter_na_prop = 0.8,
     filter_sd_min = 1e-6,
-    filter_var_min = 1e-6
+    filter_var_min = 1e-6,
+    filter_min_levels = 2
   )
   
   # Should keep good_var and categorical_var (non-numeric)
@@ -35,6 +36,61 @@ test_that("Variable filtering works correctly", {
   expect_equal(filter_result$filter_summary$total, 6)
   expect_equal(filter_result$filter_summary$filtered, 4)
   expect_equal(filter_result$filter_summary$kept, 2)
+})
+
+test_that("Categorical variable filtering works correctly", {
+  # Create test data with different types of categorical variables
+  set.seed(123)
+  n <- 100
+  test_data <- data.frame(
+    y = rnorm(n),
+    # Character variables
+    good_char = sample(c("A", "B", "C"), n, replace = TRUE),  # 3 levels - should pass
+    constant_char = rep("A", n),  # 1 level - should be filtered
+    high_na_char = c(rep(NA, 85), sample(c("A", "B"), 15, replace = TRUE)),  # High NA - should be filtered
+    
+    # Factor variables
+    good_factor = factor(sample(c("X", "Y", "Z"), n, replace = TRUE)),  # 3 levels - should pass  
+    constant_factor = factor(rep("X", n)),  # 1 level - should be filtered
+    high_na_factor = factor(c(rep(NA, 85), sample(c("X", "Y"), 15, replace = TRUE))),  # High NA - should be filtered
+    
+    # Logical variables
+    good_logical = sample(c(TRUE, FALSE), n, replace = TRUE),  # 2 levels - should pass
+    constant_logical = rep(TRUE, n),  # 1 level - should be filtered
+    
+    # Mixed with numeric
+    good_numeric = rnorm(n, sd = 2)  # Should pass
+  )
+  
+  all_vars <- c("good_char", "constant_char", "high_na_char", 
+                "good_factor", "constant_factor", "high_na_factor",
+                "good_logical", "constant_logical", "good_numeric")
+  
+  # Test with default parameters
+  filter_result <- bregr:::filter_variables_x(
+    test_data, all_vars,
+    filter_na_prop = 0.8,
+    filter_sd_min = 1e-6,
+    filter_var_min = 1e-6,
+    filter_min_levels = 2
+  )
+  
+  # Should keep variables with sufficient levels/variance
+  expect_true("good_char" %in% filter_result$filtered_x)
+  expect_true("good_factor" %in% filter_result$filtered_x)
+  expect_true("good_logical" %in% filter_result$filtered_x)
+  expect_true("good_numeric" %in% filter_result$filtered_x)
+  
+  # Should filter out problematic variables
+  expect_true("constant_char" %in% filter_result$filtered_out)
+  expect_true("high_na_char" %in% filter_result$filtered_out)
+  expect_true("constant_factor" %in% filter_result$filtered_out)
+  expect_true("high_na_factor" %in% filter_result$filtered_out)
+  expect_true("constant_logical" %in% filter_result$filtered_out)
+  
+  # Check counts
+  expect_equal(filter_result$filter_summary$kept, 4)  # 4 good variables
+  expect_equal(filter_result$filter_summary$filtered, 5)  # 5 filtered variables
 })
 
 test_that("br_run works with filtering disabled", {
@@ -115,4 +171,67 @@ test_that("Error when all variables are filtered out", {
       br_run(filter_x = TRUE),
     "All focal variables were filtered out"
   )
+})
+
+test_that("Categorical filtering with custom min_levels parameter", {
+  # Test custom min_levels parameter
+  test_data <- data.frame(
+    y = rnorm(50),
+    x1 = sample(c("A", "B"), 50, replace = TRUE),  # 2 levels
+    x2 = sample(c("X", "Y", "Z"), 50, replace = TRUE)  # 3 levels  
+  )
+  
+  # With min_levels = 3, x1 should be filtered out but x2 should pass
+  filter_result <- bregr:::filter_variables_x(
+    test_data, c("x1", "x2"),
+    filter_min_levels = 3
+  )
+  
+  expect_true("x2" %in% filter_result$filtered_x)
+  expect_true("x1" %in% filter_result$filtered_out)
+  expect_equal(filter_result$filter_summary$filtered, 1)
+  expect_equal(filter_result$filter_summary$kept, 1)
+})
+
+test_that("Integration with br_run and br_pipeline for categorical variables", {
+  # Create test data with categorical variables that should be filtered
+  set.seed(123)
+  test_data <- data.frame(
+    y = rnorm(50),
+    x1 = rnorm(50, sd = 2),  # Good numeric variable
+    x2 = rep("constant", 50),  # Constant categorical - should be filtered
+    x3 = sample(c("A", "B", "C"), 50, replace = TRUE)  # Good categorical variable
+  )
+  
+  # Test br_run
+  expect_message(
+    m1 <- breg(test_data) |>
+      br_set_y("y") |>
+      br_set_x(c("x1", "x2", "x3")) |>
+      br_set_model("gaussian") |>
+      br_run(filter_x = TRUE),
+    "Pre-filtering removed"
+  )
+  
+  expect_true(inherits(m1, "bregr::breg"))
+  # Should only have results for x1 and x3 (x2 filtered out)
+  expect_equal(length(unique(m1@results_tidy$Focal_variable)), 2)
+  expect_true("x1" %in% m1@results_tidy$Focal_variable)
+  expect_true("x3" %in% m1@results_tidy$Focal_variable)
+  expect_false("x2" %in% m1@results_tidy$Focal_variable)
+  
+  # Test br_pipeline  
+  expect_message(
+    m2 <- br_pipeline(
+      test_data,
+      y = "y", 
+      x = c("x1", "x2", "x3"),
+      method = "gaussian",
+      filter_x = TRUE
+    ),
+    "Pre-filtering removed"
+  )
+  
+  expect_true(inherits(m2, "bregr::breg"))
+  expect_equal(length(unique(m2@results_tidy$Focal_variable)), 2)
 })
