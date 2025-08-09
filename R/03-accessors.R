@@ -21,6 +21,7 @@
 #' - `br_get_results()` returns modeling result `data.frame`.
 #'
 #' @name accessors
+#' @family accessors
 #' @seealso [pipeline] for building `breg` objects.
 #' @examples
 #' m <- br_pipeline(mtcars,
@@ -200,13 +201,13 @@ br_get_results <- function(obj, tidy = FALSE, ...) {
 #'
 #' @param obj A `breg` object with fitted models.
 #' @param newdata Optional data frame for predictions. If NULL, uses original data.
+#' @param idx Model index, an integer or string.
 #' @param type Type of prediction. For Cox models: "lp" (linear predictor, default)
 #' or "risk" (relative risk). For other models: "response" (default) or "link".
-#' @returns A numeric vector of predictions.
+#' @returns Typically, a numeric vector of predictions.
 #' @export
 #' @family accessors
 #' @examples
-#' \donttest{
 #' # Cox regression example
 #' if (requireNamespace("survival", quietly = TRUE)) {
 #'   lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
@@ -219,7 +220,6 @@ br_get_results <- function(obj, tidy = FALSE, ...) {
 #'   )
 #'   scores <- br_predict(mds)
 #'   head(scores)
-#' }
 #' }
 br_predict <- function(obj, newdata = NULL, idx = NULL, type = NULL) {
   assert_breg_obj_with_results(obj)
@@ -245,24 +245,27 @@ br_predict <- function(obj, newdata = NULL, idx = NULL, type = NULL) {
   if (is.null(type)) {
     if (model_class == "coxph") {
       # https://www.rdocumentation.org/packages/survival/versions/3.8-3/topics/predict.coxph
-      type <- "lp"  # linear predictor (log relative hazard)
+      type <- "lp" # linear predictor (log relative hazard)
     } else {
-      type <- "response"  # predicted response
+      type <- "response" # predicted response
     }
     cli::cli_inform("{.arg type} is not specified, use {type} for the model")
   }
 
   # Generate predictions
-  tryCatch({
-    predictions <- predict(model, newdata = newdata, type = type)
+  tryCatch(
+    {
+      predictions <- predict(model, newdata = newdata, type = type)
 
-    # Handle missing values
-    if (any(is.na(predictions))) {
-      cli::cli_warn("Some predictions are NA, consider checking your data for missing values")
+      # Handle missing values
+      if (any(is.na(predictions))) {
+        cli::cli_warn("Some predictions are NA, consider checking your data for missing values")
+      }
+
+      predictions
+    },
+    error = function(e) {
+      cli::cli_abort("Failed to generate predictions: {e$message}")
     }
-
-    predictions
-  }, error = function(e) {
-    cli::cli_abort("Failed to generate predictions: {e$message}")
-  })
+  )
 }

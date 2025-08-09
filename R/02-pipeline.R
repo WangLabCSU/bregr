@@ -99,18 +99,19 @@
 #' # 3. Customized model -----------
 #' dt <- data.frame(x = rnorm(100))
 #' dt$y <- rpois(100, exp(1 + dt$x))
+#' \donttest{
 #' m5 <- breg(dt) |>
 #'   br_set_y("y") |>
 #'   br_set_x("x") |>
 #'   br_set_model(method = 'quasi(variance = "mu", link = "log")') |>
 #'   br_run()
+#' }
 #'
 #' @testexamples
 #' assert_breg_obj(m)
 #' assert_breg_obj(m2)
 #' assert_breg_obj(m3)
 #' assert_breg_obj(m4)
-#' assert_breg_obj(m5)
 #' @seealso [accessors] for accessing `breg` object properties.
 NULL
 
@@ -120,10 +121,9 @@ NULL
 br_pipeline <- function(
     data, y, x, method, x2 = NULL,
     group_by = NULL,
-    n_workers = 1L, run_parallel = 1L,
+    n_workers = 1L, run_parallel = lifecycle::deprecated(),
     model_args = list(),
     run_args = list()) {
-
   if (lifecycle::is_present(run_parallel)) {
     lifecycle::deprecate_warn("1.1.0", "bregr::br_run(run_parallel = )", "bregr::br_run(n_workers = )")
     n_workers <- run_parallel

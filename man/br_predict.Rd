@@ -11,11 +11,13 @@ br_predict(obj, newdata = NULL, idx = NULL, type = NULL)
 
 \item{newdata}{Optional data frame for predictions. If NULL, uses original data.}
 
+\item{idx}{Model index, an integer or string.}
+
 \item{type}{Type of prediction. For Cox models: "lp" (linear predictor, default)
 or "risk" (relative risk). For other models: "response" (default) or "link".}
 }
 \value{
-A numeric vector of predictions.
+Typically, a numeric vector of predictions.
 }
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
@@ -25,7 +27,6 @@ For Cox regression models, returns linear predictors (log relative hazard).
 For other models, returns predicted values.
 }
 \examples{
-\donttest{
 # Cox regression example
 if (requireNamespace("survival", quietly = TRUE)) {
   lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
@@ -40,5 +41,8 @@ if (requireNamespace("survival", quietly = TRUE)) {
   head(scores)
 }
 }
+\seealso{
+Other accessors: 
+\code{\link{accessors}}
 }
 \concept{accessors}

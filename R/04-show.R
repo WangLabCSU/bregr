@@ -564,11 +564,11 @@ br_show_table_gt <- function(
 #' }
 #' }
 br_show_survival_curves <- function(breg,
-                                   idx = NULL,
-                                   n_groups = 3,
-                                   group_labels = NULL,
-                                   title = NULL,
-                                   subtitle = NULL) {
+                                    idx = NULL,
+                                    n_groups = 3,
+                                    group_labels = NULL,
+                                    title = NULL,
+                                    subtitle = NULL) {
   assert_breg_obj_with_results(breg)
 
   # Get the model to use
@@ -609,9 +609,10 @@ br_show_survival_curves <- function(breg,
   }
 
   score_groups <- cut(scores,
-                     breaks = score_quantiles,
-                     include.lowest = TRUE,
-                     labels = FALSE)
+    breaks = score_quantiles,
+    include.lowest = TRUE,
+    labels = FALSE
+  )
 
   # Create group labels
   if (is.null(group_labels)) {
@@ -665,7 +666,8 @@ br_show_survival_curves <- function(breg,
   p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$time, y = .data$surv, color = .data$group)) +
     ggplot2::geom_step(linewidth = 1) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin = .data$lower, ymax = .data$upper, fill = .data$group),
-                         alpha = 0.3, color = NA) +
+      alpha = 0.3, color = NA
+    ) +
     ggplot2::scale_y_continuous(limits = c(0, 1), labels = function(x) paste0(x * 100, "%")) +
     ggplot2::labs(
       title = title,
