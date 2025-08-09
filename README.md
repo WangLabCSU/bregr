@@ -137,8 +137,7 @@ mds_p <- br_pipeline(
   n_workers = 3
 )
 #> exponentiate estimates of model(s) constructed from coxph method at default
-#> ■■■■■■■                           20% | ETA:  6s
-#> ■■■■■■■■■■■■■■■■■■■               60% | ETA:  7s
+#> ■■■■■■■                           20% | ETA: 46s
 #>                                                  
 ```
 
@@ -426,10 +425,10 @@ site](https://wanglabcsu.github.io/bregr/).
 
 ``` r
 covr::package_coverage()
-#> bregr Coverage: 76.26%
+#> bregr Coverage: 76.48%
 #> R/98-utils.R: 51.14%
 #> R/03-accessors.R: 72.50%
-#> R/04-show.R: 75.31%
+#> R/04-show.R: 75.87%
 #> R/02-pipeline.R: 76.32%
 #> R/06-avail.R: 78.57%
 #> R/01-class.R: 90.70%
