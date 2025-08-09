@@ -497,19 +497,24 @@ br_show_table <- function(breg, ..., args_table_format = list(), export = FALSE,
 #'
 #' @testexamples
 #' expect_true(TRUE)
-#' Show diagnostic plots for regression models
+#' Show Cox diagnostic plots
 #'
 #' @description
 #' `r lifecycle::badge('experimental')`
 #'
-#' Creates diagnostic plots for regression models. For Cox models, shows
-#' Schoenfeld residuals plots to assess proportional hazards assumption.
-#' For other models, provides appropriate diagnostic plots.
+#' Creates diagnostic plots specifically for Cox regression models.
+#' Focuses on Schoenfeld residuals plots to assess proportional hazards assumption
+#' and other Cox-specific diagnostics. Inspired by survminer::ggcoxzph.
 #'
 #' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
-#' @param idx Index or name (focal variable) of the model to plot. Must be a single model.
-#' @param type Type of diagnostic plot. For Cox models: "schoenfeld" (default), "martingale", "deviance".
-#' For other models: "residuals" (default), "qq", "scale_location", "leverage".
+#' @param idx Index or name (focal variable) of the Cox model to plot. Must be a single model.
+#' @param type Type of Cox diagnostic plot. Options: "schoenfeld" (default for Schoenfeld residuals),
+#' "martingale" (martingale residuals), "deviance" (deviance residuals).
+#' @param resid Logical, if TRUE the residuals are included on the plot along with smooth fit.
+#' @param se Logical, if TRUE confidence bands at two standard errors will be added.
+#' @param point.col Color for residual points.
+#' @param point.size Size for residual points.
+#' @param point.alpha Alpha (transparency) for residual points.
 #' @param ... Additional arguments passed to plotting functions.
 #' @returns A ggplot2 object or list of plots.
 #' @noRd
@@ -525,166 +530,249 @@ br_show_table <- function(breg, ..., args_table_format = list(), export = FALSE,
 #'   method = "coxph"
 #' )
 #' 
-#' # Show diagnostic plots
+#' # Show Cox diagnostic plots
 #' br_show_diagnostics(mds, idx = 1)
 #' br_show_diagnostics(mds, idx = "ph.ecog", type = "schoenfeld")
 #' }
 #' @testexamples
 #' expect_true(TRUE)
-br_show_diagnostics <- function(breg, idx = 1, type = NULL, ...) {
+br_show_diagnostics <- function(breg, idx = 1, type = "schoenfeld", 
+                               resid = TRUE, se = TRUE, 
+                               point.col = "red", point.size = 1, point.alpha = 0.6, ...) {
   assert_breg_obj_with_results(breg)
   if (length(idx) != 1) {
-    cli::cli_abort("Only one model can be plotted at a time. Provide a single {.arg idx}.")
+    cli::cli_abort("Only one Cox model can be plotted at a time. Provide a single {.arg idx}.")
   }
   
   model <- br_get_models(breg, idx)
   model_name <- if (is.character(idx)) idx else names(br_get_models(breg))[idx]
   
-  if (inherits(model, "coxph")) {
-    if (is.null(type)) type <- "schoenfeld"
-    .br_show_cox_diagnostics(model, model_name, type, ...)
-  } else if (inherits(model, c("lm", "glm"))) {
-    if (is.null(type)) type <- "residuals"
-    .br_show_lm_diagnostics(model, model_name, type, ...)
-  } else {
-    cli::cli_abort("Diagnostic plots not yet implemented for model type: {class(model)[1]}")
+  if (!inherits(model, "coxph")) {
+    cli::cli_abort("This function only works with Cox proportional hazards models. Model type: {class(model)[1]}")
   }
+  
+  .br_show_cox_diagnostics(model, model_name, type, resid, se, point.col, point.size, point.alpha, ...)
 }
 
-# Internal function for Cox model diagnostics
-.br_show_cox_diagnostics <- function(model, model_name, type, ...) {
+# Internal function for Cox model diagnostics (enhanced with survminer approach)
+.br_show_cox_diagnostics <- function(model, model_name, type = "schoenfeld", 
+                                   resid = TRUE, se = TRUE,
+                                   point.col = "red", point.size = 1, point.alpha = 0.6, ...) {
   if (type == "schoenfeld") {
     # Test proportional hazards and plot Schoenfeld residuals
     tryCatch({
       ph_test <- survival::cox.zph(model, ...)
       
-      # Create a plot of Schoenfeld residuals
-      plots <- list()
+      # Extract data for plotting (similar to survminer::ggcoxzph approach)
+      time_points <- ph_test$time
+      residuals <- ph_test$y  # cox.zph stores residuals in 'y' component
       n_vars <- nrow(ph_test$table) - 1  # Exclude GLOBAL row
       
-      if (n_vars > 0) {
-        # Create data for plotting
-        time_points <- ph_test$time
-        residuals <- ph_test$y  # cox.zph stores residuals in 'y' component
+      if (n_vars == 0) {
+        cli::cli_abort("No variables found for Schoenfeld residuals plot")
+      }
+      
+      plots <- list()
+      
+      if (is.matrix(residuals)) {
+        var_names <- colnames(residuals)
         
-        if (is.matrix(residuals)) {
-          var_names <- colnames(residuals)
+        # Create plots for each variable (following survminer style)
+        for (i in seq_len(ncol(residuals))) {
+          var_name <- var_names[i]
           
-          # Create plots for each variable
-          for (i in seq_len(ncol(residuals))) {
-            var_name <- var_names[i]
-            plot_data <- data.frame(
-              time = time_points,
-              residuals = residuals[, i],
-              variable = var_name
-            )
-            
-            p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = time, y = residuals)) +
-              ggplot2::geom_point(alpha = 0.6) +
-              ggplot2::geom_smooth(se = TRUE, color = "red", linewidth = 1) +
-              ggplot2::geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.7) +
-              ggplot2::labs(
-                title = paste("Schoenfeld Residuals:", var_name),
-                subtitle = paste("Model:", model_name),
-                x = "Time",
-                y = "Schoenfeld Residuals"
-              ) +
-              ggplot2::theme_minimal()
-            
-            plots[[var_name]] <- p
-          }
-        } else {
-          # Single variable case
+          # Prepare data for this variable
           plot_data <- data.frame(
             time = time_points,
-            residuals = as.vector(residuals)
+            residuals = residuals[, i],
+            variable = var_name
           )
           
-          p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = time, y = residuals)) +
-            ggplot2::geom_point(alpha = 0.6) +
-            ggplot2::geom_smooth(se = TRUE, color = "red", linewidth = 1) +
-            ggplot2::geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.7) +
-            ggplot2::labs(
-              title = "Schoenfeld Residuals",
-              subtitle = paste("Model:", model_name),
-              x = "Time",
-              y = "Schoenfeld Residuals"
-            ) +
-            ggplot2::theme_minimal()
+          # Remove NA values
+          plot_data <- plot_data[!is.na(plot_data$residuals), ]
           
-          plots[["single"]] <- p
+          if (nrow(plot_data) == 0) {
+            cli::cli_warn("No valid residuals for variable {var_name}")
+            next
+          }
+          
+          # Get p-value for this variable
+          p_val <- ph_test$table[var_name, "p"]
+          p_text <- paste0("p = ", format.pval(p_val, digits = 3))
+          ph_status <- if (p_val < 0.05) "PH Violated" else "PH OK"
+          
+          # Create plot with survminer-inspired styling
+          p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = time, y = residuals))
+          
+          # Add points if requested
+          if (resid) {
+            p <- p + ggplot2::geom_point(
+              color = point.col, 
+              size = point.size, 
+              alpha = point.alpha
+            )
+          }
+          
+          # Add smooth line with optional confidence bands
+          p <- p + ggplot2::geom_smooth(
+            method = "loess", 
+            se = se, 
+            color = "blue", 
+            linewidth = 1,
+            alpha = 0.3
+          )
+          
+          # Add horizontal reference line at 0
+          p <- p + ggplot2::geom_hline(
+            yintercept = 0, 
+            linetype = "dashed", 
+            color = "black", 
+            alpha = 0.7
+          )
+          
+          # Styling inspired by survminer
+          p <- p + ggplot2::labs(
+            title = paste("Schoenfeld Residuals:", var_name),
+            subtitle = paste0(model_name, " - ", ph_status, " (", p_text, ")"),
+            x = "Time",
+            y = "Scaled Schoenfeld Residuals"
+          ) + 
+          ggplot2::theme_minimal() +
+          ggplot2::theme(
+            plot.title = ggplot2::element_text(face = "bold", size = 12),
+            plot.subtitle = ggplot2::element_text(size = 10),
+            panel.grid.minor = ggplot2::element_blank()
+          )
+          
+          plots[[var_name]] <- p
+        }
+      } else {
+        # Single variable case
+        plot_data <- data.frame(
+          time = time_points,
+          residuals = as.vector(residuals)
+        )
+        
+        # Remove NA values
+        plot_data <- plot_data[!is.na(plot_data$residuals), ]
+        
+        if (nrow(plot_data) == 0) {
+          cli::cli_abort("No valid residuals for plotting")
         }
         
-        if (length(plots) == 1) {
-          return(plots[[1]])
+        # Get global p-value
+        global_p <- ph_test$table["GLOBAL", "p"]
+        p_text <- paste0("p = ", format.pval(global_p, digits = 3))
+        ph_status <- if (global_p < 0.05) "PH Violated" else "PH OK"
+        
+        p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = time, y = residuals))
+        
+        if (resid) {
+          p <- p + ggplot2::geom_point(
+            color = point.col, 
+            size = point.size, 
+            alpha = point.alpha
+          )
+        }
+        
+        p <- p + ggplot2::geom_smooth(
+          method = "loess", 
+          se = se, 
+          color = "blue", 
+          linewidth = 1,
+          alpha = 0.3
+        ) +
+        ggplot2::geom_hline(
+          yintercept = 0, 
+          linetype = "dashed", 
+          color = "black", 
+          alpha = 0.7
+        ) +
+        ggplot2::labs(
+          title = "Schoenfeld Residuals",
+          subtitle = paste0(model_name, " - ", ph_status, " (", p_text, ")"),
+          x = "Time",
+          y = "Scaled Schoenfeld Residuals"
+        ) + 
+        ggplot2::theme_minimal() +
+        ggplot2::theme(
+          plot.title = ggplot2::element_text(face = "bold", size = 12),
+          plot.subtitle = ggplot2::element_text(size = 10),
+          panel.grid.minor = ggplot2::element_blank()
+        )
+        
+        plots[["single"]] <- p
+      }
+      
+      # Return single plot or combined plots
+      if (length(plots) == 1) {
+        return(plots[[1]])
+      } else {
+        # Combine multiple plots using patchwork if available
+        if (rlang::is_installed("patchwork")) {
+          combined_plot <- Reduce(`+`, plots)
+          return(combined_plot)
         } else {
-          # Combine multiple plots using patchwork if available
-          if (rlang::is_installed("patchwork")) {
-            combined_plot <- Reduce(`+`, plots)
-            return(combined_plot)
-          } else {
-            cli::cli_inform("Multiple plots created. Install 'patchwork' package to combine them automatically.")
-            return(plots)
-          }
+          cli::cli_inform("Multiple plots created. Install 'patchwork' package to combine them automatically.")
+          return(plots)
         }
       }
+      
     }, error = function(e) {
       cli::cli_abort("Failed to create Schoenfeld residuals plot: {e$message}")
     })
-  } else {
-    cli::cli_abort("Diagnostic type '{type}' not yet implemented for Cox models")
-  }
-}
-
-# Internal function for lm/glm diagnostics
-.br_show_lm_diagnostics <- function(model, model_name, type, ...) {
-  if (type == "residuals") {
-    # Residuals vs fitted plot
-    fitted_values <- fitted(model)
-    residuals <- residuals(model)
+  } else if (type == "martingale") {
+    # Martingale residuals plot
+    mart_resid <- residuals(model, type = "martingale")
+    fitted_vals <- predict(model)
     
     plot_data <- data.frame(
-      fitted = fitted_values,
-      residuals = residuals
+      fitted = fitted_vals,
+      residuals = mart_resid
     )
     
     p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = fitted, y = residuals)) +
-      ggplot2::geom_point(alpha = 0.6) +
-      ggplot2::geom_smooth(se = TRUE, color = "red", linewidth = 1) +
+      ggplot2::geom_point(color = point.col, size = point.size, alpha = point.alpha) +
+      ggplot2::geom_smooth(method = "loess", se = se, color = "blue", linewidth = 1) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.7) +
       ggplot2::labs(
-        title = "Residuals vs Fitted",
+        title = "Martingale Residuals",
         subtitle = paste("Model:", model_name),
-        x = "Fitted Values",
-        y = "Residuals"
+        x = "Linear Predictor",
+        y = "Martingale Residuals"
       ) +
       ggplot2::theme_minimal()
     
     return(p)
-  } else if (type == "qq") {
-    # Q-Q plot
-    residuals <- residuals(model)
+  } else if (type == "deviance") {
+    # Deviance residuals plot
+    dev_resid <- residuals(model, type = "deviance")
+    fitted_vals <- predict(model)
     
     plot_data <- data.frame(
-      sample = residuals
+      fitted = fitted_vals,
+      residuals = dev_resid
     )
     
-    p <- ggplot2::ggplot(plot_data, ggplot2::aes(sample = sample)) +
-      ggplot2::stat_qq() +
-      ggplot2::stat_qq_line(color = "red") +
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = fitted, y = residuals)) +
+      ggplot2::geom_point(color = point.col, size = point.size, alpha = point.alpha) +
+      ggplot2::geom_smooth(method = "loess", se = se, color = "blue", linewidth = 1) +
+      ggplot2::geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.7) +
       ggplot2::labs(
-        title = "Normal Q-Q Plot",
+        title = "Deviance Residuals",
         subtitle = paste("Model:", model_name),
-        x = "Theoretical Quantiles",
-        y = "Sample Quantiles"
+        x = "Linear Predictor",
+        y = "Deviance Residuals"
       ) +
       ggplot2::theme_minimal()
     
     return(p)
   } else {
-    cli::cli_abort("Diagnostic type '{type}' not yet implemented for linear models")
+    cli::cli_abort("Diagnostic type '{type}' not implemented for Cox models. Use 'schoenfeld', 'martingale', or 'deviance'.")
   }
 }
+
+# LM/GLM diagnostics removed - br_show_diagnostics now Cox-only. Use br_show_residuals for general residual plots.
 
 
 br_show_table_gt <- function(

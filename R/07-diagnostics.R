@@ -6,105 +6,7 @@
 # =====================
 
 
-#' Test proportional hazards assumption for Cox models
-#'
-#' @description
-#' `r lifecycle::badge('experimental')`
-#'
-#' This function tests the proportional hazards assumption for Cox regression
-#' models using Schoenfeld residuals. This is a key diagnostic for Cox
-#' proportional hazards models.
-#'
-#' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
-#' @param idx Index or name (focal variable) of the Cox model to test. If `NULL`, 
-#' tests all Cox models in the breg object.
-#' @param transform Character string specifying how to transform time for the test.
-#' Options are "km" (Kaplan-Meier), "rank", "identity", or a function.
-#' @param ... Additional arguments passed to [survival::cox.zph()].
-#' @returns A list containing test results for each Cox model tested.
-#' @noRd
-#' @family br_diagnose
-#' @examples
-#' \dontrun{
-#' # Create Cox models
-#' mds <- br_pipeline(
-#'   survival::lung,
-#'   y = c("time", "status"),
-#'   x = colnames(survival::lung)[6:10],
-#'   x2 = c("age", "sex"),
-#'   method = "coxph"
-#' )
-#' 
-#' # Test proportional hazards assumption
-#' ph_tests <- br_test_ph(mds)
-#' print(ph_tests)
-#' }
-#' @testexamples
-#' expect_true(TRUE)
-br_test_ph <- function(breg, idx = NULL, transform = "km", ...) {
-  assert_breg_obj_with_results(breg)
-  
-  # Get models based on idx
-  if (is.null(idx)) {
-    # Get all models
-    models <- br_get_models(breg)
-  } else {
-    # Get specific model(s)
-    all_models <- br_get_models(breg)
-    if (is.character(idx)) {
-      # Get by name
-      if (idx %in% names(all_models)) {
-        models <- list(all_models[[idx]])
-        names(models) <- idx
-      } else {
-        warning(paste("Model", idx, "not found"))
-        return(NULL)
-      }
-    } else {
-      # Get by index
-      if (idx <= length(all_models)) {
-        models <- list(all_models[[idx]])
-        names(models) <- names(all_models)[idx]
-      } else {
-        warning(paste("Index", idx, "out of range"))
-        return(NULL)
-      }
-    }
-  }
-  
-  # Filter for Cox models only
-  cox_models <- list()
-  for (i in seq_along(models)) {
-    model <- models[[i]]
-    if (inherits(model, "coxph")) {
-      cox_models[[names(models)[i]]] <- model
-    }
-  }
-  
-  if (length(cox_models) == 0) {
-    warning("No Cox proportional hazards models found in the breg object.")
-    return(NULL)
-  }
-  
-  # Test proportional hazards assumption for each Cox model
-  ph_results <- list()
-  for (i in seq_along(cox_models)) {
-    model_name <- names(cox_models)[i]
-    model <- cox_models[[i]]
-    
-    tryCatch({
-      ph_test <- survival::cox.zph(model, transform = transform, ...)
-      ph_results[[model_name]] <- ph_test
-    }, error = function(e) {
-      warning(paste("Failed to test proportional hazards assumption for model", model_name, ":", e$message))
-      ph_results[[model_name]] <- NULL
-    })
-  }
-  
-  # Add class for custom printing
-  class(ph_results) <- c("br_ph_test", "list")
-  ph_results
-}
+# br_test_ph functionality merged into br_diagnose
 
 
 #' Diagnose regression models
@@ -112,13 +14,16 @@ br_test_ph <- function(breg, idx = NULL, transform = "km", ...) {
 #' @description
 #' `r lifecycle::badge('experimental')`
 #'
-#' General diagnostic function that performs appropriate diagnostics based on
-#' the model type. For Cox models, tests proportional hazards assumption.
+#' Universal diagnostic function that performs appropriate diagnostics based on
+#' the model type. For Cox models, tests proportional hazards assumption using
+#' Schoenfeld residuals and provides comprehensive Cox diagnostics.
 #' For other models, provides general diagnostic information.
 #'
 #' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
 #' @param idx Index or name (focal variable) of the model(s) to diagnose. If `NULL`, 
 #' diagnoses all models in the breg object.
+#' @param transform Character string specifying how to transform time for Cox PH tests.
+#' Options are "km" (Kaplan-Meier), "rank", "identity", or a function.
 #' @param ... Additional arguments passed to specific diagnostic functions.
 #' @returns A list containing diagnostic results for each model.
 #' @noRd
@@ -134,13 +39,13 @@ br_test_ph <- function(breg, idx = NULL, transform = "km", ...) {
 #'   method = "coxph"
 #' )
 #' 
-#' # Diagnose models
+#' # Diagnose models (includes PH testing for Cox models)
 #' diagnostics <- br_diagnose(mds)
 #' print(diagnostics)
 #' }
 #' @testexamples
 #' expect_true(TRUE)
-br_diagnose <- function(breg, idx = NULL, ...) {
+br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
   assert_breg_obj_with_results(breg)
   
   # Get models based on idx
@@ -177,31 +82,42 @@ br_diagnose <- function(breg, idx = NULL, ...) {
     model_name <- names(models)[i]
     model <- models[[i]]
     
-    # Cox models: test proportional hazards
+    # Cox models: comprehensive diagnostics including PH testing
     if (inherits(model, "coxph")) {
-      # Test PH assumption directly on the model instead of going through br_test_ph
+      # Test PH assumption using Schoenfeld residuals
+      ph_test <- NULL
       tryCatch({
-        ph_test <- survival::cox.zph(model)
-        diagnostic_results[[model_name]] <- list(
-          model_type = "coxph",
-          ph_test = ph_test,
-          summary = list(
-            n = model$n,
-            events = model$nevent,
-            loglik = model$loglik
-          )
-        )
+        ph_test <- survival::cox.zph(model, transform = transform, ...)
       }, error = function(e) {
-        diagnostic_results[[model_name]] <- list(
-          model_type = "coxph",
-          ph_test = NULL,
-          summary = list(
-            n = model$n,
-            events = model$nevent,
-            loglik = model$loglik
-          )
-        )
+        warning(paste("Failed to test proportional hazards assumption for model", model_name, ":", e$message))
       })
+      
+      # Get concordance index if available
+      concordance <- NULL
+      tryCatch({
+        concordance <- model$concordance
+      }, error = function(e) {
+        # Concordance might not be available in older survival versions
+      })
+      
+      diagnostic_results[[model_name]] <- list(
+        model_type = "coxph",
+        ph_test = ph_test,
+        concordance = concordance,
+        summary = list(
+          n = model$n,
+          events = model$nevent,
+          loglik = model$loglik,
+          lr_test = if (!is.null(model$score) && is.numeric(model$score)) {
+            tryCatch({
+              list(
+                statistic = model$score,
+                p_value = 1 - pchisq(model$score, model$df)
+              )
+            }, error = function(e) NULL)
+          } else NULL
+        )
+      )
     } 
     # GLM models: general diagnostics
     else if (inherits(model, "glm")) {
@@ -245,55 +161,7 @@ br_diagnose <- function(breg, idx = NULL, ...) {
 }
 
 
-#' Print method for proportional hazards test results
-#'
-#' @param x A `br_ph_test` object returned by [br_test_ph()].
-#' @param ... Additional arguments (currently unused).
-#' @noRd
-print.br_ph_test <- function(x, ...) {
-  cli::cli_h1("Proportional Hazards Assumption Tests")
-  
-  if (length(x) == 0) {
-    cli::cli_alert_info("No test results available.")
-    return(invisible(x))
-  }
-  
-  for (i in seq_along(x)) {
-    model_name <- names(x)[i]
-    test_result <- x[[i]]
-    
-    if (is.null(test_result)) {
-      cli::cli_alert_warning("Test failed for model: {.val {model_name}}")
-      next
-    }
-    
-    cli::cli_h2("Model: {.val {model_name}}")
-    
-    # Print the test table
-    test_table <- test_result$table
-    cli::cli_text("Schoenfeld Residuals Test:")
-    
-    # Format the table for display
-    df_names <- rownames(test_table)
-    for (j in seq_len(nrow(test_table))) {
-      var_name <- df_names[j]
-      chisq <- round(test_table[j, "chisq"], 3)
-      df <- test_table[j, "df"]
-      p_value <- format.pval(test_table[j, "p"], digits = 3)
-      
-      status_symbol <- if (test_table[j, "p"] < 0.05) "✗" else "✓"
-      cli::cli_text("  {status_symbol} {var_name}: χ² = {chisq}, df = {df}, p = {p_value}")
-    }
-    
-    # Global test
-    global_p <- format.pval(test_result$table["GLOBAL", "p"], digits = 3)
-    global_status <- if (test_result$table["GLOBAL", "p"] < 0.05) "✗ VIOLATED" else "✓ SATISFIED"
-    cli::cli_text("  Global test: p = {global_p} - Assumption {global_status}")
-    cli::cli_text("")
-  }
-  
-  invisible(x)
-}
+# Print method for br_ph_test removed - functionality merged into br_diagnose
 
 
 #' Print method for general diagnostic results
@@ -321,10 +189,46 @@ print.br_diagnostics <- function(x, ...) {
       cli::cli_text("Events: {diag_result$summary$events}")
       cli::cli_text("Log-likelihood: {round(diag_result$summary$loglik[2], 3)}")
       
+      # Show likelihood ratio test if available
+      if (!is.null(diag_result$summary$lr_test)) {
+        lr_p <- format.pval(diag_result$summary$lr_test$p_value, digits = 3)
+        cli::cli_text("LR test: χ² = {round(diag_result$summary$lr_test$statistic, 3)}, p = {lr_p}")
+      }
+      
+      # Show concordance index if available
+      if (!is.null(diag_result$concordance)) {
+        if (is.list(diag_result$concordance)) {
+          cli::cli_text("Concordance: {round(diag_result$concordance$concordance, 3)}")
+        } else {
+          cli::cli_text("Concordance: {round(diag_result$concordance, 3)}")
+        }
+      }
+      
+      # Proportional hazards test results
       if (!is.null(diag_result$ph_test)) {
-        global_p <- diag_result$ph_test$table["GLOBAL", "p"]
-        ph_status <- if (global_p < 0.05) "✗ VIOLATED" else "✓ SATISFIED"
-        cli::cli_text("Proportional Hazards: {ph_status} (p = {format.pval(global_p, digits = 3)})")
+        cli::cli_text("")
+        cli::cli_text("Proportional Hazards Test (Schoenfeld Residuals):")
+        
+        test_table <- diag_result$ph_test$table
+        df_names <- rownames(test_table)
+        
+        # Individual variable tests
+        for (j in seq_len(nrow(test_table) - 1)) {  # Exclude GLOBAL row
+          var_name <- df_names[j]
+          chisq <- round(test_table[j, "chisq"], 3)
+          df <- test_table[j, "df"]
+          p_value <- format.pval(test_table[j, "p"], digits = 3)
+          
+          status_symbol <- if (test_table[j, "p"] < 0.05) "✗" else "✓"
+          cli::cli_text("  {status_symbol} {var_name}: χ² = {chisq}, df = {df}, p = {p_value}")
+        }
+        
+        # Global test
+        global_p <- format.pval(test_table["GLOBAL", "p"], digits = 3)
+        global_status <- if (test_table["GLOBAL", "p"] < 0.05) "✗ VIOLATED" else "✓ SATISFIED"
+        cli::cli_text("  Global test: p = {global_p} - Assumption {global_status}")
+      } else {
+        cli::cli_text("Proportional Hazards: Test failed")
       }
     } else if (diag_result$model_type == "glm") {
       cli::cli_text("Family: {diag_result$family}")
