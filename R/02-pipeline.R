@@ -413,6 +413,9 @@ runner <- function(ms, data, dots, y, x, x2, run_parallel, group_by = NULL) {
 
 runner_ <- function(m, data, dots, opts = NULL) {
   on.exit(invisible(gc()))
+  model_vars <- get_vars(m)
+  necessary_cols <- model_vars[model_vars %in% colnames(data)]
+  data <- data[, necessary_cols, drop = FALSE]
   options(opts)
   if (isTRUE(getOption("breg.run_logging", default = FALSE))) {
     if (isTRUE(getOption("breg.run_rstudio", default = FALSE))) {
