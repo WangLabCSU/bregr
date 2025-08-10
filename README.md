@@ -134,10 +134,11 @@ mds_p <- br_pipeline(
   x = colnames(lung)[6:10],
   x2 = c("age", "sex"),
   method = "coxph",
-  run_parallel = 3
+  n_workers = 3
 )
-#> Warning: running in parallel is typically not recommended for small number (<100) of focal terms
 #> exponentiate estimates of model(s) constructed from coxph method at default
+#> ■■■■■■■                           20% | ETA: 47s
+#>                                                  
 ```
 
 ``` r
@@ -328,6 +329,36 @@ br_show_risk_network(mds2)
 
 <img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
+#### Model Score Prediction and Survival Curves
+
+For Cox-PH models, you can generate model predictions (risk scores) and
+create survival curves grouped by these scores:
+
+``` r
+# Generate model predictions
+scores <- br_predict(mds2, idx = "ph.ecog")
+#> `type` is not specified, use lp for the model
+#> Warning: some predictions are NA, consider checking your data for missing
+#> values
+head(scores)
+#>          1          2          3          4          5          6 
+#>  0.3692998 -0.1608293 -0.2936304  0.1811648 -0.2493634  0.3692998
+```
+
+``` r
+# Create survival curves based on model scores
+br_show_survival_curves(
+  mds2,
+  idx = "ph.ecog",
+  n_groups = 3,
+  title = "Survival Curves by 'ph.ecog' Model Risk Score"
+)
+#> Warning: some predictions are NA, consider checking your data for missing
+#> values
+```
+
+<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+
 ### Table
 
 Show tidy table result as pretty table:
@@ -394,15 +425,15 @@ site](https://wanglabcsu.github.io/bregr/).
 
 ``` r
 covr::package_coverage()
-#> bregr Coverage: 77.37%
-#> R/98-utils.R: 37.18%
-#> R/02-pipeline.R: 78.01%
-#> R/04-show.R: 78.45%
-#> R/06-avail.R: 78.57%
-#> R/03-accessors.R: 80.00%
+#> bregr Coverage: 75.70%
+#> R/98-utils.R: 57.89%
+#> R/06-avail.R: 66.07%
+#> R/03-accessors.R: 72.50%
+#> R/04-show.R: 75.87%
+#> R/02-pipeline.R: 77.36%
 #> R/01-class.R: 90.70%
 #> R/99-zzz.R: 90.91%
-#> R/05-polar.R: 95.19%
+#> R/05-polar.R: 92.37%
 ```
 
 ## Related Project(s)

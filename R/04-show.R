@@ -21,7 +21,7 @@
 #' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
 #' @param clean Logical indicating whether to clean/condense redundant group/focal variable labels.
 #' If `TRUE`, remove "Group" or "Focal" variable column when the values in the result table
-#' are same (before performing `subset` and `drop`),
+#' are the same (before performing `subset` and `drop`),
 #' and reduce repeat values in column "Group", "Focal", and "Variable".
 #' @param rm_controls If `TRUE`, remove control terms.
 #' @param ... Additional arguments passed to [forestploter::forest()], run `vignette("forestploter-post", "forestploter")`
@@ -961,11 +961,7 @@ br_show_table_gt <- function(
   assert_breg_obj_with_results(breg)
   rlang::check_installed("gtsummary")
 
-  mds <- if (!is.null(idx)) {
-    br_get_model(breg, idx)
-  } else {
-    br_get_models(breg)
-  }
+  mds <- br_get_models(breg, idx)
   if (length(mds) == 1) {
     mds <- mds[[1]]
   }
@@ -987,6 +983,178 @@ br_show_table_gt <- function(
       )
   }
   t
+}
+
+#' Show survival curves based on model scores
+#'
+#' @description
+#' `r lifecycle::badge('experimental')`
+#'
+#' Generate survival curves by grouping observations based on model prediction scores.
+#' This function is specifically designed for Cox regression models and creates
+#' survival curves comparing different risk groups.
+#'
+#' @param breg A `breg` object with fitted Cox regression models.
+#' @param idx Index or name of the model to use for prediction.
+#' If NULL, uses the first model.
+#' @param n_groups Number of groups to create based on score quantiles. Default is 3.
+#' @param group_labels Custom labels for the groups. If NULL, uses "Low", "Medium", "High"
+#' for 3 groups or "Q1", "Q2", etc. for other numbers.
+#' @param title Plot title. If NULL, generates automatic title.
+#' @param subtitle Plot subtitle.
+#' @returns A ggplot2 object showing survival curves.
+#' @export
+#' @family br_show
+#' @examples
+#' \donttest{
+#' # Cox regression example with survival curves
+#' if (requireNamespace("survival", quietly = TRUE)) {
+#'   lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
+#'   mds <- br_pipeline(
+#'     lung,
+#'     y = c("time", "status"),
+#'     x = c("age", "ph.ecog"),
+#'     x2 = "sex",
+#'     method = "coxph"
+#'   )
+#'   p <- br_show_survival_curves(mds)
+#'   print(p)
+#' }
+#' }
+br_show_survival_curves <- function(breg,
+                                    idx = NULL,
+                                    n_groups = 3,
+                                    group_labels = NULL,
+                                    title = NULL,
+                                    subtitle = NULL) {
+  assert_breg_obj_with_results(breg)
+
+  # Get the model to use
+  if (is.null(idx)) {
+    cli::cli_inform("{.arg idx} not set, use the first model")
+    idx <- 1
+  } else {
+    if (length(idx) != 1) {
+      cli::cli_abort("please specify one model")
+    }
+  }
+  model <- br_get_models(breg, idx)
+
+  # Check if we have survival models
+  if (!inherits(model, "coxph")) {
+    cli::cli_abort("survival curves are only supported for Cox regression models (coxph)")
+  }
+
+  # Get predictions (risk scores)
+  scores <- br_predict(breg, idx = idx, type = "lp")
+  data <- br_get_data(breg)
+
+  # Get survival variables
+  y_vars <- br_get_y(breg)
+  if (length(y_vars) != 2) {
+    cli::cli_abort("expected 2 survival variables (time, status), got {length(y_vars)}")
+  }
+
+  time_var <- y_vars[1]
+  status_var <- y_vars[2]
+
+  # Create score groups
+  score_quantiles <- quantile(scores, probs = seq(0, 1, length.out = n_groups + 1), na.rm = TRUE)
+
+  # Handle case where scores have little variation
+  if (length(unique(score_quantiles)) <= 2) {
+    cli::cli_warn("score values have limited variation, grouping may not be meaningful")
+  }
+
+  score_groups <- cut(scores,
+    breaks = score_quantiles,
+    include.lowest = TRUE,
+    labels = FALSE
+  )
+
+  # Create group labels
+  if (is.null(group_labels)) {
+    if (n_groups == 3) {
+      group_labels <- c("Low Risk", "Medium Risk", "High Risk")
+    } else if (n_groups == 2) {
+      group_labels <- c("Low Risk", "High Risk")
+    } else {
+      group_labels <- paste0("Q", 1:n_groups)
+    }
+  } else if (length(group_labels) != n_groups) {
+    cli::cli_abort("length of group_labels ({length(group_labels)}) must match n_groups ({n_groups})")
+  }
+
+  # Prepare data for survival analysis
+  surv_data <- data |>
+    dplyr::mutate(
+      .score = scores,
+      .score_group = factor(score_groups, labels = group_labels),
+      .time = .data[[time_var]],
+      .status = .data[[status_var]]
+    ) |>
+    dplyr::filter(!is.na(.data$.score_group))
+
+  # Create survival object
+  surv_obj <- survival::Surv(surv_data$.time, surv_data$.status)
+
+  # Fit Kaplan-Meier curves for each group
+  km_fit <- survival::survfit(surv_obj ~ .score_group, data = surv_data)
+
+  # Create survival curve data for plotting
+  surv_summary <- summary(km_fit)
+
+  plot_data <- data.frame(
+    time = surv_summary$time,
+    surv = surv_summary$surv,
+    group = surv_summary$strata,
+    upper = surv_summary$upper,
+    lower = surv_summary$lower
+  )
+
+  # Clean group names while preserving factor level order
+  plot_data$group <- gsub(".*=", "", plot_data$group)
+
+  # Convert back to factor with the same level order as the original group_labels
+  # to ensure correct legend ordering
+  plot_data$group <- factor(plot_data$group, levels = group_labels)
+
+  # Create the plot
+  if (is.null(title)) {
+    focal_var <- names(br_get_models(breg))[idx %||% 1]
+    title <- paste("Survival Curves by", focal_var, "Model Score")
+  }
+
+  p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$time, y = .data$surv, color = .data$group)) +
+    ggplot2::geom_step(linewidth = 1) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = .data$lower, ymax = .data$upper, fill = .data$group),
+      alpha = 0.3, color = NA
+    ) +
+    ggplot2::scale_y_continuous(limits = c(0, 1), labels = function(x) paste0(x * 100, "%")) +
+    ggplot2::labs(
+      title = title,
+      subtitle = subtitle,
+      x = "Time",
+      y = "Survival Probability",
+      color = "Risk Group",
+      fill = "Risk Group"
+    ) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
+      legend.position = "bottom",
+      plot.title = ggplot2::element_text(hjust = 0.5),
+      plot.subtitle = ggplot2::element_text(hjust = 0.5)
+    )
+
+  # Add log-rank test p-value if requested
+  if (n_groups > 1) {
+    logrank_test <- survival::survdiff(surv_obj ~ .score_group, data = surv_data)
+    p_value <- pchisq(logrank_test$chisq, df = length(logrank_test$n) - 1, lower.tail = FALSE)
+
+    p <- p + ggplot2::labs(caption = paste("Log-rank test p-value:", format.pval(p_value, digits = 3)))
+  }
+
+  return(p)
 }
 
 #' Show residuals vs fitted plot for regression models
@@ -1156,4 +1324,94 @@ br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted") {
   }
 
   return(p)
+}
+
+
+#' Show nomogram for regression models
+#'
+#' @description
+#' `r lifecycle::badge('experimental')`
+#'
+#' Creates a nomogram (graphical calculator) for regression models, particularly
+#' useful for Cox proportional hazards models. A nomogram allows visual calculation
+#' of predicted outcomes by assigning points to variable values and summing them
+#' to get total points that correspond to predicted probabilities.
+#'
+#' @param breg A `breg` object with fitted regression models.
+#' @param idx Index or name of the model to use for the nomogram.
+#' If NULL, uses the first model.
+#' @param time_points For Cox models, time points at which to show survival probabilities.
+#' Default is c(12, 24, 36) representing months.
+#' @param fun_at For non-survival models, the function values at which to show predictions.
+#' @param point_range Range of points to use in the nomogram scale. Default is c(0, 100).
+#' @param title Plot title. If NULL, generates automatic title.
+#' @param subtitle Plot subtitle.
+#' @returns A ggplot2 object showing the nomogram.
+#' @export
+#' @family br_show
+#' @examples
+#' \donttest{
+#' # Cox regression nomogram
+#'
+#' lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
+#' lung$ph.ecog <- factor(lung$ph.ecog)
+#' mds <- br_pipeline(
+#'   lung,
+#'   y = c("time", "status"),
+#'   x = c("age", "ph.ecog"),
+#'   x2 = "sex",
+#'   method = "coxph"
+#' )
+#' p <- br_show_nomogram(mds)
+#' p
+#'
+#'
+#' # Linear regression nomogram
+#' mds_lm <- br_pipeline(
+#'   mtcars,
+#'   y = "mpg",
+#'   x = c("hp", "wt"),
+#'   x2 = "vs",
+#'   method = "gaussian"
+#' )
+#' p2 <- br_show_nomogram(mds_lm, fun_at = c(15, 20, 25, 30))
+#' p2
+#' }
+#' @testexamples
+#' expect_s3_class(p, "ggplot")
+#' expect_s3_class(p2, "ggplot")
+br_show_nomogram <- function(breg,
+                             idx = NULL,
+                             time_points = c(12, 24, 36),
+                             fun_at = NULL,
+                             point_range = c(0, 100),
+                             title = NULL,
+                             subtitle = NULL) {
+  assert_breg_obj_with_results(breg)
+
+  # Get the model to use
+  if (is.null(idx)) {
+    cli::cli_inform("{.arg idx} not set, use the first model")
+    idx <- 1
+  } else {
+    if (length(idx) != 1) {
+      cli::cli_abort("please specify one model")
+    }
+  }
+
+  model <- br_get_models(breg, idx)
+  model_name <- if (!rlang::is_string(idx)) {
+    br_get_model_names(breg)[idx]
+  } else {
+    idx
+  }
+
+  # Check model type and dispatch to appropriate function
+  if (inherits(model, "coxph")) {
+    .create_coxph_nomogram(model, time_points, point_range, title, subtitle, model_name)
+  } else if (inherits(model, c("lm", "glm"))) {
+    .create_lm_nomogram(model, fun_at, point_range, title, subtitle, model_name)
+  } else {
+    cli::cli_abort("Nomograms are currently supported for Cox regression (coxph) and linear/generalized linear models (lm/glm)")
+  }
 }

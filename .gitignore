@@ -17,3 +17,13 @@ docs
 ..Rcheck/
 *.tar.gz
 bregr_*.tar.gz
+
+bregr_models
+.Rapp.history
+
+demo_fix.R
+
+*.png
+*.pdf
+# Test artifacts
+tests/testthat/Rplots.pdf

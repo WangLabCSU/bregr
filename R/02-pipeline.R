@@ -12,6 +12,15 @@
 #' [terms](https://easystats.github.io/insight/#terms),
 #' e.g., `x + poly(x, 2)` has *one* variable `x`, but *two* terms `x` and `poly(x, 2)`.
 #'
+#' ### Global options
+#'
+#' **bregr** supported global options can be set with `options()`.
+#' Currently they are used in `br_run()`.
+#'
+#' - `bregr.save_model`: If `TRUE`, saves models to local disk.
+#' - `bregr.path`: A path for saving models, defaults to using a
+#' temporary directory.
+#'
 #' @returns
 #' An object of class `breg` with input values added to corresponding slot(s).
 #' For `br_run()`, the returned object is a `breg` object with results added to
@@ -26,7 +35,7 @@
 #' For GLM models, this is typically a single character (e.g., `"outcome"`).
 #' For Cox-PH models, it should be a length-2 vector in the format `c("time", "status")`.
 #' @param x Character vector specifying focal independent terms (predictors).
-#' @param x2 Character vector specifying control independent terms (predictor, optional).
+#' @param x2 Character vector specifying control independent terms (predictors, optional).
 #' @param method Method for model construction.
 #' A name or a list specifying custom model setting.
 #' A string representing a complex method setting is acceptable,
@@ -34,7 +43,9 @@
 #' Or a list with 4 elements, see [br_avail_method_config()]
 #' for examples.
 #' @param group_by A string specifying the group by column.
-#' @param run_parallel Integer, indicating cores to run the task, default is `1`.
+#' @param n_workers,run_parallel Integer, indicating integer number
+#' of workers to launch, default is `1L`. When `>1`,
+#' run modeling code in parallel in the background.
 #' @param ... Additional arguments depending on the called function.
 #' - `br_set_x()` for passing focal terms as characters.
 #' - `br_set_x2()` for passing control terms as characters.
@@ -44,6 +55,10 @@
 #' For logistic, and Cox-PH regressions models, `exponentiate` is set to `TRUE` at default.
 #' @param model_args A list of arguments passed to `br_set_model()`.
 #' @param run_args A list of arguments passed to `br_run()`.
+#' @param filter_x Logical, whether to enable pre-filtering of focal variables. Default is `FALSE`.
+#' @param filter_na_prop Numeric, maximum proportion of NA values allowed for a variable. Default is `0.8`.
+#' @param filter_sd_min Numeric, minimum standard deviation required for a variable. Default is `1e-6`.
+#' @param filter_var_min Numeric, minimum variance required for a variable. Default is `1e-6`.
 #' @examples
 #' library(bregr)
 #' # 1. Pipeline -------------------------
@@ -86,20 +101,22 @@
 #' )
 #'
 #' # 3. Customized model -----------
+#' \dontrun{
 #' dt <- data.frame(x = rnorm(100))
 #' dt$y <- rpois(100, exp(1 + dt$x))
+#'
 #' m5 <- breg(dt) |>
 #'   br_set_y("y") |>
 #'   br_set_x("x") |>
 #'   br_set_model(method = 'quasi(variance = "mu", link = "log")') |>
 #'   br_run()
+#' }
 #'
 #' @testexamples
 #' assert_breg_obj(m)
 #' assert_breg_obj(m2)
 #' assert_breg_obj(m3)
 #' assert_breg_obj(m4)
-#' assert_breg_obj(m5)
 #' @seealso [accessors] for accessing `breg` object properties.
 NULL
 
@@ -108,15 +125,33 @@ NULL
 #' @export
 br_pipeline <- function(
     data, y, x, method, x2 = NULL,
-    group_by = NULL, run_parallel = 1L,
+    group_by = NULL,
+    n_workers = 1L, run_parallel = lifecycle::deprecated(),
     model_args = list(),
-    run_args = list()) {
+    run_args = list(),
+    filter_x = FALSE,
+    filter_na_prop = 0.8,
+    filter_sd_min = 1e-6,
+    filter_var_min = 1e-6,
+    filter_min_levels = 2) {
+  if (lifecycle::is_present(run_parallel)) {
+    lifecycle::deprecate_warn("1.1.0", "bregr::br_run(run_parallel = )", "bregr::br_run(n_workers = )")
+    n_workers <- run_parallel
+  }
+
   breg(data) |>
     br_set_y(y) |>
-    br_set_x(x) |>
+    br_set_x(x,
+      filter_x = filter_x, filter_na_prop = filter_na_prop,
+      filter_sd_min = filter_sd_min, filter_var_min = filter_var_min,
+      filter_min_levels = filter_min_levels
+    ) |>
     br_set_x2(x2) |>
     br_set_model(method = method, !!!model_args) |>
-    br_run(group_by = group_by, run_parallel = run_parallel, !!!run_args)
+    br_run(
+      group_by = group_by, n_workers = n_workers,
+      !!!run_args
+    )
 }
 
 #' @describeIn pipeline Set dependent variables for model construction.
@@ -140,8 +175,18 @@ br_set_y <- function(obj, y) {
 }
 
 #' @describeIn pipeline Set focal terms for model construction.
+#' @param filter_x Logical, whether to enable pre-filtering of focal variables. Default is `FALSE`.
+#' @param filter_na_prop Numeric, maximum proportion of NA values allowed for a variable. Default is `0.8`.
+#' @param filter_sd_min Numeric, minimum standard deviation required for a variable. Default is `1e-6`.
+#' @param filter_var_min Numeric, minimum variance required for a variable. Default is `1e-6`.
+#' @param filter_min_levels Numeric, minimum number of unique levels required for categorical variables. Default is `2`.
 #' @export
-br_set_x <- function(obj, ...) {
+br_set_x <- function(obj, ...,
+                     filter_x = FALSE,
+                     filter_na_prop = 0.8,
+                     filter_sd_min = 1e-6,
+                     filter_var_min = 1e-6,
+                     filter_min_levels = 2) {
   assert_breg_obj(obj)
   data <- br_get_data(obj)
   col_names <- colnames(data)
@@ -155,8 +200,40 @@ br_set_x <- function(obj, ...) {
   assert_character(x, allow_na = FALSE)
 
   x <- repair_names(x, col_names)
-  x_ <- get_vars(x)
 
+  # Apply variable filtering if enabled
+  if (filter_x) {
+    assert_logical(filter_x, allow_na = FALSE)
+    assert_number_decimal(filter_na_prop, min = 0, max = 1)
+    assert_number_decimal(filter_sd_min, min = 0)
+    assert_number_decimal(filter_var_min, min = 0)
+    assert_number_whole(filter_min_levels, min = 1)
+
+    filter_result <- filter_variables_x(
+      data, x,
+      filter_na_prop = filter_na_prop,
+      filter_sd_min = filter_sd_min,
+      filter_var_min = filter_var_min,
+      filter_min_levels = filter_min_levels
+    )
+    x <- filter_result$filtered_x
+
+    # Inform user about filtering results
+    if (filter_result$filter_summary$filtered > 0) {
+      cli::cli_inform(
+        "Pre-filtering removed {filter_result$filter_summary$filtered} out of {filter_result$filter_summary$total} focal variables ({round(filter_result$filter_summary$prop_filtered * 100, 1)}%)"
+      )
+      if (length(filter_result$filtered_out) <= 10) {
+        cli::cli_inform("filtered variables: {.val {filter_result$filtered_out}}")
+      } else {
+        cli::cli_inform("filtered variables (showing first 10): {.val {filter_result$filtered_out[1:10]}} ...")
+      }
+    } else {
+      cli::cli_inform("pre-filtering: no variables were filtered out")
+    }
+  }
+
+  x_ <- get_vars(x)
   .in <- x_ %in% col_names
   if (!all(.in)) {
     cli_abort("column(s) {.val {x_[!.in]}} specified in {.arg x} not in {.field data} (columns: {.val col_names}}) of {.arg obj}")
@@ -173,7 +250,7 @@ br_set_x2 <- function(obj, ...) {
   data <- br_get_data(obj)
   col_names <- colnames(data)
   if (nrow(data) == 0) {
-    cli_abort("cannot set {.arg x} for {.arg obj} with void data")
+    cli_abort("cannot set {.arg x2} for {.arg obj} with void data")
   }
 
   x <- br_get_x(obj)
@@ -187,7 +264,9 @@ br_set_x2 <- function(obj, ...) {
   assert_character(x2, allow_na = FALSE, allow_null = TRUE)
   assert_not_overlap(x, x2)
 
-  if (length(x2) > 0) x2 <- repair_names(x2, col_names)
+  if (length(x2) > 0) {
+    x2 <- repair_names(x2, col_names)
+  }
   x2_ <- get_vars(x2)
 
   .in <- x2_ %in% col_names
@@ -255,14 +334,33 @@ br_set_model <- function(obj, method, ...) {
 
 #' @describeIn pipeline Run the regression analysis in batch.
 #' @export
-br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
+br_run <- function(obj, ...,
+                   group_by = NULL, n_workers = 1L,
+                   run_parallel = lifecycle::deprecated()) {
   assert_breg_obj(obj)
   assert_character(group_by, allow_na = FALSE, allow_null = TRUE)
-  assert_number_whole(run_parallel, min = 1, max = parallel::detectCores() - 1)
+  if (br_get_n_x(obj) < 1) {
+    cli::cli_abort("{.fn br_set_x} must run before {.fn br_run}")
+  }
+  if (length(br_get_y(obj)) < 1) {
+    cli::cli_abort("{.fn br_set_y} must run before {.fn br_run}")
+  }
+  on.exit(invisible(gc()))
 
-  if (run_parallel > 1) {
+  if (lifecycle::is_present(run_parallel)) {
+    # Signal the deprecation to the user
+    lifecycle::deprecate_warn("1.1.0", "bregr::br_run(run_parallel = )", "bregr::br_run(n_workers = )")
+    # Deal with the deprecated argument for compatibility
+    n_workers <- run_parallel
+  }
+  assert_number_whole(n_workers, min = 1)
+  if (n_workers > 1 && n_workers > parallel::detectCores() * 5) {
+    cli::cli_abort("a large worker number {n_workers} set for {.arg n_workers} (>{.code parallel::detectCores()*5})")
+  }
+
+  if (n_workers > 1) {
     if (obj@n_x < 100) {
-      cli::cli_warn("running in parallel is typically not recommended for small number (<100) of focal terms")
+      cli::cli_warn("running in parallel is typically not recommended for a small number (<100) of focal terms")
     }
   }
 
@@ -292,14 +390,14 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   exponentiate <- dots[["exponentiate"]]
 
   if (is.null(group_by)) {
-    res <- runner(ms, obj@data, dots, obj@x, run_parallel)
+    res <- runner(ms, obj@data, dots, obj@y, obj@x, obj@x2, n_workers)
   } else {
     obj@group_by <- group_by
     data_split <- obj@data |>
       named_group_split(obj@data[, group_by, drop = FALSE])
     data_split[["All"]] <- obj@data
     res_list <- map(data_split, function(data) {
-      runner(ms, data, dots, obj@x, run_parallel)
+      runner(ms, data, dots, obj@y, obj@x, obj@x2, n_workers, group_by)
     })
     res <- list_transpose(res_list)
     res$models <- purrr::list_flatten(res$models)
@@ -314,42 +412,32 @@ br_run <- function(obj, ..., group_by = NULL, run_parallel = 1L) {
   obj
 }
 
-set_future_strategy <- function() {
-  if (packageVersion("future") >= "1.20.0") {
-    "multisession"
+runner <- function(ms, data, dots, y, x, x2, n_workers, group_by = NULL) {
+  on.exit(invisible(gc()))
+  # Subset data to only necessary columns before model construction
+  necessary_cols <- get_necessary_columns(y, x, x2, group_by, colnames(data))
+  data <- data[, necessary_cols, drop = FALSE]
+
+  if (n_workers > 1) {
+    res <- with(
+      mirai::daemons(n_workers),
+      {
+        mp <- mirai::mirai_map(
+          ms, runner_,
+          .args = list(
+            data = data, dots = dots,
+            opts = options()
+          )
+        )
+        mp[.progress]
+      }
+    )
   } else {
-    "multiprocess"
-  }
-}
-
-runner <- function(ms, data, dots, x, run_parallel) {
-  if (run_parallel > 1) {
-    use_furrr <- getOption("bregr.use_furrr", default = TRUE)
-
-    if (use_furrr) {
-      rlang::check_installed("future", "furrr")
-
-      options(future.globals.maxSize = Inf)
-      on.exit(options(future.globals.maxSize = NULL))
-
-      oplan <- future::plan()
-      future::plan(set_future_strategy(), workers = run_parallel)
-      on.exit(future::plan(oplan))
-
-      res <- furrr::future_map(ms, runner_,
-        data = data, dots = dots,
-        .progress = TRUE,
-        .options = furrr::furrr_options(seed = TRUE)
-      )
-    } else {
-      cli::cli_inform(c(
-        "{.pkg furrr} is disabled by option {.code options(bregr.use_furrr = FALSE)}",
-        "i" = "use {.fn parallel::mclapply()} instead, this does not work for Windows"
-      ))
-      res <- parallel::mclapply(ms, runner_, data = data, dots = dots, mc.cores = run_parallel)
-    }
-  } else {
-    res <- map(ms, runner_, data = data, dots = dots)
+    res <- map(
+      ms, runner_,
+      data = data, dots = dots,
+      opts = options()
+    )
   }
 
   res <- list_transpose(res)
@@ -364,7 +452,12 @@ runner <- function(ms, data, dots, x, run_parallel) {
   )
 }
 
-runner_ <- function(m, data, dots) {
+runner_ <- function(m, data, dots, opts = NULL) {
+  on.exit(invisible(gc()))
+  model_vars <- get_vars(m)
+  necessary_cols <- model_vars[model_vars %in% colnames(data)]
+  data <- data[, necessary_cols, drop = FALSE]
+  options(opts)
   # m: model template
   # data: data frame for modeling
   # dots: arguments passing to parse model parameters
@@ -424,7 +517,7 @@ runner_ <- function(m, data, dots) {
   }
 
   if (isTRUE(as.logical(getOption("bregr.save_model", default = FALSE)))) {
-    rlang::check_installed(c("fs", "digest", "qs"))
+    rlang::check_installed(c("fs", "ids", "qs"))
     md_path <- getOption("bregr.path", default = "")
     if (md_path == "") {
       md_path <- fs::path_temp()
@@ -433,7 +526,12 @@ runner_ <- function(m, data, dots) {
       .frequency = "once", .frequency_id = md_path
     )
     fs::dir_create(md_path)
-    dg <- digest::digest(model)
+    dg <- suppressWarnings(ids::uuid(1, use_time = TRUE))
+    if (!rlang::is_string(dg)) {
+      cli::cli_abort(
+        "failed to generate uuid for file, please check"
+      )
+    }
     md_file <- fs::path(md_path, dg, ext = "qs")
     qs::qsave(model, file = md_file)
     model <- md_file

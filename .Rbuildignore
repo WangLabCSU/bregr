@@ -9,7 +9,7 @@
 ^\.github$
 ^data-raw$
 ^\.vscode$
-
+copilot-instructions.md
 
 # flir files
 ^flir$
@@ -17,4 +17,5 @@
 ^doc$
 ^Meta$
 ^icon$
+^examples$
 ^CRAN-SUBMISSION$

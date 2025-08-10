@@ -95,7 +95,7 @@ br_get_n_x2(m)
 br_get_group_by(m)
 br_get_config(m)
 br_get_models(m)
-br_get_model(m, 1)
+br_get_models(m, 1)
 br_get_n_x2(m)
 br_get_results(m)
 br_get_results(m, tidy = TRUE)
@@ -104,4 +104,8 @@ br_get_results(m, tidy = TRUE, term == "cyl")
 }
 \seealso{
 \link{pipeline} for building \code{breg} objects.
+
+Other accessors: 
+\code{\link{br_predict}()}
 }
+\concept{accessors}

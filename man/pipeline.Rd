@@ -17,20 +17,40 @@ br_pipeline(
   method,
   x2 = NULL,
   group_by = NULL,
-  run_parallel = 1L,
+  n_workers = 1L,
+  run_parallel = lifecycle::deprecated(),
   model_args = list(),
-  run_args = list()
+  run_args = list(),
+  filter_x = FALSE,
+  filter_na_prop = 0.8,
+  filter_sd_min = 1e-06,
+  filter_var_min = 1e-06,
+  filter_min_levels = 2
 )
 
 br_set_y(obj, y)
 
-br_set_x(obj, ...)
+br_set_x(
+  obj,
+  ...,
+  filter_x = FALSE,
+  filter_na_prop = 0.8,
+  filter_sd_min = 1e-06,
+  filter_var_min = 1e-06,
+  filter_min_levels = 2
+)
 
 br_set_x2(obj, ...)
 
 br_set_model(obj, method, ...)
 
-br_run(obj, ..., group_by = NULL, run_parallel = 1L)
+br_run(
+  obj,
+  ...,
+  group_by = NULL,
+  n_workers = 1L,
+  run_parallel = lifecycle::deprecated()
+)
 }
 \arguments{
 \item{data}{A \code{data.frame} containing all necessary variables for analysis.
@@ -49,15 +69,27 @@ e.g., 'quasi(variance = "mu", link = "log")'.
 Or a list with 4 elements, see \code{\link[=br_avail_method_config]{br_avail_method_config()}}
 for examples.}
 
-\item{x2}{Character vector specifying control independent terms (predictor, optional).}
+\item{x2}{Character vector specifying control independent terms (predictors, optional).}
 
 \item{group_by}{A string specifying the group by column.}
 
-\item{run_parallel}{Integer, indicating cores to run the task, default is \code{1}.}
+\item{n_workers, run_parallel}{Integer, indicating integer number
+of workers to launch, default is \code{1L}. When \verb{>1},
+run modeling code in parallel in the background.}
 
 \item{model_args}{A list of arguments passed to \code{br_set_model()}.}
 
 \item{run_args}{A list of arguments passed to \code{br_run()}.}
+
+\item{filter_x}{Logical, whether to enable pre-filtering of focal variables. Default is \code{FALSE}.}
+
+\item{filter_na_prop}{Numeric, maximum proportion of NA values allowed for a variable. Default is \code{0.8}.}
+
+\item{filter_sd_min}{Numeric, minimum standard deviation required for a variable. Default is \code{1e-6}.}
+
+\item{filter_var_min}{Numeric, minimum variance required for a variable. Default is \code{1e-6}.}
+
+\item{filter_min_levels}{Numeric, minimum number of unique levels required for categorical variables. Default is \code{2}.}
 
 \item{obj}{An object of class \code{breg}.}
 
@@ -88,6 +120,16 @@ Supports both GLM and Cox-PH models with options for focal/control terms and par
 Please note the difference between \href{https://easystats.github.io/insight/#variables}{variables} and
 \href{https://easystats.github.io/insight/#terms}{terms},
 e.g., \code{x + poly(x, 2)} has \emph{one} variable \code{x}, but \emph{two} terms \code{x} and \code{poly(x, 2)}.
+\subsection{Global options}{
+
+\strong{bregr} supported global options can be set with \code{options()}.
+Currently they are used in \code{br_run()}.
+\itemize{
+\item \code{bregr.save_model}: If \code{TRUE}, saves models to local disk.
+\item \code{bregr.path}: A path for saving models, defaults to using a
+temporary directory.
+}
+}
 }
 \section{Functions}{
 \itemize{
@@ -147,13 +189,16 @@ m4 <- br_pipeline(mtcars,
 )
 
 # 3. Customized model -----------
+\dontrun{
 dt <- data.frame(x = rnorm(100))
 dt$y <- rpois(100, exp(1 + dt$x))
+
 m5 <- breg(dt) |>
   br_set_y("y") |>
   br_set_x("x") |>
   br_set_model(method = 'quasi(variance = "mu", link = "log")') |>
   br_run()
+}
 
 }
 \seealso{
