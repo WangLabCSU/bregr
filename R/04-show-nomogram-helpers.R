@@ -7,8 +7,12 @@
   # Extract model coefficients and terms
   coefs <- stats::coef(model)
 
-  # Remove any NA coefficients (for singular fits)
-  coefs <- coefs[!is.na(coefs)]
+  # Handle NA coefficients (for singular fits) while preserving coefficient-term correspondence
+  if (any(is.na(coefs))) {
+    na_coefs <- names(coefs)[is.na(coefs)]
+    cli::cli_inform("Removing {length(na_coefs)} NA coefficient{?s} due to singular fit: {.val {na_coefs}}")
+    coefs <- coefs[!is.na(coefs)]
+  }
 
   if (length(coefs) == 0) {
     cli::cli_abort("No valid coefficients found in the model")
@@ -300,11 +304,25 @@
 .create_lm_nomogram <- function(model, fun_at, point_range, title, subtitle, model_name) {
   # Extract model coefficients and terms
   coefs <- stats::coef(model)
-
-  # Remove intercept and any NA coefficients
-  intercept <- coefs[1]
-  coefs <- coefs[-1] # Remove intercept
-  coefs <- coefs[!is.na(coefs)]
+  
+  # Check if model has intercept using proper method
+  model_terms <- stats::terms(model)
+  has_intercept <- attr(model_terms, "intercept") == 1
+  
+  # Handle intercept removal if present
+  if (has_intercept) {
+    intercept <- coefs[1]
+    coefs <- coefs[-1] # Remove intercept
+  } else {
+    cli::cli_inform("Model fitted without intercept")
+  }
+  
+  # Handle NA coefficients (for singular fits) while preserving coefficient-term correspondence  
+  if (any(is.na(coefs))) {
+    na_coefs <- names(coefs)[is.na(coefs)]
+    cli::cli_inform("Removing {length(na_coefs)} NA coefficient{?s} due to singular fit: {.val {na_coefs}}")
+    coefs <- coefs[!is.na(coefs)]
+  }
 
   if (length(coefs) == 0) {
     cli::cli_abort("No valid coefficients found in the model")

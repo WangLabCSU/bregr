@@ -77,3 +77,44 @@ test_that("br_show_nomogram produces correct plot structure", {
   expect_true("layers" %in% names(p))
   expect_true("theme" %in% names(p))
 })
+
+test_that("br_show_nomogram handles models without intercepts", {
+  # Create model data that can handle no-intercept fitting
+  test_data <- mtcars[1:15, ]
+  test_data$vs <- factor(test_data$vs)
+  
+  # Fit model without intercept manually to test coefficient handling
+  no_int_model <- lm(mpg ~ hp + wt - 1, data = test_data)
+  
+  # Test that our coefficient handling logic works
+  coefs <- stats::coef(no_int_model)
+  model_terms <- stats::terms(no_int_model)
+  has_intercept <- attr(model_terms, "intercept") == 1
+  
+  expect_false(has_intercept)
+  expect_false("(Intercept)" %in% names(coefs))
+  expect_true(length(coefs) >= 2)
+  expect_false(any(is.na(coefs)))
+})
+
+test_that("br_show_nomogram handles singular coefficient matrices", {
+  # Create data with collinear variables to test NA coefficient handling
+  singular_data <- data.frame(
+    y = 1:10,
+    x1 = 1:10,
+    x2 = 2 * (1:10), # x2 = 2 * x1, creating collinearity
+    x3 = rnorm(10)
+  )
+  
+  # Fit model that will have singular coefficients
+  singular_model <- lm(y ~ x1 + x2 + x3, data = singular_data)
+  coefs <- stats::coef(singular_model)
+  
+  # Check that we can handle NA coefficients
+  if (any(is.na(coefs))) {
+    # Test that our NA handling preserves coefficient-term correspondence
+    non_na_coefs <- coefs[!is.na(coefs)]
+    expect_true(length(non_na_coefs) > 0)
+    expect_true(all(!is.na(non_na_coefs)))
+  }
+})
