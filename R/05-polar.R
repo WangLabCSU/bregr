@@ -50,10 +50,15 @@ br_show_risk_network <- function(breg, ...) {
     data_reg$estimate <- exp(data_reg$estimate)
   }
 
+  role_lvls <- c("non-signf", "protector", "risker")
   data_reg$role <- dplyr::case_when(
     data_reg$p.value > 0.05 ~ "non-signf",
     data_reg$estimate < 1 ~ "protector",
     data_reg$estimate > 1 ~ "risker"
+  )
+  data_reg$role <- factor(data_reg$role,
+    levels = role_lvls,
+    labels = role_lvls
   )
   data_reg$`-log10(p)` <- -log10(data_reg$p.value)
   data_reg2 <- data_reg[, c("Focal_variable", "n_obs", "estimate", "role", "-log10(p)")]
@@ -61,9 +66,18 @@ br_show_risk_network <- function(breg, ...) {
   # TODO: support factors with model matrix? broom.helpers::model_get_model_matrix(breg@models[[1]])?
 
   # 2. Correlation analysis
+  x <- x[x %in% data_reg2$Focal_variable]
+  if (length(x) > 20) {
+    cli::cli_warn(
+      c("show larger variable number (n>20) is not recommended",
+        "i" = "please filter data with code like {.code br_show_risk_network(breg, Focal_variable %in% selected_list)}"
+      )
+    )
+  }
+
   vars_comb <- combn(x |> get_vars(), 2, simplify = FALSE)
   cor_value <- rlang::try_fetch(
-    sapply(vars_comb, function(x) {
+    purrr::map_dbl(vars_comb, function(x) {
       cor(data[[x[1]]], data[[x[2]]], use = "pairwise")
     }),
     error = function(e) {
@@ -71,12 +85,18 @@ br_show_risk_network <- function(breg, ...) {
     }
   )
 
-
-  data_cor <- cbind(as.data.frame(t(sapply(vars_comb, function(x) x))), cor_value)
-  colnames(data_cor) <- c("var1", "var2", "correlation")
+  data_cor <- tibble::tibble(
+    var1 = purrr::map_chr(vars_comb, ~ .x[1]),
+    var2 = purrr::map_chr(vars_comb, ~ .x[2]),
+    correlation = cor_value
+  )
   data_cor$linewidth <- abs(data_cor$correlation)
-  data_cor$way <- ifelse(data_cor$correlation > 0, "positive", "negative")
-  data_cor
+  data_cor$way <- if_else(data_cor$correlation > 0, "positive", "negative")
+  data_cor$way <- factor(
+    data_cor$way,
+    levels = c("negative", "positive"),
+    labels = c("negative", "positive")
+  )
 
   # 3. Visualization
   p <- polar_init(
@@ -85,7 +105,10 @@ br_show_risk_network <- function(breg, ...) {
       x = .data$Focal_variable,
       color = .data$role, size = .data$`-log10(p)`
     )
-  ) + ggplot2::scale_color_manual(values = c("grey", "blue", "red")) +
+  ) + ggplot2::scale_color_manual(
+    values = c("grey", "blue", "red"),
+    drop = FALSE
+  ) +
     labs(size = "-log10(p)", color = "risk type") +
     ggnewscale::new_scale("color") +
     ggnewscale::new_scale("linewidth") +
@@ -96,8 +119,13 @@ br_show_risk_network <- function(breg, ...) {
       ),
       alpha = 0.5
     ) +
-    ggplot2::scale_color_manual(values = c("cyan", "orange")) +
-    ggplot2::labs(color = "correlation type", linewidth = "correlation size") +
+    ggplot2::scale_color_manual(
+      values = c("cyan", "orange"), drop = FALSE
+    ) +
+    ggplot2::labs(
+      color = "correlation type",
+      linewidth = "correlation size"
+    ) +
     ggplot2::theme(
       legend.position = "right",
       legend.direction = "vertical",
@@ -192,11 +220,12 @@ polar_init <- function(data, mapping, ...) {
   mapping <- merge_mapping(mapping, mapping2)
 
   ggplot(data) +
-    geom_point(mapping = mapping, ...) +
+    # https://github.com/tidyverse/ggplot2/issues/5996
+    geom_point(mapping = mapping, ..., show.legend = TRUE) +
     coord_polar() +
     expand_limits(y = c(0, 1.3)) +
     theme(
-      axis.text = element_text(size = 12),
+      axis.text = element_text(size = 10),
       axis.text.x = element_text(hjust = -Inf, vjust = -Inf),
       axis.text.y = element_blank(),
       axis.line.y = element_blank(),

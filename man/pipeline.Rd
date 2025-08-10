@@ -20,12 +20,25 @@ br_pipeline(
   n_workers = 1L,
   run_parallel = lifecycle::deprecated(),
   model_args = list(),
-  run_args = list()
+  run_args = list(),
+  filter_x = FALSE,
+  filter_na_prop = 0.8,
+  filter_sd_min = 1e-06,
+  filter_var_min = 1e-06,
+  filter_min_levels = 2
 )
 
 br_set_y(obj, y)
 
-br_set_x(obj, ...)
+br_set_x(
+  obj,
+  ...,
+  filter_x = FALSE,
+  filter_na_prop = 0.8,
+  filter_sd_min = 1e-06,
+  filter_var_min = 1e-06,
+  filter_min_levels = 2
+)
 
 br_set_x2(obj, ...)
 
@@ -56,7 +69,7 @@ e.g., 'quasi(variance = "mu", link = "log")'.
 Or a list with 4 elements, see \code{\link[=br_avail_method_config]{br_avail_method_config()}}
 for examples.}
 
-\item{x2}{Character vector specifying control independent terms (predictor, optional).}
+\item{x2}{Character vector specifying control independent terms (predictors, optional).}
 
 \item{group_by}{A string specifying the group by column.}
 
@@ -67,6 +80,16 @@ run modeling code in parallel in the background.}
 \item{model_args}{A list of arguments passed to \code{br_set_model()}.}
 
 \item{run_args}{A list of arguments passed to \code{br_run()}.}
+
+\item{filter_x}{Logical, whether to enable pre-filtering of focal variables. Default is \code{FALSE}.}
+
+\item{filter_na_prop}{Numeric, maximum proportion of NA values allowed for a variable. Default is \code{0.8}.}
+
+\item{filter_sd_min}{Numeric, minimum standard deviation required for a variable. Default is \code{1e-6}.}
+
+\item{filter_var_min}{Numeric, minimum variance required for a variable. Default is \code{1e-6}.}
+
+\item{filter_min_levels}{Numeric, minimum number of unique levels required for categorical variables. Default is \code{2}.}
 
 \item{obj}{An object of class \code{breg}.}
 
@@ -102,8 +125,8 @@ e.g., \code{x + poly(x, 2)} has \emph{one} variable \code{x}, but \emph{two} ter
 \strong{bregr} supported global options can be set with \code{options()}.
 Currently they are used in \code{br_run()}.
 \itemize{
-\item \code{bregr.save_model}: If \code{TRUE}, save model to local disk.
-\item \code{bregr.path}: A path for save model, default uses a
+\item \code{bregr.save_model}: If \code{TRUE}, saves models to local disk.
+\item \code{bregr.path}: A path for saving models, defaults to using a
 temporary directory.
 }
 }
@@ -166,9 +189,10 @@ m4 <- br_pipeline(mtcars,
 )
 
 # 3. Customized model -----------
+\dontrun{
 dt <- data.frame(x = rnorm(100))
 dt$y <- rpois(100, exp(1 + dt$x))
-\donttest{
+
 m5 <- breg(dt) |>
   br_set_y("y") |>
   br_set_x("x") |>
