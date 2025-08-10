@@ -18,7 +18,7 @@
 #' Currently they are used in `br_run()`.
 #'
 #' - `bregr.save_model`: If `TRUE`, save model to local disk.
-#' - `bregr.path`: A path for save model, default uses a
+#' - `bregr.path`: A path for saving models, default uses a
 #' temporary directory.
 #'
 #' @returns
@@ -250,7 +250,7 @@ br_set_x2 <- function(obj, ...) {
   data <- br_get_data(obj)
   col_names <- colnames(data)
   if (nrow(data) == 0) {
-    cli_abort("cannot set {.arg x} for {.arg obj} with void data")
+    cli_abort("cannot set {.arg x2} for {.arg obj} with void data")
   }
 
   x <- br_get_x(obj)
@@ -358,7 +358,7 @@ br_run <- function(obj, ...,
 
   if (n_workers > 1) {
     if (obj@n_x < 100) {
-      cli::cli_warn("running in parallel is typically not recommended for small number (<100) of focal terms")
+      cli::cli_warn("running in parallel is typically not recommended for a small number (<100) of focal terms")
     }
   }
 
@@ -463,7 +463,7 @@ runner_ <- function(m, data, dots, opts = NULL) {
   model <- rlang::try_fetch(
     rlang::eval_bare(rlang::parse_expr(m)),
     error = function(e) {
-      cli::cli_inform("modeling failed for expression: {.code {m}}")
+      cli::cli_inform("Modeling failed for expression: {.code {m}}")
       cli::cli_warn(e$message)
       NULL
     }

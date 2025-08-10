@@ -1,6 +1,10 @@
 Package: bregr
 Title: Easy and Efficient Batch Processing of Regression Models
 Version: 1.0.0.9000
+Author: Shixiang Wang [aut, cre] (<https://orcid.org/0000-0001-9855-7357>),
+  Yun Peng [aut] (<https://orcid.org/0000-0003-2801-3332>),
+  Chenyang Shu [aut]
+Maintainer: Shixiang Wang <w_shixiang@163.com>
 Authors@R: c(
     person("Shixiang", "Wang", , "w_shixiang@163.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-9855-7357")),
@@ -8,8 +12,7 @@ Authors@R: c(
            comment = c(ORCID = "0000-0003-2801-3332")),
     person("Chenyang", "Shu", , "402221506@qq.com", role = "aut")
   )
-Maintainer: Shixiang Wang <w_shixiang@163.com>
-Description: Easily process batches of univariate or multivariate
+Description: Easily processes batches of univariate or multivariate
     regression models. Returns results in a tidy format and generates
     visualization plots for straightforward interpretation (Wang,
     Shixiang, et al. (2021) <DOI:10.48550/arXiv.2110.14232>).

@@ -36,17 +36,19 @@ get_necessary_columns <- function(y, x, x2, group_by, available_cols) {
     necessary_cols <- union(necessary_cols, ".row_names")
   }
 
-  return(necessary_cols)
+  necessary_cols
 }
 
 merge_vars <- function(...) {
   vars_list <- list(...) |> unlist()
-  rv <- NULL
-  for (i in vars_list) {
-    v <- unique(sapply(i, get_vars))
-    if (length(v) > 0) rv <- union(rv, v)
-  }
-  rv
+  if (length(vars_list) == 0) return(NULL)
+  
+  all_vars <- vars_list |>
+    purrr::map(get_vars) |>
+    purrr::list_c() |>
+    unique()
+  
+  if (length(all_vars) == 0) NULL else all_vars
 }
 
 # x: terms to repair
@@ -195,14 +197,15 @@ filter_variables_x <- function(data, x, filter_na_prop = 0.8, filter_sd_min = 1e
   }
 
   # Get variable names from terms (handle complex terms like I(x^2))
-  x_vars <- sapply(x, get_vars)
-  x_simple <- x_vars[sapply(x_vars, function(v) length(v) == 1)]
-
+  x_vars <- purrr::map(x, get_vars)
+  var_lengths <- purrr::map_int(x_vars, length)
+  
   # For complex terms with multiple variables, we keep them for now
   # Only filter simple single-variable terms
-  complex_terms <- x[sapply(x_vars, function(v) length(v) != 1)]
-  simple_terms <- x[sapply(x_vars, function(v) length(v) == 1)]
-  simple_vars <- x_simple
+  is_simple <- var_lengths == 1
+  complex_terms <- x[!is_simple]
+  simple_terms <- x[is_simple]
+  simple_vars <- x_vars[is_simple] |> unlist()
 
   if (length(simple_vars) == 0) {
     return(list(
