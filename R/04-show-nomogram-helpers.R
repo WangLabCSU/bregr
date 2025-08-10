@@ -56,10 +56,10 @@
         n_line_points <- 21
         var_values_line <- seq(var_range[1], var_range[2], length.out = n_line_points)
         
-        # Calculate points for the line
-        baseline_value <- min(var_values_line)
-        points_line <- (var_values_line - baseline_value) * coef_val * point_scale_factor / diff(var_range) + 
-                      point_range[1] + diff(point_range) * 0.1
+        # Create evenly spaced x-positions for the variable scale (NOT scaled by coefficient)
+        points_line <- seq(point_range[1] + diff(point_range) * 0.1, 
+                          point_range[2] - diff(point_range) * 0.1, 
+                          length.out = n_line_points)
         
         # Create labels and tick marks at meaningful intervals (every 5th point)
         tick_indices <- seq(1, n_line_points, by = 5)
@@ -324,10 +324,10 @@
         n_line_points <- 21
         var_values <- seq(var_range[1], var_range[2], length.out = n_line_points)
         
-        # Improved point scaling
-        baseline_value <- min(var_values)
-        points <- (var_values - baseline_value) * coef_val * point_scale_factor / diff(var_range) + 
-                  point_range[1] + diff(point_range) * 0.1
+        # Create evenly spaced x-positions for the variable scale (NOT scaled by coefficient)
+        points <- seq(point_range[1] + diff(point_range) * 0.1, 
+                     point_range[2] - diff(point_range) * 0.1, 
+                     length.out = n_line_points)
         
         # Create labels at meaningful intervals
         tick_indices <- seq(1, n_line_points, by = 5)
