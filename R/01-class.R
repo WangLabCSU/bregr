@@ -82,7 +82,7 @@ method(print, breg) <- function(x, ..., raw = FALSE) {
   if (raw) {
     print(utils::str(x))
   } else {
-    cli_text("A object of {.cls breg} class with slots:\n")
+    cli_text("an object of {.cls breg} class with slots:\n")
 
     qty_x <- qty(x@n_x)
     qty_x2 <- qty(x@n_x2)

@@ -77,7 +77,7 @@ br_show_risk_network <- function(breg, ...) {
 
   vars_comb <- combn(x |> get_vars(), 2, simplify = FALSE)
   cor_value <- rlang::try_fetch(
-    sapply(vars_comb, function(x) {
+    purrr::map_dbl(vars_comb, function(x) {
       cor(data[[x[1]]], data[[x[2]]], use = "pairwise")
     }),
     error = function(e) {
@@ -85,13 +85,13 @@ br_show_risk_network <- function(breg, ...) {
     }
   )
 
-  data_cor <- cbind(
-    as.data.frame(t(sapply(vars_comb, function(x) x))),
-    cor_value
+  data_cor <- tibble::tibble(
+    var1 = purrr::map_chr(vars_comb, ~ .x[1]),
+    var2 = purrr::map_chr(vars_comb, ~ .x[2]),
+    correlation = cor_value
   )
-  colnames(data_cor) <- c("var1", "var2", "correlation")
   data_cor$linewidth <- abs(data_cor$correlation)
-  data_cor$way <- ifelse(data_cor$correlation > 0, "positive", "negative")
+  data_cor$way <- if_else(data_cor$correlation > 0, "positive", "negative")
   data_cor$way <- factor(
     data_cor$way,
     levels = c("negative", "positive"),

@@ -9,7 +9,7 @@ Authors@R: c(
     person("Chenyang", "Shu", , "402221506@qq.com", role = "aut")
   )
 Maintainer: Shixiang Wang <w_shixiang@163.com>
-Description: Easily process batches of univariate or multivariate
+Description: Easily processes batches of univariate or multivariate
     regression models. Returns results in a tidy format and generates
     visualization plots for straightforward interpretation (Wang,
     Shixiang, et al. (2021) <DOI:10.48550/arXiv.2110.14232>).

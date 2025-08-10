@@ -17,8 +17,8 @@
 #' **bregr** supported global options can be set with `options()`.
 #' Currently they are used in `br_run()`.
 #'
-#' - `bregr.save_model`: If `TRUE`, save model to local disk.
-#' - `bregr.path`: A path for save model, default uses a
+#' - `bregr.save_model`: If `TRUE`, saves models to local disk.
+#' - `bregr.path`: A path for saving models, defaults to using a
 #' temporary directory.
 #'
 #' @returns
@@ -35,7 +35,7 @@
 #' For GLM models, this is typically a single character (e.g., `"outcome"`).
 #' For Cox-PH models, it should be a length-2 vector in the format `c("time", "status")`.
 #' @param x Character vector specifying focal independent terms (predictors).
-#' @param x2 Character vector specifying control independent terms (predictor, optional).
+#' @param x2 Character vector specifying control independent terms (predictors, optional).
 #' @param method Method for model construction.
 #' A name or a list specifying custom model setting.
 #' A string representing a complex method setting is acceptable,
@@ -224,12 +224,12 @@ br_set_x <- function(obj, ...,
         "Pre-filtering removed {filter_result$filter_summary$filtered} out of {filter_result$filter_summary$total} focal variables ({round(filter_result$filter_summary$prop_filtered * 100, 1)}%)"
       )
       if (length(filter_result$filtered_out) <= 10) {
-        cli::cli_inform("Filtered variables: {.val {filter_result$filtered_out}}")
+        cli::cli_inform("filtered variables: {.val {filter_result$filtered_out}}")
       } else {
-        cli::cli_inform("Filtered variables (showing first 10): {.val {filter_result$filtered_out[1:10]}} ...")
+        cli::cli_inform("filtered variables (showing first 10): {.val {filter_result$filtered_out[1:10]}} ...")
       }
     } else {
-      cli::cli_inform("Pre-filtering: no variables were filtered out")
+      cli::cli_inform("pre-filtering: no variables were filtered out")
     }
   }
 
@@ -250,7 +250,7 @@ br_set_x2 <- function(obj, ...) {
   data <- br_get_data(obj)
   col_names <- colnames(data)
   if (nrow(data) == 0) {
-    cli_abort("cannot set {.arg x} for {.arg obj} with void data")
+    cli_abort("cannot set {.arg x2} for {.arg obj} with void data")
   }
 
   x <- br_get_x(obj)
@@ -264,7 +264,9 @@ br_set_x2 <- function(obj, ...) {
   assert_character(x2, allow_na = FALSE, allow_null = TRUE)
   assert_not_overlap(x, x2)
 
-  if (length(x2) > 0) x2 <- repair_names(x2, col_names)
+  if (length(x2) > 0) {
+    x2 <- repair_names(x2, col_names)
+  }
   x2_ <- get_vars(x2)
 
   .in <- x2_ %in% col_names
@@ -358,7 +360,7 @@ br_run <- function(obj, ...,
 
   if (n_workers > 1) {
     if (obj@n_x < 100) {
-      cli::cli_warn("running in parallel is typically not recommended for small number (<100) of focal terms")
+      cli::cli_warn("running in parallel is typically not recommended for a small number (<100) of focal terms")
     }
   }
 
