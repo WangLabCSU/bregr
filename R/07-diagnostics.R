@@ -61,7 +61,7 @@ br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
         models <- list(all_models[[idx]])
         names(models) <- idx
       } else {
-        warning(paste("Model", idx, "not found"))
+        cli::cli_warn("Model {idx} not found")
         return(NULL)
       }
     } else {
@@ -70,7 +70,7 @@ br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
         models <- list(all_models[[idx]])
         names(models) <- names(all_models)[idx]
       } else {
-        warning(paste("Index", idx, "out of range"))
+        cli::cli_warn("Index {idx} out of range")
         return(NULL)
       }
     }
@@ -89,7 +89,7 @@ br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
       tryCatch({
         ph_test <- survival::cox.zph(model, transform = transform, ...)
       }, error = function(e) {
-        warning(paste("Failed to test proportional hazards assumption for model", model_name, ":", e$message))
+        cli::cli_warn("Failed to test proportional hazards assumption for model {model_name}: {e$message}")
       })
       
       # Get concordance index if available
@@ -219,13 +219,13 @@ print.br_diagnostics <- function(x, ...) {
           df <- test_table[j, "df"]
           p_value <- format.pval(test_table[j, "p"], digits = 3)
           
-          status_symbol <- if (test_table[j, "p"] < 0.05) "✗" else "✓"
+          status_symbol <- if (test_table[j, "p"] < 0.05) "x" else "+"
           cli::cli_text("  {status_symbol} {var_name}: χ² = {chisq}, df = {df}, p = {p_value}")
         }
         
         # Global test
         global_p <- format.pval(test_table["GLOBAL", "p"], digits = 3)
-        global_status <- if (test_table["GLOBAL", "p"] < 0.05) "✗ VIOLATED" else "✓ SATISFIED"
+        global_status <- if (test_table["GLOBAL", "p"] < 0.05) "x VIOLATED" else "+ SATISFIED"
         cli::cli_text("  Global test: p = {global_p} - Assumption {global_status}")
       } else {
         cli::cli_text("Proportional Hazards: Test failed")

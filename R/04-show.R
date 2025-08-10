@@ -629,7 +629,7 @@ br_show_coxph_diagnostics <- function(breg, idx = 1, type = "schoenfeld",
             } else {
               paste0("p = ", format.pval(p_val, digits = 3))
             }
-            ph_status <- if (p_val < 0.05) "PH Assumption Violated ✗" else "PH Assumption Satisfied ✓"
+            ph_status <- if (p_val < 0.05) "PH Assumption Violated" else "PH Assumption Satisfied"
             status_color <- if (p_val < 0.05) "red" else "darkgreen"
           } else {
             p_text <- "p = NA"
@@ -715,7 +715,7 @@ br_show_coxph_diagnostics <- function(breg, idx = 1, type = "schoenfeld",
           } else {
             paste0("p = ", format.pval(global_p, digits = 3))
           }
-          ph_status <- if (global_p < 0.05) "PH Assumption Violated ✗" else "PH Assumption Satisfied ✓"
+          ph_status <- if (global_p < 0.05) "PH Assumption Violated" else "PH Assumption Satisfied"
           status_color <- if (global_p < 0.05) "red" else "darkgreen"
         } else {
           p_text <- "p = NA"
@@ -782,8 +782,7 @@ br_show_coxph_diagnostics <- function(breg, idx = 1, type = "schoenfeld",
             # Add overall title for combined plots
             combined_plot <- combined_plot + 
               patchwork::plot_annotation(
-                title = paste("Cox Model Diagnostics -", model_name),
-                theme = ggplot2::theme(plot.title = ggplot2::element_text(size = 14, face = "bold"))
+                title = paste("Cox Model Diagnostics -", model_name)
               )
             return(combined_plot)
           }, error = function(e) {
