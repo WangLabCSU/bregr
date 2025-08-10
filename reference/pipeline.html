@@ -75,7 +75,15 @@ Supports both GLM and Cox-PH models with options for focal/control terms and par
 <span></span>
 <span><span class="fu">br_set_y</span><span class="op">(</span><span class="va">obj</span>, <span class="va">y</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">br_set_x</span><span class="op">(</span><span class="va">obj</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="fu">br_set_x</span><span class="op">(</span></span>
+<span>  <span class="va">obj</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  filter_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  filter_na_prop <span class="op">=</span> <span class="fl">0.8</span>,</span>
+<span>  filter_sd_min <span class="op">=</span> <span class="fl">1e-06</span>,</span>
+<span>  filter_var_min <span class="op">=</span> <span class="fl">1e-06</span>,</span>
+<span>  filter_min_levels <span class="op">=</span> <span class="fl">2</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">br_set_x2</span><span class="op">(</span><span class="va">obj</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
@@ -86,12 +94,7 @@ Supports both GLM and Cox-PH models with options for focal/control terms and par
 <span>  <span class="va">...</span>,</span>
 <span>  group_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_workers <span class="op">=</span> <span class="fl">1L</span>,</span>
-<span>  run_parallel <span class="op">=</span> <span class="fu">lifecycle</span><span class="fu">::</span><span class="fu"><a href="https://lifecycle.r-lib.org/reference/deprecated.html" class="external-link">deprecated</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  filter_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  filter_na_prop <span class="op">=</span> <span class="fl">0.8</span>,</span>
-<span>  filter_sd_min <span class="op">=</span> <span class="fl">1e-06</span>,</span>
-<span>  filter_var_min <span class="op">=</span> <span class="fl">1e-06</span>,</span>
-<span>  filter_min_levels <span class="op">=</span> <span class="fl">2</span></span>
+<span>  run_parallel <span class="op">=</span> <span class="fu">lifecycle</span><span class="fu">::</span><span class="fu"><a href="https://lifecycle.r-lib.org/reference/deprecated.html" class="external-link">deprecated</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
