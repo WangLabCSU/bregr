@@ -20,7 +20,7 @@ br_show_forest(
 
 \item{clean}{Logical indicating whether to clean/condense redundant group/focal variable labels.
 If \code{TRUE}, remove "Group" or "Focal" variable column when the values in the result table
-are same (before performing \code{subset} and \code{drop}),
+are the same (before performing \code{subset} and \code{drop}),
 and reduce repeat values in column "Group", "Focal", and "Variable".}
 
 \item{rm_controls}{If \code{TRUE}, remove control terms.}

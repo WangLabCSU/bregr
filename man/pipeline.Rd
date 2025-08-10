@@ -69,7 +69,7 @@ e.g., 'quasi(variance = "mu", link = "log")'.
 Or a list with 4 elements, see \code{\link[=br_avail_method_config]{br_avail_method_config()}}
 for examples.}
 
-\item{x2}{Character vector specifying control independent terms (predictor, optional).}
+\item{x2}{Character vector specifying control independent terms (predictors, optional).}
 
 \item{group_by}{A string specifying the group by column.}
 
@@ -125,8 +125,8 @@ e.g., \code{x + poly(x, 2)} has \emph{one} variable \code{x}, but \emph{two} ter
 \strong{bregr} supported global options can be set with \code{options()}.
 Currently they are used in \code{br_run()}.
 \itemize{
-\item \code{bregr.save_model}: If \code{TRUE}, save model to local disk.
-\item \code{bregr.path}: A path for save model, default uses a
+\item \code{bregr.save_model}: If \code{TRUE}, saves models to local disk.
+\item \code{bregr.path}: A path for saving models, defaults to using a
 temporary directory.
 }
 }

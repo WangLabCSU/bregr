@@ -137,7 +137,7 @@ mds_p <- br_pipeline(
   n_workers = 3
 )
 #> exponentiate estimates of model(s) constructed from coxph method at default
-#> ■■■■■■■                           20% | ETA: 46s
+#> ■■■■■■■                           20% | ETA: 47s
 #>                                                  
 ```
 
@@ -338,7 +338,7 @@ create survival curves grouped by these scores:
 # Generate model predictions
 scores <- br_predict(mds2, idx = "ph.ecog")
 #> `type` is not specified, use lp for the model
-#> Warning: Some predictions are NA, consider checking your data for missing
+#> Warning: some predictions are NA, consider checking your data for missing
 #> values
 head(scores)
 #>          1          2          3          4          5          6 
@@ -353,7 +353,7 @@ br_show_survival_curves(
   n_groups = 3,
   title = "Survival Curves by 'ph.ecog' Model Risk Score"
 )
-#> Warning: Some predictions are NA, consider checking your data for missing
+#> Warning: some predictions are NA, consider checking your data for missing
 #> values
 ```
 
@@ -425,15 +425,15 @@ site](https://wanglabcsu.github.io/bregr/).
 
 ``` r
 covr::package_coverage()
-#> bregr Coverage: 76.48%
-#> R/98-utils.R: 51.14%
+#> bregr Coverage: 75.70%
+#> R/98-utils.R: 57.89%
+#> R/06-avail.R: 66.07%
 #> R/03-accessors.R: 72.50%
 #> R/04-show.R: 75.87%
-#> R/02-pipeline.R: 76.32%
-#> R/06-avail.R: 78.57%
+#> R/02-pipeline.R: 77.36%
 #> R/01-class.R: 90.70%
 #> R/99-zzz.R: 90.91%
-#> R/05-polar.R: 95.19%
+#> R/05-polar.R: 92.37%
 ```
 
 ## Related Project(s)
