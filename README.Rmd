@@ -233,9 +233,11 @@ All functions are documented in the [package reference](https://wanglabcsu.githu
 covr::package_coverage()
 ```
 
-## Related Project(s)
+## Related/Similar Project(s)
 
 - [ezcox: Easily Process a Batch of Cox Models](https://github.com/ShixiangWang/ezcox/)
+- [autoReg](https://github.com/cardiomoon/autoReg/)
+- [riskRegression](https://github.com/tagteam/riskRegression/)
 
 ## LICENSE
 

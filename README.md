@@ -77,7 +77,7 @@ Load package(s):
 library(bregr)
 #> Welcome to 'bregr' package!
 #> =======================================================================
-#> You are using bregr version 1.0.0.9000
+#> You are using bregr version 1.1.0.9000
 #> 
 #> Project home : https://github.com/WangLabCSU/bregr
 #> Documentation: https://wanglabcsu.github.io/bregr/
@@ -137,7 +137,7 @@ mds_p <- br_pipeline(
   n_workers = 3
 )
 #> exponentiate estimates of model(s) constructed from coxph method at default
-#> ■■■■■■■                           20% | ETA: 47s
+#> ■■■■■■■                           20% | ETA: 46s
 #>                                                  
 ```
 
@@ -425,21 +425,25 @@ site](https://wanglabcsu.github.io/bregr/).
 
 ``` r
 covr::package_coverage()
-#> bregr Coverage: 75.70%
-#> R/98-utils.R: 57.89%
+#> bregr Coverage: 70.35%
+#> R/98-utils.R: 58.17%
+#> R/07-diagnostics.R: 63.41%
 #> R/06-avail.R: 66.07%
-#> R/03-accessors.R: 72.50%
-#> R/04-show.R: 75.87%
+#> R/04-show.R: 66.80%
+#> R/04-show-nomogram-helpers.R: 68.59%
+#> R/03-accessors.R: 75.31%
 #> R/02-pipeline.R: 77.36%
 #> R/01-class.R: 90.70%
 #> R/99-zzz.R: 90.91%
 #> R/05-polar.R: 92.37%
 ```
 
-## Related Project(s)
+## Related/Similar Project(s)
 
 - [ezcox: Easily Process a Batch of Cox
   Models](https://github.com/ShixiangWang/ezcox/)
+- [autoReg](https://github.com/cardiomoon/autoReg/)
+- [riskRegression](https://github.com/tagteam/riskRegression/)
 
 ## LICENSE
 
