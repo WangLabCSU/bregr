@@ -872,14 +872,14 @@ br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted") {
 #' Show nomogram for regression models
 #'
 #' @description
-#' \`r lifecycle::badge('experimental')\`
+#' `r lifecycle::badge('experimental')`
 #'
 #' Creates a nomogram (graphical calculator) for regression models, particularly
 #' useful for Cox proportional hazards models. A nomogram allows visual calculation
 #' of predicted outcomes by assigning points to variable values and summing them
 #' to get total points that correspond to predicted probabilities.
 #'
-#' @param breg A \`breg\` object with fitted regression models.
+#' @param breg A `breg` object with fitted regression models.
 #' @param idx Index or name of the model to use for the nomogram.
 #' If NULL, uses the first model.
 #' @param time_points For Cox models, time points at which to show survival probabilities.
@@ -894,19 +894,19 @@ br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted") {
 #' @examples
 #' \donttest{
 #' # Cox regression nomogram
-#' if (requireNamespace("survival", quietly = TRUE)) {
-#'   lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
-#'   lung$ph.ecog <- factor(lung$ph.ecog)
-#'   mds <- br_pipeline(
-#'     lung,
-#'     y = c("time", "status"),
-#'     x = c("age", "ph.ecog"),
-#'     x2 = "sex",
-#'     method = "coxph"
-#'   )
-#'   p <- br_show_nomogram(mds)
-#'   print(p)
-#' }
+#'
+#' lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
+#' lung$ph.ecog <- factor(lung$ph.ecog)
+#' mds <- br_pipeline(
+#'   lung,
+#'   y = c("time", "status"),
+#'   x = c("age", "ph.ecog"),
+#'   x2 = "sex",
+#'   method = "coxph"
+#' )
+#' p <- br_show_nomogram(mds)
+#' p
+#'
 #'
 #' # Linear regression nomogram
 #' mds_lm <- br_pipeline(
@@ -916,15 +916,19 @@ br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted") {
 #'   x2 = "vs",
 #'   method = "gaussian"
 #' )
-#' br_show_nomogram(mds_lm, fun_at = c(15, 20, 25, 30))
+#' p2 <- br_show_nomogram(mds_lm, fun_at = c(15, 20, 25, 30))
+#' p2
 #' }
+#' @testexamples
+#' expect_s3_class(p, "ggplot")
+#' expect_s3_class(p2, "ggplot")
 br_show_nomogram <- function(breg,
-                            idx = NULL,
-                            time_points = c(12, 24, 36),
-                            fun_at = NULL,
-                            point_range = c(0, 100),
-                            title = NULL,
-                            subtitle = NULL) {
+                             idx = NULL,
+                             time_points = c(12, 24, 36),
+                             fun_at = NULL,
+                             point_range = c(0, 100),
+                             title = NULL,
+                             subtitle = NULL) {
   assert_breg_obj_with_results(breg)
 
   # Get the model to use

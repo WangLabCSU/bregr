@@ -15,7 +15,7 @@ br_show_nomogram(
 )
 }
 \arguments{
-\item{breg}{A \\verb{breg\\} object with fitted regression models.}
+\item{breg}{A \code{breg} object with fitted regression models.}
 
 \item{idx}{Index or name of the model to use for the nomogram.
 If NULL, uses the first model.}
@@ -35,7 +35,7 @@ Default is c(12, 24, 36) representing months.}
 A ggplot2 object showing the nomogram.
 }
 \description{
-\\verb{r lifecycle::badge('experimental')\\}
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
 Creates a nomogram (graphical calculator) for regression models, particularly
 useful for Cox proportional hazards models. A nomogram allows visual calculation
@@ -45,19 +45,19 @@ to get total points that correspond to predicted probabilities.
 \examples{
 \donttest{
 # Cox regression nomogram
-if (requireNamespace("survival", quietly = TRUE)) {
-  lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
-  lung$ph.ecog <- factor(lung$ph.ecog)
-  mds <- br_pipeline(
-    lung,
-    y = c("time", "status"),
-    x = c("age", "ph.ecog"),
-    x2 = "sex",
-    method = "coxph"
-  )
-  p <- br_show_nomogram(mds)
-  print(p)
-}
+
+lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
+lung$ph.ecog <- factor(lung$ph.ecog)
+mds <- br_pipeline(
+  lung,
+  y = c("time", "status"),
+  x = c("age", "ph.ecog"),
+  x2 = "sex",
+  method = "coxph"
+)
+p <- br_show_nomogram(mds)
+p
+
 
 # Linear regression nomogram
 mds_lm <- br_pipeline(
@@ -67,7 +67,8 @@ mds_lm <- br_pipeline(
   x2 = "vs",
   method = "gaussian"
 )
-br_show_nomogram(mds_lm, fun_at = c(15, 20, 25, 30))
+p2 <- br_show_nomogram(mds_lm, fun_at = c(15, 20, 25, 30))
+p2
 }
 }
 \seealso{
