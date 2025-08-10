@@ -1,4 +1,4 @@
-# bregr (development version)
+# bregr 1.1.0
 
 * Improved factor handling and warnings in polar plot and risk network functions.
 * Added `br_show_residuals()` to show residuals vs fitted plot for regression models.
