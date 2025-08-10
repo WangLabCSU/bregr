@@ -10,12 +10,12 @@
   # Handle NA coefficients (for singular fits) while preserving coefficient-term correspondence
   if (any(is.na(coefs))) {
     na_coefs <- names(coefs)[is.na(coefs)]
-    cli::cli_inform("Removing {length(na_coefs)} NA coefficient{?s} due to singular fit: {.val {na_coefs}}")
+    cli::cli_inform("removing {length(na_coefs)} NA coefficient{?s} due to singular fit: {.val {na_coefs}}")
     coefs <- coefs[!is.na(coefs)]
   }
 
   if (length(coefs) == 0) {
-    cli::cli_abort("No valid coefficients found in the model")
+    cli::cli_abort("no valid coefficients found in the model")
   }
 
   # Get model frame to understand variable ranges
@@ -200,10 +200,10 @@
         # Convert months to days for proper time matching
         time_in_days <- time_points[j] * 30.44  # Average days per month
         time_idx <- which.min(abs(baseline_surv$time - time_in_days))
-        
+
         if (length(time_idx) > 0 && time_idx <= length(baseline_surv$surv)) {
           baseline_surv_at_time <- baseline_surv$surv[time_idx]
-          
+
           # Calculate survival probabilities based on linear predictor
           # Linear predictor range corresponding to the point range
           lp_range <- (total_points - mean(point_range)) / point_scale_factor
@@ -304,28 +304,28 @@
 .create_lm_nomogram <- function(model, fun_at, point_range, title, subtitle, model_name) {
   # Extract model coefficients and terms
   coefs <- stats::coef(model)
-  
+
   # Check if model has intercept using proper method
   model_terms <- stats::terms(model)
   has_intercept <- attr(model_terms, "intercept") == 1
-  
+
   # Handle intercept removal if present
   if (has_intercept) {
     intercept <- coefs[1]
     coefs <- coefs[-1] # Remove intercept
   } else {
-    cli::cli_inform("Model fitted without intercept")
+    cli::cli_inform("model fitted without intercept")
   }
-  
-  # Handle NA coefficients (for singular fits) while preserving coefficient-term correspondence  
+
+  # Handle NA coefficients (for singular fits) while preserving coefficient-term correspondence
   if (any(is.na(coefs))) {
     na_coefs <- names(coefs)[is.na(coefs)]
-    cli::cli_inform("Removing {length(na_coefs)} NA coefficient{?s} due to singular fit: {.val {na_coefs}}")
+    cli::cli_inform("removing {length(na_coefs)} NA coefficient{?s} due to singular fit: {.val {na_coefs}}")
     coefs <- coefs[!is.na(coefs)]
   }
 
   if (length(coefs) == 0) {
-    cli::cli_abort("No valid coefficients found in the model")
+    cli::cli_abort("no valid coefficients found in the model")
   }
 
   # Get model frame to understand variable ranges
