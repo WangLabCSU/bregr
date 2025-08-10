@@ -21,7 +21,7 @@
 #' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
 #' @param clean Logical indicating whether to clean/condense redundant group/focal variable labels.
 #' If `TRUE`, remove "Group" or "Focal" variable column when the values in the result table
-#' are same (before performing `subset` and `drop`),
+#' are the same (before performing `subset` and `drop`),
 #' and reduce repeat values in column "Group", "Focal", and "Variable".
 #' @param rm_controls If `TRUE`, remove control terms.
 #' @param ... Additional arguments passed to [forestploter::forest()], run `vignette("forestploter-post", "forestploter")`

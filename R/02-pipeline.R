@@ -264,7 +264,9 @@ br_set_x2 <- function(obj, ...) {
   assert_character(x2, allow_na = FALSE, allow_null = TRUE)
   assert_not_overlap(x, x2)
 
-  if (length(x2) > 0) x2 <- repair_names(x2, col_names)
+  if (length(x2) > 0) {
+    x2 <- repair_names(x2, col_names)
+  }
   x2_ <- get_vars(x2)
 
   .in <- x2_ %in% col_names
