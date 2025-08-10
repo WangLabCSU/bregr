@@ -337,9 +337,9 @@ runner <- function(ms, data, dots, x, run_parallel) {
       on.exit(future::plan(oplan))
 
       res <- furrr::future_map(ms, runner_,
-                               data = data, dots = dots,
-                               .progress = TRUE,
-                               .options = furrr::furrr_options(seed = TRUE)
+        data = data, dots = dots,
+        .progress = TRUE,
+        .options = furrr::furrr_options(seed = TRUE)
       )
     } else {
       cli::cli_inform(c(

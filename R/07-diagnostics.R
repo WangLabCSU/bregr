@@ -20,7 +20,7 @@
 #' For other models, provides general diagnostic information.
 #'
 #' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
-#' @param idx Index or name (focal variable) of the model(s) to diagnose. If `NULL`, 
+#' @param idx Index or name (focal variable) of the model(s) to diagnose. If `NULL`,
 #' diagnoses all models in the breg object.
 #' @param transform Character string specifying how to transform time for Cox PH tests.
 #' Options are "km" (Kaplan-Meier), "rank", "identity", or a function.
@@ -38,7 +38,7 @@
 #'   x2 = c("age", "sex"),
 #'   method = "coxph"
 #' )
-#' 
+#'
 #' # Diagnose models (includes PH testing for Cox models)
 #' diagnostics <- br_diagnose(mds)
 #' print(diagnostics)
@@ -47,7 +47,7 @@
 #' expect_true(TRUE)
 br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
   assert_breg_obj_with_results(breg)
-  
+
   # Get models based on idx
   if (is.null(idx)) {
     # Get all models
@@ -75,31 +75,37 @@ br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
       }
     }
   }
-  
+
   diagnostic_results <- list()
-  
+
   for (i in seq_along(models)) {
     model_name <- names(models)[i]
     model <- models[[i]]
-    
+
     # Cox models: comprehensive diagnostics including PH testing
     if (inherits(model, "coxph")) {
       # Test PH assumption using Schoenfeld residuals
       ph_test <- NULL
-      tryCatch({
-        ph_test <- survival::cox.zph(model, transform = transform, ...)
-      }, error = function(e) {
-        cli::cli_warn("Failed to test proportional hazards assumption for model {model_name}: {e$message}")
-      })
-      
+      tryCatch(
+        {
+          ph_test <- survival::cox.zph(model, transform = transform, ...)
+        },
+        error = function(e) {
+          cli::cli_warn("Failed to test proportional hazards assumption for model {model_name}: {e$message}")
+        }
+      )
+
       # Get concordance index if available
       concordance <- NULL
-      tryCatch({
-        concordance <- model$concordance
-      }, error = function(e) {
-        # Concordance might not be available in older survival versions
-      })
-      
+      tryCatch(
+        {
+          concordance <- model$concordance
+        },
+        error = function(e) {
+          # Concordance might not be available in older survival versions
+        }
+      )
+
       diagnostic_results[[model_name]] <- list(
         model_type = "coxph",
         ph_test = ph_test,
@@ -109,16 +115,21 @@ br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
           events = model$nevent,
           loglik = model$loglik,
           lr_test = if (!is.null(model$score) && is.numeric(model$score)) {
-            tryCatch({
-              list(
-                statistic = model$score,
-                p_value = 1 - pchisq(model$score, model$df)
-              )
-            }, error = function(e) NULL)
-          } else NULL
+            tryCatch(
+              {
+                list(
+                  statistic = model$score,
+                  p_value = 1 - pchisq(model$score, model$df)
+                )
+              },
+              error = function(e) NULL
+            )
+          } else {
+            NULL
+          }
         )
       )
-    } 
+    }
     # GLM models: general diagnostics
     else if (inherits(model, "glm")) {
       diagnostic_results[[model_name]] <- list(
@@ -132,7 +143,7 @@ br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
         )
       )
     }
-    # LM models: general diagnostics  
+    # LM models: general diagnostics
     else if (inherits(model, "lm")) {
       diagnostic_results[[model_name]] <- list(
         model_type = "lm",
@@ -154,7 +165,7 @@ br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
       )
     }
   }
-  
+
   # Add class for custom printing
   class(diagnostic_results) <- c("br_diagnostics", "list")
   diagnostic_results
@@ -171,30 +182,30 @@ br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
 #' @noRd
 print.br_diagnostics <- function(x, ...) {
   cli::cli_h1("Model Diagnostics Summary")
-  
+
   if (length(x) == 0) {
     cli::cli_alert_info("No diagnostic results available.")
     return(invisible(x))
   }
-  
+
   for (i in seq_along(x)) {
     model_name <- names(x)[i]
     diag_result <- x[[i]]
-    
+
     cli::cli_h2("Model: {.val {model_name}} ({diag_result$model_type})")
-    
+
     # Type-specific diagnostics
     if (diag_result$model_type == "coxph") {
       cli::cli_text("Sample size: {diag_result$summary$n}")
       cli::cli_text("Events: {diag_result$summary$events}")
       cli::cli_text("Log-likelihood: {round(diag_result$summary$loglik[2], 3)}")
-      
+
       # Show likelihood ratio test if available
       if (!is.null(diag_result$summary$lr_test)) {
         lr_p <- format.pval(diag_result$summary$lr_test$p_value, digits = 3)
         cli::cli_text("LR test: χ² = {round(diag_result$summary$lr_test$statistic, 3)}, p = {lr_p}")
       }
-      
+
       # Show concordance index if available
       if (!is.null(diag_result$concordance)) {
         if (is.list(diag_result$concordance)) {
@@ -203,26 +214,26 @@ print.br_diagnostics <- function(x, ...) {
           cli::cli_text("Concordance: {round(diag_result$concordance, 3)}")
         }
       }
-      
+
       # Proportional hazards test results
       if (!is.null(diag_result$ph_test)) {
         cli::cli_text("")
         cli::cli_text("Proportional Hazards Test (Schoenfeld Residuals):")
-        
+
         test_table <- diag_result$ph_test$table
         df_names <- rownames(test_table)
-        
+
         # Individual variable tests
-        for (j in seq_len(nrow(test_table) - 1)) {  # Exclude GLOBAL row
+        for (j in seq_len(nrow(test_table) - 1)) { # Exclude GLOBAL row
           var_name <- df_names[j]
           chisq <- round(test_table[j, "chisq"], 3)
           df <- test_table[j, "df"]
           p_value <- format.pval(test_table[j, "p"], digits = 3)
-          
+
           status_symbol <- if (test_table[j, "p"] < 0.05) "x" else "+"
           cli::cli_text("  {status_symbol} {var_name}: χ² = {chisq}, df = {df}, p = {p_value}")
         }
-        
+
         # Global test
         global_p <- format.pval(test_table["GLOBAL", "p"], digits = 3)
         global_status <- if (test_table["GLOBAL", "p"] < 0.05) "x VIOLATED" else "+ SATISFIED"
@@ -242,9 +253,9 @@ print.br_diagnostics <- function(x, ...) {
     } else {
       cli::cli_text("Info: {diag_result$summary$available}")
     }
-    
+
     cli::cli_text("")
   }
-  
+
   invisible(x)
 }

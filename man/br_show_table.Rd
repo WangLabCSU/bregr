@@ -45,6 +45,7 @@ if (interactive()) {
 }
 \seealso{
 Other br_show: 
+\code{\link{br_show_coxph_diagnostics}()},
 \code{\link{br_show_fitted_line}()},
 \code{\link{br_show_fitted_line_2d}()},
 \code{\link{br_show_forest}()},
