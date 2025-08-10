@@ -193,23 +193,31 @@
 
       # More accurate survival probability calculation
       if (!is.null(baseline_surv)) {
-        # Use baseline survival function for better accuracy
-        time_idx <- which.min(abs(baseline_surv$time - time_points[j]))
+        # Convert months to days for proper time matching
+        time_in_days <- time_points[j] * 30.44  # Average days per month
+        time_idx <- which.min(abs(baseline_surv$time - time_in_days))
+        
         if (length(time_idx) > 0 && time_idx <= length(baseline_surv$surv)) {
           baseline_surv_at_time <- baseline_surv$surv[time_idx]
-
+          
           # Calculate survival probabilities based on linear predictor
+          # Linear predictor range corresponding to the point range
           lp_range <- (total_points - mean(point_range)) / point_scale_factor
           survival_probs <- baseline_surv_at_time^exp(lp_range)
           survival_probs <- pmax(0.01, pmin(0.99, survival_probs))
         } else {
-          # Fallback to simplified calculation
-          survival_probs <- exp(-exp((total_points - mean(point_range)) / point_scale_factor) * time_points[j] / 36)
+          # Fallback: use average baseline hazard estimation
+          # Convert months to hazard time scale
+          hazard_time <- time_points[j] / 12  # Convert to years for hazard calculation
+          lp_range <- (total_points - mean(point_range)) / point_scale_factor
+          survival_probs <- exp(-0.5 * hazard_time * exp(lp_range))  # More realistic baseline
           survival_probs <- pmax(0.01, pmin(0.99, survival_probs))
         }
       } else {
-        # Fallback calculation
-        survival_probs <- exp(-exp((total_points - mean(point_range)) / point_scale_factor) * time_points[j] / 36)
+        # Fallback calculation with more realistic baseline hazard
+        hazard_time <- time_points[j] / 12  # Convert to years
+        lp_range <- (total_points - mean(point_range)) / point_scale_factor
+        survival_probs <- exp(-0.5 * hazard_time * exp(lp_range))  # More realistic baseline
         survival_probs <- pmax(0.01, pmin(0.99, survival_probs))
       }
 
