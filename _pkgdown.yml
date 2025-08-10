@@ -31,6 +31,8 @@ reference:
     - br_show_forest_ggstatsplot
     - br_show_fitted_line
     - br_show_fitted_line_2d
+    - br_show_residuals
+    - br_show_coxph_diagnostics
   - title: Table
     desc: Output results in table of different formats.
     contents:
