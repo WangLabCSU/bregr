@@ -71,7 +71,7 @@ functionality.</p>
 <span></span>
 <span><span class="fu">br_get_config</span><span class="op">(</span><span class="va">obj</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">br_get_models</span><span class="op">(</span><span class="va">obj</span>, idx <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="fu">br_get_models</span><span class="op">(</span><span class="va">obj</span>, idx <span class="op">=</span> <span class="cn">NULL</span>, auto_drop <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">br_get_model</span><span class="op">(</span><span class="va">obj</span>, <span class="va">idx</span><span class="op">)</span></span>
 <span></span>
@@ -93,6 +93,11 @@ functionality.</p>
 <dt id="arg-idx">idx<a class="anchor" aria-label="anchor" href="#arg-idx"></a></dt>
 <dd><p>Index or names (focal variables) of the model(s) to return.
 Default returns all.</p></dd>
+
+
+<dt id="arg-auto-drop">auto_drop<a class="anchor" aria-label="anchor" href="#arg-auto-drop"></a></dt>
+<dd><p>If <code>TRUE</code>, automatically drop the list if only one model
+is selected.</p></dd>
 
 
 <dt id="arg-new-names">new_names<a class="anchor" aria-label="anchor" href="#arg-new-names"></a></dt>
@@ -126,6 +131,7 @@ The tidy results are obtained from <code><a href="https://broom.tidymodels.org/r
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><a href="pipeline.html">pipeline</a> for building <code>breg</code> objects.</p>
 <p>Other accessors:
+<code><a href="br_diagnose.html">br_diagnose</a>()</code>,
 <code><a href="br_predict.html">br_predict</a>()</code></p></div>
     </div>
 
