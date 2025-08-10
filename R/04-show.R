@@ -656,7 +656,7 @@ br_show_survival_curves <- function(breg,
 
   # Clean group names while preserving factor level order
   plot_data$group <- gsub(".*=", "", plot_data$group)
-  
+
   # Convert back to factor with the same level order as the original group_labels
   # to ensure correct legend ordering
   plot_data$group <- factor(plot_data$group, levels = group_labels)
@@ -907,7 +907,7 @@ br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted") {
 #'   p <- br_show_nomogram(mds)
 #'   print(p)
 #' }
-#' 
+#'
 #' # Linear regression nomogram
 #' mds_lm <- br_pipeline(
 #'   mtcars,
@@ -926,7 +926,7 @@ br_show_nomogram <- function(breg,
                             title = NULL,
                             subtitle = NULL) {
   assert_breg_obj_with_results(breg)
-  
+
   # Get the model to use
   if (is.null(idx)) {
     cli::cli_inform("{.arg idx} not set, use the first model")
@@ -936,10 +936,14 @@ br_show_nomogram <- function(breg,
       cli::cli_abort("please specify one model")
     }
   }
-  
+
   model <- br_get_models(breg, idx)
-  model_name <- if (is.null(names(br_get_models(breg))[idx])) paste("Model", idx) else names(br_get_models(breg))[idx]
-  
+  model_name <- if (!rlang::is_string(idx)) {
+    br_get_model_names(breg)[idx]
+  } else {
+    idx
+  }
+
   # Check model type and dispatch to appropriate function
   if (inherits(model, "coxph")) {
     .create_coxph_nomogram(model, time_points, point_range, title, subtitle, model_name)
