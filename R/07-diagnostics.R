@@ -38,7 +38,7 @@
 #' diagnostics <- br_diagnose(mds)
 #' print(diagnostics)
 #' @testexamples
-#' expect_true(TRUE)
+#' expect_s3_class(diagnostics, "br_diagnostics")
 br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
   assert_breg_obj_with_results(breg)
 
@@ -138,11 +138,7 @@ br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
   diagnostic_results
 }
 
-#' Print method for general diagnostic results
-#'
-#' @param x A `br_diagnostics` object returned by [br_diagnose()].
-#' @param ... Additional arguments (currently unused).
-#' @export
+#' @exportS3Method base::print
 print.br_diagnostics <- function(x, ...) {
   cli::cli_h1("Model Diagnostics Summary")
 
@@ -166,7 +162,7 @@ print.br_diagnostics <- function(x, ...) {
       # Show likelihood ratio test if available
       if (!is.null(diag_result$summary$lr_test)) {
         lr_p <- format.pval(diag_result$summary$lr_test$p_value, digits = 3)
-        cli::cli_text("LR test: χ² = {round(diag_result$summary$lr_test$statistic, 3)}, p = {lr_p}")
+        cli::cli_text("LR test: \u03C7\u00B2 = {round(diag_result$summary$lr_test$statistic, 3)}, p = {lr_p}")
       }
 
       # Show concordance index if available
@@ -194,7 +190,7 @@ print.br_diagnostics <- function(x, ...) {
           p_value <- format.pval(test_table[j, "p"], digits = 3)
 
           status_symbol <- if (test_table[j, "p"] < 0.05) "x" else "+"
-          cli::cli_text("  {status_symbol} {var_name}: χ² = {chisq}, df = {df}, p = {p_value}")
+          cli::cli_text("  {status_symbol} {var_name}: \u03C7\u00B2 = {chisq}, df = {df}, p = {p_value}")
         }
 
         # Global test

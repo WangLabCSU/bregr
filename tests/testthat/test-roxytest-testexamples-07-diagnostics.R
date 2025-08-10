@@ -16,6 +16,6 @@ test_that("Function br_diagnose() @ L42", {
   # Diagnose models (includes PH testing for Cox models)
   diagnostics <- br_diagnose(mds)
   print(diagnostics)
-  expect_true(TRUE)
+  expect_s3_class(diagnostics, "br_diagnostics")
 })
 
