@@ -103,7 +103,7 @@ test_that("Function br_show_coxph_diagnostics() @ L478", {
   p2 <- br_show_coxph_diagnostics(mds, type = "martingale")
   p2
   
-  expect_s3_class(p1, "S7_object")
+  expect_s3_class(p1, "alignpatches")
   expect_s3_class(p2, "ggplot")
 })
 
