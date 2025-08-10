@@ -37,6 +37,7 @@ reference:
     - br_show_fitted_line
     - br_show_fitted_line_2d
     - br_show_residuals
+    - br_show_nomogram
   - title: Table
     desc: Output results in table of different formats.
     contents:

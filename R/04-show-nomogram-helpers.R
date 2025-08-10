@@ -11,7 +11,7 @@
   model_terms <- stats::terms(model)
   has_intercept_term <- attr(model_terms, "intercept") == 1
   has_intercept_coef <- "(Intercept)" %in% names(coefs)
-  
+
   # Cox models are semi-parametric and don't include intercept coefficients
   # even if the terms object indicates an intercept is present
   if (has_intercept_term && !has_intercept_coef) {
@@ -213,7 +213,7 @@
       # More accurate survival probability calculation
       if (!is.null(baseline_surv)) {
         # Convert months to days for proper time matching
-        time_in_days <- time_points[j] * 30.44  # Average days per month
+        time_in_days <- time_points[j] * 30.44 # Average days per month
         time_idx <- which.min(abs(baseline_surv$time - time_in_days))
 
         if (length(time_idx) > 0 && time_idx <= length(baseline_surv$surv)) {
@@ -227,16 +227,16 @@
         } else {
           # Fallback: use average baseline hazard estimation
           # Convert months to hazard time scale
-          hazard_time <- time_points[j] / 12  # Convert to years for hazard calculation
+          hazard_time <- time_points[j] / 12 # Convert to years for hazard calculation
           lp_range <- (total_points - mean(point_range)) / point_scale_factor
-          survival_probs <- exp(-0.5 * hazard_time * exp(lp_range))  # More realistic baseline
+          survival_probs <- exp(-0.5 * hazard_time * exp(lp_range)) # More realistic baseline
           survival_probs <- pmax(0.01, pmin(0.99, survival_probs))
         }
       } else {
         # Fallback calculation with more realistic baseline hazard
-        hazard_time <- time_points[j] / 12  # Convert to years
+        hazard_time <- time_points[j] / 12 # Convert to years
         lp_range <- (total_points - mean(point_range)) / point_scale_factor
-        survival_probs <- exp(-0.5 * hazard_time * exp(lp_range))  # More realistic baseline
+        survival_probs <- exp(-0.5 * hazard_time * exp(lp_range)) # More realistic baseline
         survival_probs <- pmax(0.01, pmin(0.99, survival_probs))
       }
 

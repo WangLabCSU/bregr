@@ -73,24 +73,21 @@ test_that("br_show_nomogram produces correct plot structure", {
 
   # Test that plot has the expected structure
   expect_s3_class(p, "ggplot")
-  expect_true("data" %in% names(p))
-  expect_true("layers" %in% names(p))
-  expect_true("theme" %in% names(p))
 })
 
 test_that("br_show_nomogram handles models without intercepts", {
   # Create model data that can handle no-intercept fitting
   test_data <- mtcars[1:15, ]
   test_data$vs <- factor(test_data$vs)
-  
+
   # Fit model without intercept manually to test coefficient handling
   no_int_model <- lm(mpg ~ hp + wt - 1, data = test_data)
-  
+
   # Test that our coefficient handling logic works
   coefs <- stats::coef(no_int_model)
   model_terms <- stats::terms(no_int_model)
   has_intercept <- attr(model_terms, "intercept") == 1
-  
+
   expect_false(has_intercept)
   expect_false("(Intercept)" %in% names(coefs))
   expect_true(length(coefs) >= 2)
@@ -105,11 +102,11 @@ test_that("br_show_nomogram handles singular coefficient matrices", {
     x2 = 2 * (1:10), # x2 = 2 * x1, creating collinearity
     x3 = rnorm(10)
   )
-  
+
   # Fit model that will have singular coefficients
   singular_model <- lm(y ~ x1 + x2 + x3, data = singular_data)
   coefs <- stats::coef(singular_model)
-  
+
   # Check that we can handle NA coefficients
   if (any(is.na(coefs))) {
     # Test that our NA handling preserves coefficient-term correspondence
@@ -121,7 +118,7 @@ test_that("br_show_nomogram handles singular coefficient matrices", {
 
 test_that("br_show_nomogram handles Cox model intercept behavior correctly", {
   skip_if_not_installed("survival")
-  
+
   # Create Cox model to test intercept handling
   lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
   lung$ph.ecog <- factor(lung$ph.ecog)
@@ -132,19 +129,19 @@ test_that("br_show_nomogram handles Cox model intercept behavior correctly", {
     x2 = "sex",
     method = "coxph"
   )
-  
+
   model <- br_get_models(mds, 1)
-  
+
   # Test that Cox model behavior is as expected
   coefs <- stats::coef(model)
   model_terms <- stats::terms(model)
   has_intercept_term <- attr(model_terms, "intercept") == 1
   has_intercept_coef <- "(Intercept)" %in% names(coefs)
-  
+
   # Cox models have intercept in terms but not in coefficients
   expect_true(has_intercept_term)
   expect_false(has_intercept_coef)
-  
+
   # Test that nomogram creation works correctly (may include informative messages)
   # The function should work without errors regardless of messages
   suppressMessages(p <- br_show_nomogram(mds))

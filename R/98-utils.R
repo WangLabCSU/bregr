@@ -41,13 +41,15 @@ get_necessary_columns <- function(y, x, x2, group_by, available_cols) {
 
 merge_vars <- function(...) {
   vars_list <- list(...) |> unlist()
-  if (length(vars_list) == 0) return(NULL)
-  
+  if (length(vars_list) == 0) {
+    return(NULL)
+  }
+
   all_vars <- vars_list |>
     purrr::map(get_vars) |>
     purrr::list_c() |>
     unique()
-  
+
   if (length(all_vars) == 0) NULL else all_vars
 }
 
@@ -199,7 +201,7 @@ filter_variables_x <- function(data, x, filter_na_prop = 0.8, filter_sd_min = 1e
   # Get variable names from terms (handle complex terms like I(x^2))
   x_vars <- purrr::map(x, get_vars)
   var_lengths <- purrr::map_int(x_vars, length)
-  
+
   # For complex terms with multiple variables, we keep them for now
   # Only filter simple single-variable terms
   is_simple <- var_lengths == 1
