@@ -32,7 +32,7 @@ reference:
   - title: Model Diagnostics and Use
     desc: Inspect and visualize models for diagnostic purposes, and enable effective model utilization.
     contents:
-    - br_diagnostics
+    - br_diagnose
     - br_predict
     - br_show_survival_curves
     - br_show_fitted_line
