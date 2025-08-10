@@ -33,7 +33,7 @@ br_get_group_by(obj)
 
 br_get_config(obj)
 
-br_get_models(obj, idx = NULL)
+br_get_models(obj, idx = NULL, auto_drop = TRUE)
 
 br_get_model(obj, idx)
 
@@ -48,6 +48,9 @@ br_get_results(obj, tidy = FALSE, ...)
 
 \item{idx}{Index or names (focal variables) of the model(s) to return.
 Default returns all.}
+
+\item{auto_drop}{If \code{TRUE}, automatically drop the list if only one model
+is selected.}
 
 \item{new_names}{Character vector to replace existing model names.}
 
@@ -106,6 +109,7 @@ br_get_results(m, tidy = TRUE, term == "cyl")
 \link{pipeline} for building \code{breg} objects.
 
 Other accessors: 
+\code{\link{br_diagnose}()},
 \code{\link{br_predict}()}
 }
 \concept{accessors}

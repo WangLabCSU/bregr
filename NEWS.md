@@ -1,5 +1,6 @@
 # bregr (development version)
 
+* Added `br_show_coxph_diagnostics()` for CoxPH diagnostic plots.
 * Added `br_show_nomogram()`.
 
 # bregr 1.1.0

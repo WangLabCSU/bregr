@@ -43,6 +43,7 @@ if (requireNamespace("survival", quietly = TRUE)) {
 }
 \seealso{
 Other accessors: 
-\code{\link{accessors}}
+\code{\link{accessors}},
+\code{\link{br_diagnose}()}
 }
 \concept{accessors}

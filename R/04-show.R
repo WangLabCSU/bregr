@@ -433,6 +433,454 @@ br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
   visreg::visreg2d(mod, data = broom.helpers::model_get_model_frame(mod), ...)
 }
 
+#' Show Cox proportional hazards model diagnostic plots
+#'
+#' @description
+#' `r lifecycle::badge('experimental')`
+#'
+#' Creates diagnostic plots specifically for Cox regression models.
+#' Focuses on Schoenfeld residuals plots to assess proportional hazards assumption
+#' and other Cox-specific diagnostics. Inspired by survminer::ggcoxzph with
+#' enhanced visualization and computation optimizations.
+#'
+#' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
+#' @param idx Index or name (focal variable) of the Cox model to plot. Must be a single model.
+#' @param type Type of Cox diagnostic plot. Options: "schoenfeld" (default for Schoenfeld residuals),
+#' "martingale" (martingale residuals), "deviance" (deviance residuals).
+#' @param resid Logical, if TRUE the residuals are included on the plot along with smooth fit.
+#' @param se Logical, if TRUE confidence bands at two standard errors will be added.
+#' @param point_col Color for residual points.
+#' @param point_size Size for residual points.
+#' @param point_alpha Alpha (transparency) for residual points.
+#' @param ... Additional arguments passed to [survival::cox.zph].
+#' @returns A ggplot2 object or list of plots.
+#' @family br_show
+#' @export
+#' @examples
+#' # Create Cox models
+#' mds <- br_pipeline(
+#'   survival::lung,
+#'   y = c("time", "status"),
+#'   x = colnames(survival::lung)[6:10],
+#'   x2 = c("age", "sex"),
+#'   method = "coxph"
+#' )
+#'
+#' # Show Cox diagnostic plots
+#' p1 <- br_show_coxph_diagnostics(mds, idx = 1)
+#' p1
+#' p2 <- br_show_coxph_diagnostics(mds, type = "martingale")
+#' p2
+#'
+#' @testexamples
+#' expect_s3_class(p1, "alignpatches")
+#' expect_s3_class(p2, "ggplot")
+br_show_coxph_diagnostics <- function(
+    breg, idx = 1, type = "schoenfeld",
+    resid = TRUE, se = TRUE,
+    point_col = "red", point_size = 1, point_alpha = 0.6, ...) {
+  assert_breg_obj_with_results(breg)
+  if (length(idx) != 1) {
+    cli::cli_abort("Only one Cox model can be plotted at a time. Provide a single {.arg idx}.")
+  }
+
+  model <- br_get_models(breg, idx)
+  model_name <- if (is.character(idx)) idx else names(br_get_models(breg))[idx]
+
+  if (!inherits(model, "coxph")) {
+    cli::cli_abort("This function only works with Cox proportional hazards models. Model type: {class(model)[1]}")
+  }
+
+  .br_show_coxph_diagnostics(model, model_name, type, resid, se, point_col, point_size, point_alpha, ...)
+}
+
+# Internal function for Cox model diagnostics (enhanced with survminer approach and optimizations)
+.br_show_coxph_diagnostics <- function(model, model_name, type = "schoenfeld",
+                                       resid = TRUE, se = TRUE,
+                                       point_col = "red", point_size = 1, point_alpha = 0.6, ...) {
+  if (type == "schoenfeld") {
+    # Test proportional hazards and plot Schoenfeld residuals with optimizations
+    tryCatch(
+      {
+        ph_test <- survival::cox.zph(model, ...)
+
+        # Validate ph_test result
+        if (is.null(ph_test) || is.null(ph_test$table)) {
+          cli::cli_abort("Failed to compute Schoenfeld residuals - model may be invalid")
+        }
+
+        # Extract data for plotting (optimized data access)
+        time_points <- ph_test$time
+        residuals <- ph_test$y # cox.zph stores residuals in 'y' component
+        n_vars <- nrow(ph_test$table) - 1 # Exclude GLOBAL row
+
+        if (n_vars == 0 || is.null(residuals)) {
+          cli::cli_abort("No variables found for Schoenfeld residuals plot")
+        }
+
+        # Pre-allocate plots list for efficiency
+        plots <- vector("list", length = if (is.matrix(residuals)) ncol(residuals) else 1)
+
+        if (is.matrix(residuals)) {
+          var_names <- colnames(residuals)
+          names(plots) <- var_names
+
+          # Optimized vectorized NA removal
+          valid_rows <- !apply(is.na(residuals), 1, any)
+          clean_time <- time_points[valid_rows]
+          clean_residuals <- residuals[valid_rows, , drop = FALSE]
+
+          if (nrow(clean_residuals) == 0) {
+            cli::cli_abort("No valid residuals found after removing NA values")
+          }
+
+          # Create plots for each variable (vectorized approach)
+          for (i in seq_len(ncol(clean_residuals))) {
+            var_name <- var_names[i]
+
+            # Prepare optimized data frame
+            plot_data <- data.frame(
+              time = clean_time,
+              residuals = clean_residuals[, i],
+              stringsAsFactors = FALSE
+            )
+
+            # Additional check for this specific variable
+            valid_obs <- !is.na(plot_data$residuals)
+            if (sum(valid_obs) == 0) {
+              cli::cli_warn("No valid residuals for variable {var_name}")
+              next
+            }
+
+            plot_data <- plot_data[valid_obs, ]
+
+            # Get p-value for this variable with error handling
+            p_val <- tryCatch(
+              {
+                ph_test$table[var_name, "p"]
+              },
+              error = function(e) {
+                cli::cli_warn("Could not extract p-value for {var_name}: {e$message}")
+                NA_real_
+              }
+            )
+
+            # Format p-value and status with better formatting
+            if (!is.na(p_val)) {
+              p_text <- if (p_val < 0.001) {
+                "p < 0.001"
+              } else {
+                paste0("p = ", format.pval(p_val, digits = 3))
+              }
+              ph_status <- if (p_val < 0.05) "PH Assumption Violated" else "PH Assumption Satisfied"
+              status_color <- if (p_val < 0.05) "red" else "darkgreen"
+            } else {
+              p_text <- "p = NA"
+              ph_status <- "PH Status Unknown"
+              status_color <- "orange"
+            }
+
+            # Create plot with enhanced survminer-inspired styling
+            p <- ggplot2::ggplot(
+              plot_data,
+              ggplot2::aes(x = .data$time, y = .data$residuals))
+
+            # Add points if requested with improved styling
+            if (resid) {
+              p <- p + ggplot2::geom_point(
+                color = point_col,
+                size = point_size,
+                alpha = point_alpha,
+                stroke = 0 # Remove point borders for cleaner look
+              )
+            }
+
+            # Enhanced smooth line with better parameters
+            p <- p + ggplot2::geom_smooth(
+              method = "loess",
+              se = se,
+              color = "steelblue",
+              linewidth = 1.2,
+              span = 0.75 # Optimal smoothing parameter
+            )
+
+            # Add horizontal reference line at 0 with better styling
+            p <- p + ggplot2::geom_hline(
+              yintercept = 0,
+              linetype = "dashed",
+              color = "grey30",
+              alpha = 0.8,
+              linewidth = 0.8
+            )
+
+            # Enhanced styling inspired by survminer with status colors
+            p <- p + ggplot2::labs(
+              title = paste("Schoenfeld Residuals:", var_name),
+              subtitle = paste0(model_name, " - ", ph_status, " (", p_text, ")"),
+              x = "Time",
+              y = "Scaled Schoenfeld Residuals"
+            ) +
+              ggplot2::theme_minimal() +
+              ggplot2::theme(
+                plot.title = ggplot2::element_text(face = "bold", size = 12),
+                plot.subtitle = ggplot2::element_text(size = 10, color = status_color),
+                panel.grid.minor = ggplot2::element_blank(),
+                panel.grid.major = ggplot2::element_line(colour = "grey90"),
+                plot.background = ggplot2::element_rect(fill = "white", color = NA)
+              )
+
+            plots[[var_name]] <- p
+          }
+        } else {
+          # Single variable case - optimized handling
+          # Remove NA values efficiently
+          valid_indices <- !is.na(residuals)
+          if (sum(valid_indices) == 0) {
+            cli::cli_abort("No valid residuals for plotting")
+          }
+
+          plot_data <- data.frame(
+            time = time_points[valid_indices],
+            residuals = as.vector(residuals[valid_indices]),
+            stringsAsFactors = FALSE
+          )
+
+          # Get global p-value with error handling
+          global_p <- tryCatch(
+            {
+              ph_test$table["GLOBAL", "p"]
+            },
+            error = function(e) {
+              cli::cli_warn("Could not extract global p-value: {e$message}")
+              NA_real_
+            }
+          )
+
+          # Enhanced p-value formatting and status
+          if (!is.na(global_p)) {
+            p_text <- if (global_p < 0.001) {
+              "p < 0.001"
+            } else {
+              paste0("p = ", format.pval(global_p, digits = 3))
+            }
+            ph_status <- if (global_p < 0.05) "PH Assumption Violated" else "PH Assumption Satisfied"
+            status_color <- if (global_p < 0.05) "red" else "darkgreen"
+          } else {
+            p_text <- "p = NA"
+            ph_status <- "PH Status Unknown"
+            status_color <- "orange"
+          }
+
+          # Create enhanced single variable plot
+          p <- ggplot2::ggplot(
+            plot_data,
+            ggplot2::aes(x = .data$time, y = .data$residuals))
+
+          if (resid) {
+            p <- p + ggplot2::geom_point(
+              color = point_col,
+              size = point_size,
+              alpha = point_alpha,
+              stroke = 0
+            )
+          }
+
+          p <- p + ggplot2::geom_smooth(
+            method = "loess",
+            se = se,
+            color = "steelblue",
+            linewidth = 1.2,
+            span = 0.75
+          ) +
+            ggplot2::geom_hline(
+              yintercept = 0,
+              linetype = "dashed",
+              color = "grey30",
+              alpha = 0.8,
+              linewidth = 0.8
+            ) +
+            ggplot2::labs(
+              title = "Schoenfeld Residuals",
+              subtitle = paste0(model_name, " - ", ph_status, " (", p_text, ")"),
+              x = "Time",
+              y = "Scaled Schoenfeld Residuals"
+            ) +
+            ggplot2::theme_minimal() +
+            ggplot2::theme(
+              plot.title = ggplot2::element_text(face = "bold", size = 12),
+              plot.subtitle = ggplot2::element_text(size = 10, color = status_color),
+              panel.grid.minor = ggplot2::element_blank(),
+              panel.grid.major = ggplot2::element_line(colour = "grey90"),
+              plot.background = ggplot2::element_rect(fill = "white", color = NA)
+            )
+
+          plots[["single"]] <- p
+        }
+
+        # Filter out NULL plots and return optimized result
+        valid_plots <- plots[!sapply(plots, is.null)]
+
+        if (length(valid_plots) == 0) {
+          cli::cli_abort("No valid plots could be created")
+        } else if (length(valid_plots) == 1) {
+          return(valid_plots[[1]])
+        } else {
+          rlang::check_installed("ggalign")
+          # Enhanced plot combination with better error handling
+          tryCatch(
+            {
+              combined_plot <- ggalign::align_plots(!!!valid_plots)
+              return(combined_plot)
+            },
+            error = function(e) {
+              cli::cli_warn("Failed to combine plots with ggalign: {e$message}. Returning list of plots.")
+              return(valid_plots)
+            })
+        }
+      },
+      error = function(e) {
+        cli::cli_abort("Failed to create Schoenfeld residuals plot: {e$message}")
+      }
+    )
+  } else if (type == "martingale") {
+    # Optimized martingale residuals plot with error handling
+    tryCatch(
+      {
+        mart_resid <- residuals(model, type = "martingale")
+        fitted_vals <- predict(model)
+
+        # Check for valid residuals
+        if (is.null(mart_resid) || is.null(fitted_vals)) {
+          cli::cli_abort("Failed to compute martingale residuals or fitted values")
+        }
+
+        # Remove NA values efficiently
+        valid_indices <- !is.na(mart_resid) & !is.na(fitted_vals)
+        if (sum(valid_indices) == 0) {
+          cli::cli_abort("No valid observations for martingale residuals plot")
+        }
+
+        plot_data <- data.frame(
+          fitted = fitted_vals[valid_indices],
+          residuals = mart_resid[valid_indices],
+          stringsAsFactors = FALSE
+        )
+
+        # Enhanced martingale residuals plot
+        p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = fitted, y = residuals)) +
+          ggplot2::geom_point(
+            color = point_col,
+            size = point_size,
+            alpha = point_alpha,
+            stroke = 0
+          ) +
+          ggplot2::geom_smooth(
+            method = "loess",
+            se = se,
+            color = "steelblue",
+            linewidth = 1.2,
+            span = 0.75
+          ) +
+          ggplot2::geom_hline(
+            yintercept = 0,
+            linetype = "dashed",
+            color = "grey30",
+            alpha = 0.8,
+            linewidth = 0.8
+          ) +
+          ggplot2::labs(
+            title = "Martingale Residuals",
+            subtitle = paste("Cox Model:", model_name),
+            x = "Linear Predictor",
+            y = "Martingale Residuals"
+          ) +
+          ggplot2::theme_minimal() +
+          ggplot2::theme(
+            plot.title = ggplot2::element_text(face = "bold", size = 12),
+            plot.subtitle = ggplot2::element_text(size = 10),
+            panel.grid.minor = ggplot2::element_blank(),
+            panel.grid.major = ggplot2::element_line(colour = "grey90"),
+            plot.background = ggplot2::element_rect(fill = "white", color = NA)
+          )
+
+        return(p)
+      },
+      error = function(e) {
+        cli::cli_abort("Failed to create martingale residuals plot: {e$message}")
+      }
+    )
+  } else if (type == "deviance") {
+    # Optimized deviance residuals plot with error handling
+    tryCatch(
+      {
+        dev_resid <- residuals(model, type = "deviance")
+        fitted_vals <- predict(model)
+
+        # Check for valid residuals
+        if (is.null(dev_resid) || is.null(fitted_vals)) {
+          cli::cli_abort("Failed to compute deviance residuals or fitted values")
+        }
+
+        # Remove NA values efficiently
+        valid_indices <- !is.na(dev_resid) & !is.na(fitted_vals)
+        if (sum(valid_indices) == 0) {
+          cli::cli_abort("No valid observations for deviance residuals plot")
+        }
+
+        plot_data <- data.frame(
+          fitted = fitted_vals[valid_indices],
+          residuals = dev_resid[valid_indices],
+          stringsAsFactors = FALSE
+        )
+
+        # Enhanced deviance residuals plot
+        p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = fitted, y = residuals)) +
+          ggplot2::geom_point(
+            color = point_col,
+            size = point_size,
+            alpha = point_alpha,
+            stroke = 0
+          ) +
+          ggplot2::geom_smooth(
+            method = "loess",
+            se = se,
+            color = "steelblue",
+            linewidth = 1.2,
+            span = 0.75
+          ) +
+          ggplot2::geom_hline(
+            yintercept = 0,
+            linetype = "dashed",
+            color = "grey30",
+            alpha = 0.8,
+            linewidth = 0.8
+          ) +
+          ggplot2::labs(
+            title = "Deviance Residuals",
+            subtitle = paste("Cox Model:", model_name),
+            x = "Linear Predictor",
+            y = "Deviance Residuals"
+          ) +
+          ggplot2::theme_minimal() +
+          ggplot2::theme(
+            plot.title = ggplot2::element_text(face = "bold", size = 12),
+            plot.subtitle = ggplot2::element_text(size = 10),
+            panel.grid.minor = ggplot2::element_blank(),
+            panel.grid.major = ggplot2::element_line(colour = "grey90"),
+            plot.background = ggplot2::element_rect(fill = "white", color = NA)
+          )
+
+        return(p)
+      },
+      error = function(e) {
+        cli::cli_abort("Failed to create deviance residuals plot: {e$message}")
+      }
+    )
+  } else {
+    cli::cli_abort("Diagnostic type '{type}' not implemented for Cox models. Use 'schoenfeld', 'martingale', or 'deviance'.")
+  }
+}
+
 #' Show model tidy results in table format
 #'
 #' @description
@@ -468,6 +916,7 @@ br_show_table <- function(breg, ..., args_table_format = list(), export = FALSE,
   if (export) tbl <- do.call(insight::export_table, vctrs::vec_c(list(tbl), args_table_export))
   tbl
 }
+
 
 #' Show regression models with `gtsummary` interface
 #'

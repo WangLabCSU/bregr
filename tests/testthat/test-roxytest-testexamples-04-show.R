@@ -86,7 +86,29 @@ test_that("Function br_show_fitted_line_2d() @ L423", {
 })
 
 
-test_that("Function br_show_table() @ L463", {
+test_that("Function br_show_coxph_diagnostics() @ L478", {
+  
+  # Create Cox models
+  mds <- br_pipeline(
+    survival::lung,
+    y = c("time", "status"),
+    x = colnames(survival::lung)[6:10],
+    x2 = c("age", "sex"),
+    method = "coxph"
+  )
+  
+  # Show Cox diagnostic plots
+  p1 <- br_show_coxph_diagnostics(mds, idx = 1)
+  p1
+  p2 <- br_show_coxph_diagnostics(mds, type = "martingale")
+  p2
+  
+  expect_s3_class(p1, "alignpatches")
+  expect_s3_class(p2, "ggplot")
+})
+
+
+test_that("Function br_show_table() @ L911", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
@@ -104,7 +126,7 @@ test_that("Function br_show_table() @ L463", {
 })
 
 
-test_that("Function br_show_table_gt() @ L500", {
+test_that("Function br_show_table_gt() @ L949", {
   
   if (rlang::is_installed("gtsummary")) {
     m <- br_pipeline(mtcars,
@@ -120,7 +142,7 @@ test_that("Function br_show_table_gt() @ L500", {
 })
 
 
-test_that("Function br_show_residuals() @ L741", {
+test_that("Function br_show_residuals() @ L1190", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
@@ -142,7 +164,7 @@ test_that("Function br_show_residuals() @ L741", {
 })
 
 
-test_that("Function br_show_nomogram() @ L925", {
+test_that("Function br_show_nomogram() @ L1374", {
   
   
   # Cox regression nomogram
