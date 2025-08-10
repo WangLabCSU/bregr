@@ -99,9 +99,9 @@ test_that("br_run works with filtering disabled", {
   # Test that existing functionality is not broken
   m <- breg(mtcars) |>
     br_set_y("mpg") |>
-    br_set_x("qsec") |>
+    br_set_x("qsec", filter_x = FALSE) |>
     br_set_model("gaussian") |>
-    br_run(filter_x = FALSE)
+    br_run()
 
   expect_true(inherits(m, "bregr::breg"))
   expect_true(nrow(m@results_tidy) > 0)
@@ -121,9 +121,9 @@ test_that("br_run works with filtering enabled", {
   expect_message(
     m <- breg(test_data) |>
       br_set_y("y") |>
-      br_set_x(c("x1", "x2", "x3")) |>
+      br_set_x(c("x1", "x2", "x3"), filter_x = TRUE) |>
       br_set_model("gaussian") |>
-      br_run(filter_x = TRUE),
+      br_run(),
     "Pre-filtering removed"
   )
 
@@ -168,10 +168,9 @@ test_that("Error when all variables are filtered out", {
   expect_error(
     breg(test_data) |>
       br_set_y("y") |>
-      br_set_x(c("x1", "x2")) |>
+      br_set_x(c("x1", "x2"), filter_x = TRUE) |>
       br_set_model("gaussian") |>
-      br_run(filter_x = TRUE),
-    "All focal variables were filtered out"
+      br_run()
   )
 })
 
@@ -209,9 +208,9 @@ test_that("Integration with br_run and br_pipeline for categorical variables", {
   expect_message(
     m1 <- breg(test_data) |>
       br_set_y("y") |>
-      br_set_x(c("x1", "x2", "x3")) |>
+      br_set_x(c("x1", "x2", "x3"), filter_x = TRUE) |>
       br_set_model("gaussian") |>
-      br_run(filter_x = TRUE),
+      br_run(),
     "Pre-filtering removed"
   )
 

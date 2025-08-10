@@ -30,7 +30,15 @@ br_pipeline(
 
 br_set_y(obj, y)
 
-br_set_x(obj, ...)
+br_set_x(
+  obj,
+  ...,
+  filter_x = FALSE,
+  filter_na_prop = 0.8,
+  filter_sd_min = 1e-06,
+  filter_var_min = 1e-06,
+  filter_min_levels = 2
+)
 
 br_set_x2(obj, ...)
 
@@ -41,12 +49,7 @@ br_run(
   ...,
   group_by = NULL,
   n_workers = 1L,
-  run_parallel = lifecycle::deprecated(),
-  filter_x = FALSE,
-  filter_na_prop = 0.8,
-  filter_sd_min = 1e-06,
-  filter_var_min = 1e-06,
-  filter_min_levels = 2
+  run_parallel = lifecycle::deprecated()
 )
 }
 \arguments{
