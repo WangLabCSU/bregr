@@ -20,8 +20,10 @@ bregr_*.tar.gz
 
 bregr_models
 .Rapp.history
-*.png
+
 demo_fix.R
 
+*.png
+*.pdf
 # Test artifacts
 tests/testthat/Rplots.pdf

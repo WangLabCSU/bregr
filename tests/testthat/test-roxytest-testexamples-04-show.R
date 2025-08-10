@@ -141,3 +141,37 @@ test_that("Function br_show_residuals() @ L741", {
   expect_s3_class(br_show_residuals(m, idx = 1), "ggplot")
 })
 
+
+test_that("Function br_show_nomogram() @ L925", {
+  
+  
+  # Cox regression nomogram
+  
+  lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
+  lung$ph.ecog <- factor(lung$ph.ecog)
+  mds <- br_pipeline(
+    lung,
+    y = c("time", "status"),
+    x = c("age", "ph.ecog"),
+    x2 = "sex",
+    method = "coxph"
+  )
+  p <- br_show_nomogram(mds)
+  p
+  
+  
+  # Linear regression nomogram
+  mds_lm <- br_pipeline(
+    mtcars,
+    y = "mpg",
+    x = c("hp", "wt"),
+    x2 = "vs",
+    method = "gaussian"
+  )
+  p2 <- br_show_nomogram(mds_lm, fun_at = c(15, 20, 25, 30))
+  p2
+  
+  expect_s3_class(p, "ggplot")
+  expect_s3_class(p2, "ggplot")
+})
+
