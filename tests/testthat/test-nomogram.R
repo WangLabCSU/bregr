@@ -118,3 +118,35 @@ test_that("br_show_nomogram handles singular coefficient matrices", {
     expect_true(all(!is.na(non_na_coefs)))
   }
 })
+
+test_that("br_show_nomogram handles Cox model intercept behavior correctly", {
+  skip_if_not_installed("survival")
+  
+  # Create Cox model to test intercept handling
+  lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
+  lung$ph.ecog <- factor(lung$ph.ecog)
+  mds <- br_pipeline(
+    lung,
+    y = c("time", "status"),
+    x = c("age", "ph.ecog"),
+    x2 = "sex",
+    method = "coxph"
+  )
+  
+  model <- br_get_models(mds, 1)
+  
+  # Test that Cox model behavior is as expected
+  coefs <- stats::coef(model)
+  model_terms <- stats::terms(model)
+  has_intercept_term <- attr(model_terms, "intercept") == 1
+  has_intercept_coef <- "(Intercept)" %in% names(coefs)
+  
+  # Cox models have intercept in terms but not in coefficients
+  expect_true(has_intercept_term)
+  expect_false(has_intercept_coef)
+  
+  # Test that nomogram creation works correctly (may include informative messages)
+  # The function should work without errors regardless of messages
+  suppressMessages(p <- br_show_nomogram(mds))
+  expect_s3_class(p, "ggplot")
+})

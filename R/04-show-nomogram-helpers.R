@@ -7,6 +7,21 @@
   # Extract model coefficients and terms
   coefs <- stats::coef(model)
 
+  # Check for intercept (Cox models don't have intercept coefficients but terms may indicate one)
+  model_terms <- stats::terms(model)
+  has_intercept_term <- attr(model_terms, "intercept") == 1
+  has_intercept_coef <- "(Intercept)" %in% names(coefs)
+  
+  # Cox models are semi-parametric and don't include intercept coefficients
+  # even if the terms object indicates an intercept is present
+  if (has_intercept_term && !has_intercept_coef) {
+    cli::cli_inform("Cox model: intercept term present but no intercept coefficient (as expected for semi-parametric models)")
+  } else if (has_intercept_coef) {
+    # This would be unusual for a Cox model but handle it anyway
+    cli::cli_inform("removing intercept coefficient from Cox model")
+    coefs <- coefs[names(coefs) != "(Intercept)"]
+  }
+
   # Handle NA coefficients (for singular fits) while preserving coefficient-term correspondence
   if (any(is.na(coefs))) {
     na_coefs <- names(coefs)[is.na(coefs)]
