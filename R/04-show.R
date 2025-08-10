@@ -594,7 +594,7 @@ br_show_survival_curves <- function(breg,
   # Get survival variables
   y_vars <- br_get_y(breg)
   if (length(y_vars) != 2) {
-    cli::cli_abort("Expected 2 survival variables (time, status), got {length(y_vars)}")
+    cli::cli_abort("expected 2 survival variables (time, status), got {length(y_vars)}")
   }
 
   time_var <- y_vars[1]
@@ -605,7 +605,7 @@ br_show_survival_curves <- function(breg,
 
   # Handle case where scores have little variation
   if (length(unique(score_quantiles)) <= 2) {
-    cli::cli_warn("Score values have limited variation, grouping may not be meaningful")
+    cli::cli_warn("score values have limited variation, grouping may not be meaningful")
   }
 
   score_groups <- cut(scores,
@@ -624,7 +624,7 @@ br_show_survival_curves <- function(breg,
       group_labels <- paste0("Q", 1:n_groups)
     }
   } else if (length(group_labels) != n_groups) {
-    cli::cli_abort("Length of group_labels ({length(group_labels)}) must match n_groups ({n_groups})")
+    cli::cli_abort("length of group_labels ({length(group_labels)}) must match n_groups ({n_groups})")
   }
 
   # Prepare data for survival analysis

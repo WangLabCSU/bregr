@@ -17,8 +17,8 @@
 #' **bregr** supported global options can be set with `options()`.
 #' Currently they are used in `br_run()`.
 #'
-#' - `bregr.save_model`: If `TRUE`, save model to local disk.
-#' - `bregr.path`: A path for saving models, default uses a
+#' - `bregr.save_model`: If `TRUE`, saves models to local disk.
+#' - `bregr.path`: A path for saving models, defaults to using a
 #' temporary directory.
 #'
 #' @returns
@@ -35,7 +35,7 @@
 #' For GLM models, this is typically a single character (e.g., `"outcome"`).
 #' For Cox-PH models, it should be a length-2 vector in the format `c("time", "status")`.
 #' @param x Character vector specifying focal independent terms (predictors).
-#' @param x2 Character vector specifying control independent terms (predictor, optional).
+#' @param x2 Character vector specifying control independent terms (predictors, optional).
 #' @param method Method for model construction.
 #' A name or a list specifying custom model setting.
 #' A string representing a complex method setting is acceptable,
@@ -224,12 +224,12 @@ br_set_x <- function(obj, ...,
         "Pre-filtering removed {filter_result$filter_summary$filtered} out of {filter_result$filter_summary$total} focal variables ({round(filter_result$filter_summary$prop_filtered * 100, 1)}%)"
       )
       if (length(filter_result$filtered_out) <= 10) {
-        cli::cli_inform("Filtered variables: {.val {filter_result$filtered_out}}")
+        cli::cli_inform("filtered variables: {.val {filter_result$filtered_out}}")
       } else {
-        cli::cli_inform("Filtered variables (showing first 10): {.val {filter_result$filtered_out[1:10]}} ...")
+        cli::cli_inform("filtered variables (showing first 10): {.val {filter_result$filtered_out[1:10]}} ...")
       }
     } else {
-      cli::cli_inform("Pre-filtering: no variables were filtered out")
+      cli::cli_inform("pre-filtering: no variables were filtered out")
     }
   }
 
@@ -465,7 +465,7 @@ runner_ <- function(m, data, dots, opts = NULL) {
   model <- rlang::try_fetch(
     rlang::eval_bare(rlang::parse_expr(m)),
     error = function(e) {
-      cli::cli_inform("Modeling failed for expression: {.code {m}}")
+      cli::cli_inform("modeling failed for expression: {.code {m}}")
       cli::cli_warn(e$message)
       NULL
     }
