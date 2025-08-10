@@ -44,8 +44,8 @@ A ggplot2 object or list of plots.
 
 Creates diagnostic plots specifically for Cox regression models.
 Focuses on Schoenfeld residuals plots to assess proportional hazards assumption
-and other Cox-specific diagnostics. Inspired by survminer::ggcoxzph with
-enhanced visualization and computation optimizations.
+and other Cox-specific diagnostics. Inspired by \link[survminer:ggcoxzph]{survminer::ggcoxzph} with
+enhanced visualization and computation optimizations to work in \strong{bregr}.
 }
 \examples{
 # Create Cox models

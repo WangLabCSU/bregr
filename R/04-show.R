@@ -440,8 +440,8 @@ br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
 #'
 #' Creates diagnostic plots specifically for Cox regression models.
 #' Focuses on Schoenfeld residuals plots to assess proportional hazards assumption
-#' and other Cox-specific diagnostics. Inspired by survminer::ggcoxzph with
-#' enhanced visualization and computation optimizations.
+#' and other Cox-specific diagnostics. Inspired by [survminer::ggcoxzph] with
+#' enhanced visualization and computation optimizations to work in **bregr**.
 #'
 #' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
 #' @param idx Index or name (focal variable) of the Cox model to plot. Must be a single model.
