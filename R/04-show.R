@@ -452,7 +452,7 @@ br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
 #' @param point_col Color for residual points.
 #' @param point_size Size for residual points.
 #' @param point_alpha Alpha (transparency) for residual points.
-#' @param ... Additional arguments passed to plotting functions.
+#' @param ... Additional arguments passed to [survival::cox.zph].
 #' @returns A ggplot2 object or list of plots.
 #' @family br_show
 #' @export
@@ -473,7 +473,7 @@ br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
 #' p2
 #'
 #' @testexamples
-#' expect_s3_class(p1, "ggplot")
+#' expect_s3_class(p1, "S7_object")
 #' expect_s3_class(p2, "ggplot")
 br_show_coxph_diagnostics <- function(
     breg, idx = 1, type = "schoenfeld",
@@ -581,7 +581,9 @@ br_show_coxph_diagnostics <- function(
             }
 
             # Create plot with enhanced survminer-inspired styling
-            p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = time, y = residuals))
+            p <- ggplot2::ggplot(
+              plot_data,
+              ggplot2::aes(x = .data$time, y = .data$residuals))
 
             # Add points if requested with improved styling
             if (resid) {
@@ -670,7 +672,9 @@ br_show_coxph_diagnostics <- function(
           }
 
           # Create enhanced single variable plot
-          p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = time, y = residuals))
+          p <- ggplot2::ggplot(
+            plot_data,
+            ggplot2::aes(x = .data$time, y = .data$residuals))
 
           if (resid) {
             p <- p + ggplot2::geom_point(
@@ -721,30 +725,17 @@ br_show_coxph_diagnostics <- function(
         } else if (length(valid_plots) == 1) {
           return(valid_plots[[1]])
         } else {
+          rlang::check_installed("ggalign")
           # Enhanced plot combination with better error handling
-          if (rlang::is_installed("patchwork")) {
-            tryCatch(
-              {
-                combined_plot <- Reduce(`+`, valid_plots)
-                # Add overall title for combined plots
-                combined_plot <- combined_plot +
-                  patchwork::plot_annotation(
-                    title = paste("Cox Model Diagnostics -", model_name)
-                  )
-                return(combined_plot)
-              },
-              error = function(e) {
-                cli::cli_warn("Failed to combine plots with patchwork: {e$message}. Returning list of plots.")
-                return(valid_plots)
-              }
-            )
-          } else {
-            cli::cli_inform(c(
-              "Multiple plots created ({length(valid_plots)} plots).",
-              "i" = "Install 'patchwork' package to combine them automatically: install.packages('patchwork')"
-            ))
-            return(valid_plots)
-          }
+          tryCatch(
+            {
+              combined_plot <- ggalign::align_plots(!!!valid_plots)
+              return(combined_plot)
+            },
+            error = function(e) {
+              cli::cli_warn("Failed to combine plots with ggalign: {e$message}. Returning list of plots.")
+              return(valid_plots)
+            })
         }
       },
       error = function(e) {

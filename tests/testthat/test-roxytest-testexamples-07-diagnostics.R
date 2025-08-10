@@ -2,9 +2,20 @@
 
 # File R/"07-diagnostics.R": @testexamples
 
-test_that("Function br_diagnose() @ L48", {
+test_that("Function br_diagnose() @ L42", {
   
+  # Create models
+  mds <- br_pipeline(
+    survival::lung,
+    y = c("time", "status"),
+    x = colnames(survival::lung)[6:10],
+    x2 = c("age", "sex"),
+    method = "coxph"
+  )
   
+  # Diagnose models (includes PH testing for Cox models)
+  diagnostics <- br_diagnose(mds)
+  print(diagnostics)
   expect_true(TRUE)
 })
 

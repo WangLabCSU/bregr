@@ -109,9 +109,12 @@ br_get_config <- function(obj) {
 #' @rdname accessors
 #' @param idx Index or names (focal variables) of the model(s) to return.
 #' Default returns all.
+#' @param auto_drop If `TRUE`, automatically drop the list if only one model
+#' is selected.
 #' @export
-br_get_models <- function(obj, idx = NULL) {
+br_get_models <- function(obj, idx = NULL, auto_drop = TRUE) {
   assert_breg_obj(obj)
+  assert_logical(auto_drop, allow_na = FALSE)
   mds <- obj@models
   len <- length(mds)
 
@@ -141,7 +144,7 @@ br_get_models <- function(obj, idx = NULL) {
     if (!insight::is_model(mds[[1]]) && fs::is_file(mds[[1]])) {
       mds <- map(mds, qs::qread)
     }
-    if (length(idx) == 1) mds <- mds[[1]]
+    if (length(idx) == 1 && auto_drop) mds <- mds[[1]]
   }
   mds
 }

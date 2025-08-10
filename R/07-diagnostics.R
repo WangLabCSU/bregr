@@ -5,10 +5,6 @@
 # general model diagnostic capabilities.
 # =====================
 
-
-# br_test_ph functionality merged into br_diagnose
-
-
 #' Diagnose regression models
 #'
 #' @description
@@ -26,10 +22,9 @@
 #' Options are "km" (Kaplan-Meier), "rank", "identity", or a function.
 #' @param ... Additional arguments passed to specific diagnostic functions.
 #' @returns A list containing diagnostic results for each model.
-#' @noRd
-#' @family br_diagnose
+#' @export
+#' @family accessors
 #' @examples
-#' \dontrun{
 #' # Create models
 #' mds <- br_pipeline(
 #'   survival::lung,
@@ -42,40 +37,12 @@
 #' # Diagnose models (includes PH testing for Cox models)
 #' diagnostics <- br_diagnose(mds)
 #' print(diagnostics)
-#' }
 #' @testexamples
 #' expect_true(TRUE)
 br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
   assert_breg_obj_with_results(breg)
 
-  # Get models based on idx
-  if (is.null(idx)) {
-    # Get all models
-    models <- br_get_models(breg)
-  } else {
-    # Get specific model(s)
-    all_models <- br_get_models(breg)
-    if (is.character(idx)) {
-      # Get by name
-      if (idx %in% names(all_models)) {
-        models <- list(all_models[[idx]])
-        names(models) <- idx
-      } else {
-        cli::cli_warn("Model {idx} not found")
-        return(NULL)
-      }
-    } else {
-      # Get by index
-      if (idx <= length(all_models)) {
-        models <- list(all_models[[idx]])
-        names(models) <- names(all_models)[idx]
-      } else {
-        cli::cli_warn("Index {idx} out of range")
-        return(NULL)
-      }
-    }
-  }
-
+  models <- br_get_models(breg, idx)
   diagnostic_results <- list()
 
   for (i in seq_along(models)) {
@@ -171,15 +138,11 @@ br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
   diagnostic_results
 }
 
-
-# Print method for br_ph_test removed - functionality merged into br_diagnose
-
-
 #' Print method for general diagnostic results
 #'
 #' @param x A `br_diagnostics` object returned by [br_diagnose()].
 #' @param ... Additional arguments (currently unused).
-#' @noRd
+#' @export
 print.br_diagnostics <- function(x, ...) {
   cli::cli_h1("Model Diagnostics Summary")
 
