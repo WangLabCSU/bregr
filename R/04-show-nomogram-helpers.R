@@ -21,29 +21,86 @@
   return(NULL)
 }
 
-# Helper function to create interaction term display
-.create_interaction_display <- function(var_name, var_coefs, point_range, y_position) {
-  # For now, create a generic scale for interaction terms
-  # This could be enhanced to show more sophisticated interaction displays
-  n_line_points <- 11
-  points_vals <- seq(point_range[1] + diff(point_range) * 0.1,
-    point_range[2] - diff(point_range) * 0.1,
-    length.out = n_line_points
-  )
+# Helper function to create improved interaction term display
+.create_interaction_display <- function(var_name, var_coefs, point_range, y_position, model_frame = NULL) {
+  # Parse interaction components to create meaningful display
+  interaction_components <- strsplit(gsub("Interaction: ", "", var_name), " × ")[[1]]
   
-  # Create labels based on the interaction term coefficients
-  labels_vals <- rep("", n_line_points)
-  tick_vals <- rep(FALSE, n_line_points)
-  
+  # Try to create a more sophisticated display based on the interaction type
   if (length(var_coefs) > 1) {
-    # Multiple interaction coefficients - show range
+    # Multiple interaction coefficients - likely continuous × factor interaction
     coef_names <- names(var_coefs)
-    labels_vals[c(1, 11)] <- c(coef_names[1], coef_names[length(coef_names)])
-    labels_vals[6] <- "..."
-    tick_vals[c(1, 6, 11)] <- TRUE
+    coef_values <- unlist(var_coefs)
+    
+    # Extract the factor levels from coefficient names
+    factor_levels <- c()
+    base_continuous_var <- ""
+    
+    for (coef_name in coef_names) {
+      # Parse interaction coefficient name like "hp:gear4" or "hp:factor(gear)4"
+      if (grepl(":", coef_name)) {
+        parts <- strsplit(coef_name, ":")[[1]]
+        if (length(parts) == 2) {
+          base_continuous_var <- parts[1]
+          factor_part <- parts[2]
+          
+          # Extract level from factor part
+          if (grepl("^factor\\(", factor_part)) {
+            level <- gsub("^factor\\([^)]+\\)", "", factor_part)
+          } else {
+            # Try to extract level by removing potential variable name prefix
+            level <- gsub("^[a-zA-Z_][a-zA-Z0-9_.]*", "", factor_part)
+          }
+          factor_levels <- c(factor_levels, level)
+        }
+      }
+    }
+    
+    # Create a scale that shows the interaction effect
+    n_line_points <- max(11, length(factor_levels) * 2 + 1)
+    points_vals <- seq(point_range[1] + diff(point_range) * 0.1,
+      point_range[2] - diff(point_range) * 0.1,
+      length.out = n_line_points
+    )
+    
+    labels_vals <- rep("", n_line_points)
+    tick_vals <- rep(FALSE, n_line_points)
+    
+    if (length(factor_levels) > 0) {
+      # Position labels at meaningful intervals showing the factor levels
+      label_positions <- round(seq(1, n_line_points, length.out = length(factor_levels) + 1))
+      
+      # Add reference level (assumed to be the missing level)
+      labels_vals[label_positions[1]] <- "Reference"
+      tick_vals[label_positions[1]] <- TRUE
+      
+      # Add the levels we have coefficients for
+      for (i in seq_along(factor_levels)) {
+        if (length(label_positions) > i) {
+          labels_vals[label_positions[i + 1]] <- factor_levels[i]
+          tick_vals[label_positions[i + 1]] <- TRUE
+        }
+      }
+    } else {
+      # Fallback to coefficient names if we can't parse properly
+      label_positions <- round(seq(1, n_line_points, length.out = min(3, length(coef_names))))
+      for (i in seq_along(label_positions)) {
+        if (i <= length(coef_names)) {
+          labels_vals[label_positions[i]] <- gsub(".*:", "", coef_names[i])
+          tick_vals[label_positions[i]] <- TRUE
+        }
+      }
+    }
   } else {
     # Single interaction coefficient
-    labels_vals[c(1, 6, 11)] <- c("Low", "Medium", "High")
+    n_line_points <- 11
+    points_vals <- seq(point_range[1] + diff(point_range) * 0.1,
+      point_range[2] - diff(point_range) * 0.1,
+      length.out = n_line_points
+    )
+    labels_vals <- rep("", n_line_points)
+    labels_vals[c(1, 6, 11)] <- c("Low Effect", "Medium Effect", "High Effect")
+    tick_vals <- rep(FALSE, n_line_points)
     tick_vals[c(1, 6, 11)] <- TRUE
   }
 
@@ -115,12 +172,35 @@
 
     # Check if this is an interaction term
     if (grepl(":", var_name)) {
-      # This is an interaction term - handle specially
+      # This is an interaction term - group by the base variables involved
       interaction_parts <- strsplit(var_name, ":")[[1]]
       
-      # For now, create a generic interaction group
-      # This could be enhanced to show more sophisticated interaction displays
-      interaction_key <- paste0("Interaction: ", paste(interaction_parts, collapse = " × "))
+      # For interactions like hp:gear4, hp:gear5, group them under "hp × gear"
+      base_parts <- c()
+      for (part in interaction_parts) {
+        # Extract base variable name (remove factor levels)
+        if (grepl("^factor\\(", part)) {
+          base_part <- gsub("^factor\\(([^)]+)\\).*$", "\\1", part)
+        } else {
+          # For factor variables like gear4, gear5, extract the base variable
+          # But for continuous variables like hp, keep as-is
+          if (grepl("[0-9A-Za-z]+$", part) && nchar(part) > 2) {
+            # Try to remove suffix only if it looks like a factor level
+            potential_base <- gsub("([a-zA-Z_][a-zA-Z0-9_.]*)([0-9]+|[A-Z][a-z]*)$", "\\1", part)
+            if (nchar(potential_base) >= 2 && potential_base != part) {
+              base_part <- potential_base
+            } else {
+              base_part <- part  # Keep original if extraction doesn't look right
+            }
+          } else {
+            base_part <- part  # Keep original for continuous variables
+          }
+        }
+        base_parts <- c(base_parts, base_part)
+      }
+      
+      # Create unified interaction key based on base variables
+      interaction_key <- paste0("Interaction: ", paste(unique(base_parts), collapse = " × "))
       
       if (is.null(coef_groups[[interaction_key]])) {
         coef_groups[[interaction_key]] <- list()
@@ -183,7 +263,13 @@
     var_coefs <- coef_groups[[actual_var_name]]
     base_var_name <- base_var_mapping[[actual_var_name]]
 
-    if (actual_var_name %in% names(model_frame)) {
+    # Check if this is an interaction term
+    if (startsWith(actual_var_name, "Interaction:")) {
+      nom_data[[length(nom_data) + 1]] <- .create_interaction_display(
+        actual_var_name, var_coefs, point_range, y_position, model_frame
+      )
+    } else if (actual_var_name %in% names(model_frame)) {
+    
       var_data <- model_frame[[actual_var_name]]
 
       if (is.numeric(var_data)) {
@@ -224,7 +310,6 @@
           coef_val <- var_coefs[[coef_name]]
 
           # Extract level from coefficient name more robustly
-          # Handle both regular factors and factor() in formula
           # R creates coefficient names by appending the level to the variable name
           level_suffix <- gsub(paste0("^", base_var_name), "", coef_name)
 
@@ -579,7 +664,13 @@
     var_coefs <- coef_groups[[actual_var_name]]
     base_var_name <- base_var_mapping[[actual_var_name]]
 
-    if (actual_var_name %in% names(model_frame)) {
+    # Check if this is an interaction term
+    if (startsWith(actual_var_name, "Interaction:")) {
+      nom_data[[length(nom_data) + 1]] <- .create_interaction_display(
+        actual_var_name, var_coefs, point_range, y_position, model_frame
+      )
+    } else if (actual_var_name %in% names(model_frame)) {
+    
       var_data <- model_frame[[actual_var_name]]
 
       if (is.numeric(var_data)) {
