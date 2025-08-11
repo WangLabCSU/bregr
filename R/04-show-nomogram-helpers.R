@@ -144,90 +144,103 @@
         for (coef_name in names(var_coefs)) {
           coef_val <- var_coefs[[coef_name]]
           
-          # Extract level from coefficient name
-          if (grepl("[0-9]+$", coef_name)) {
-            level_value <- gsub(".*([0-9]+)$", "\\1", coef_name)
-          } else {
-            level_suffix <- gsub(paste0("^", base_var_name), "", coef_name)
-            level_value <- if (nchar(level_suffix) > 0) level_suffix else NULL
-          }
+          # Extract level from coefficient name more robustly
+          # R creates coefficient names by appending the level to the variable name
+          level_suffix <- gsub(paste0("^", base_var_name), "", coef_name)
           
-          if (!is.null(level_value) && level_value %in% levels_found) {
-            level_coefs[[level_value]] <- coef_val
+          # The suffix should match one of the factor levels exactly
+          if (level_suffix %in% levels_found) {
+            level_coefs[[level_suffix]] <- coef_val
+          }
+        }
+        
+        # Determine reference level - it's the level that doesn't have a coefficient
+        ref_level <- levels_found[1]  # Default to first level
+        for (level in levels_found) {
+          if (!(level %in% names(level_coefs))) {
+            ref_level <- level
+            break
           }
         }
         
         # Create a comprehensive factor scale showing all levels
-        if (length(level_coefs) > 0) {
-          # Calculate points for each level (reference level gets baseline)
+        if (length(levels_found) > 1) {
+          # Calculate points for each level
           ref_points <- point_range[1] + diff(point_range) * 0.2
-          level_points <- list()
-          level_points[[levels_found[1]]] <- ref_points # Reference level at baseline
           
-          # Non-reference levels get points based on their coefficients
+          # Start with reference level at baseline
+          level_points <- list()
+          level_points[[ref_level]] <- ref_points
+          
+          # Add non-reference levels based on their coefficients
           for (level_val in names(level_coefs)) {
             level_points[[level_val]] <- ref_points + level_coefs[[level_val]] * point_scale_factor
           }
           
           # Sort levels by their position values for drawing connecting lines
-          all_levels <- levels_found[levels_found %in% c(levels_found[1], names(level_coefs))]
-          level_positions <- sapply(all_levels, function(lv) {
+          level_positions <- sapply(levels_found, function(lv) {
             if (lv %in% names(level_points)) level_points[[lv]] else ref_points
           })
           
           # Create points along the scale connecting all levels
-          if (length(level_positions) >= 2) {
-            min_pos <- min(level_positions)
-            max_pos <- max(level_positions)
-            n_line_points <- 21
-            line_x <- seq(min_pos, max_pos, length.out = n_line_points)
-            
-            # Create labels only at actual level positions
-            line_labels <- rep("", n_line_points)
-            line_ticks <- rep(FALSE, n_line_points)
-            
-            for (level_val in all_levels) {
-              if (level_val %in% names(level_points)) {
-                level_pos <- level_points[[level_val]]
-                # Find closest point in line_x to this level position
-                closest_idx <- which.min(abs(line_x - level_pos))
-                if (level_val == levels_found[1]) {
-                  line_labels[closest_idx] <- paste0(level_val, " (ref)")
-                } else {
-                  line_labels[closest_idx] <- level_val
-                }
-                line_ticks[closest_idx] <- TRUE
-              }
-            }
-            
-            nom_data[[length(nom_data) + 1]] <- data.frame(
-              y = y_position,
-              x = line_x,
-              label = line_labels,
-              var_name = actual_var_name,
-              type = "variable",
-              is_tick = line_ticks,
-              stringsAsFactors = FALSE
-            )
-          } else {
-            # Fallback for single level case
-            n_line_points <- 11
-            line_x <- seq(ref_points - 10, ref_points + 10, length.out = n_line_points)
-            line_labels <- rep("", n_line_points)
-            line_labels[6] <- paste0(levels_found[1], " (ref)")
-            line_ticks <- rep(FALSE, n_line_points)
-            line_ticks[6] <- TRUE
-            
-            nom_data[[length(nom_data) + 1]] <- data.frame(
-              y = y_position,
-              x = line_x,
-              label = line_labels,
-              var_name = actual_var_name,
-              type = "variable",
-              is_tick = line_ticks,
-              stringsAsFactors = FALSE
-            )
+          min_pos <- min(level_positions, na.rm = TRUE)
+          max_pos <- max(level_positions, na.rm = TRUE)
+          
+          # Ensure we have a reasonable range
+          if (abs(max_pos - min_pos) < 5) {
+            min_pos <- ref_points - 15
+            max_pos <- ref_points + 15
           }
+          
+          n_line_points <- 21
+          line_x <- seq(min_pos, max_pos, length.out = n_line_points)
+          
+          # Create labels only at actual level positions
+          line_labels <- rep("", n_line_points)
+          line_ticks <- rep(FALSE, n_line_points)
+          
+          for (level_val in levels_found) {
+            if (level_val %in% names(level_points)) {
+              level_pos <- level_points[[level_val]]
+              # Find closest point in line_x to this level position
+              closest_idx <- which.min(abs(line_x - level_pos))
+              if (level_val == ref_level) {
+                line_labels[closest_idx] <- paste0(level_val, " (ref)")
+              } else {
+                line_labels[closest_idx] <- level_val
+              }
+              line_ticks[closest_idx] <- TRUE
+            }
+          }
+          
+          nom_data[[length(nom_data) + 1]] <- data.frame(
+            y = y_position,
+            x = line_x,
+            label = line_labels,
+            var_name = actual_var_name,
+            type = "variable",
+            is_tick = line_ticks,
+            stringsAsFactors = FALSE
+          )
+        } else {
+          # Single level factor (edge case)
+          n_line_points <- 11
+          ref_points <- point_range[1] + diff(point_range) * 0.5
+          line_x <- seq(ref_points - 10, ref_points + 10, length.out = n_line_points)
+          line_labels <- rep("", n_line_points)
+          line_labels[6] <- paste0(levels_found[1], " (only level)")
+          line_ticks <- rep(FALSE, n_line_points)
+          line_ticks[6] <- TRUE
+          
+          nom_data[[length(nom_data) + 1]] <- data.frame(
+            y = y_position,
+            x = line_x,
+            label = line_labels,
+            var_name = actual_var_name,
+            type = "variable",
+            is_tick = line_ticks,
+            stringsAsFactors = FALSE
+          )
         }
       }
     } else {
@@ -525,90 +538,103 @@
         for (coef_name in names(var_coefs)) {
           coef_val <- var_coefs[[coef_name]]
           
-          # Extract level from coefficient name
-          if (grepl("[0-9]+$", coef_name)) {
-            level_value <- gsub(".*([0-9]+)$", "\\1", coef_name)
-          } else {
-            level_suffix <- gsub(paste0("^", base_var_name), "", coef_name)
-            level_value <- if (nchar(level_suffix) > 0) level_suffix else NULL
-          }
+          # Extract level from coefficient name more robustly
+          # R creates coefficient names by appending the level to the variable name
+          level_suffix <- gsub(paste0("^", base_var_name), "", coef_name)
           
-          if (!is.null(level_value) && level_value %in% levels_found) {
-            level_coefs[[level_value]] <- coef_val
+          # The suffix should match one of the factor levels exactly
+          if (level_suffix %in% levels_found) {
+            level_coefs[[level_suffix]] <- coef_val
+          }
+        }
+        
+        # Determine reference level - it's the level that doesn't have a coefficient
+        ref_level <- levels_found[1]  # Default to first level
+        for (level in levels_found) {
+          if (!(level %in% names(level_coefs))) {
+            ref_level <- level
+            break
           }
         }
         
         # Create a comprehensive factor scale showing all levels
-        if (length(level_coefs) > 0) {
-          # Calculate points for each level (reference level gets baseline)
+        if (length(levels_found) > 1) {
+          # Calculate points for each level
           ref_points <- point_range[1] + diff(point_range) * 0.2
-          level_points <- list()
-          level_points[[levels_found[1]]] <- ref_points # Reference level at baseline
           
-          # Non-reference levels get points based on their coefficients
+          # Start with reference level at baseline
+          level_points <- list()
+          level_points[[ref_level]] <- ref_points
+          
+          # Add non-reference levels based on their coefficients
           for (level_val in names(level_coefs)) {
             level_points[[level_val]] <- ref_points + level_coefs[[level_val]] * point_scale_factor
           }
           
           # Sort levels by their position values for drawing connecting lines
-          all_levels <- levels_found[levels_found %in% c(levels_found[1], names(level_coefs))]
-          level_positions <- sapply(all_levels, function(lv) {
+          level_positions <- sapply(levels_found, function(lv) {
             if (lv %in% names(level_points)) level_points[[lv]] else ref_points
           })
           
           # Create points along the scale connecting all levels
-          if (length(level_positions) >= 2) {
-            min_pos <- min(level_positions)
-            max_pos <- max(level_positions)
-            n_line_points <- 21
-            line_x <- seq(min_pos, max_pos, length.out = n_line_points)
-            
-            # Create labels only at actual level positions
-            line_labels <- rep("", n_line_points)
-            line_ticks <- rep(FALSE, n_line_points)
-            
-            for (level_val in all_levels) {
-              if (level_val %in% names(level_points)) {
-                level_pos <- level_points[[level_val]]
-                # Find closest point in line_x to this level position
-                closest_idx <- which.min(abs(line_x - level_pos))
-                if (level_val == levels_found[1]) {
-                  line_labels[closest_idx] <- paste0(level_val, " (ref)")
-                } else {
-                  line_labels[closest_idx] <- level_val
-                }
-                line_ticks[closest_idx] <- TRUE
-              }
-            }
-            
-            nom_data[[length(nom_data) + 1]] <- data.frame(
-              y = y_position,
-              x = line_x,
-              label = line_labels,
-              var_name = actual_var_name,
-              type = "variable",
-              is_tick = line_ticks,
-              stringsAsFactors = FALSE
-            )
-          } else {
-            # Fallback for single level case
-            n_line_points <- 11
-            line_x <- seq(ref_points - 10, ref_points + 10, length.out = n_line_points)
-            line_labels <- rep("", n_line_points)
-            line_labels[6] <- paste0(levels_found[1], " (ref)")
-            line_ticks <- rep(FALSE, n_line_points)
-            line_ticks[6] <- TRUE
-            
-            nom_data[[length(nom_data) + 1]] <- data.frame(
-              y = y_position,
-              x = line_x,
-              label = line_labels,
-              var_name = actual_var_name,
-              type = "variable",
-              is_tick = line_ticks,
-              stringsAsFactors = FALSE
-            )
+          min_pos <- min(level_positions, na.rm = TRUE)
+          max_pos <- max(level_positions, na.rm = TRUE)
+          
+          # Ensure we have a reasonable range
+          if (abs(max_pos - min_pos) < 5) {
+            min_pos <- ref_points - 15
+            max_pos <- ref_points + 15
           }
+          
+          n_line_points <- 21
+          line_x <- seq(min_pos, max_pos, length.out = n_line_points)
+          
+          # Create labels only at actual level positions
+          line_labels <- rep("", n_line_points)
+          line_ticks <- rep(FALSE, n_line_points)
+          
+          for (level_val in levels_found) {
+            if (level_val %in% names(level_points)) {
+              level_pos <- level_points[[level_val]]
+              # Find closest point in line_x to this level position
+              closest_idx <- which.min(abs(line_x - level_pos))
+              if (level_val == ref_level) {
+                line_labels[closest_idx] <- paste0(level_val, " (ref)")
+              } else {
+                line_labels[closest_idx] <- level_val
+              }
+              line_ticks[closest_idx] <- TRUE
+            }
+          }
+          
+          nom_data[[length(nom_data) + 1]] <- data.frame(
+            y = y_position,
+            x = line_x,
+            label = line_labels,
+            var_name = actual_var_name,
+            type = "variable",
+            is_tick = line_ticks,
+            stringsAsFactors = FALSE
+          )
+        } else {
+          # Single level factor (edge case)
+          n_line_points <- 11
+          ref_points <- point_range[1] + diff(point_range) * 0.5
+          line_x <- seq(ref_points - 10, ref_points + 10, length.out = n_line_points)
+          line_labels <- rep("", n_line_points)
+          line_labels[6] <- paste0(levels_found[1], " (only level)")
+          line_ticks <- rep(FALSE, n_line_points)
+          line_ticks[6] <- TRUE
+          
+          nom_data[[length(nom_data) + 1]] <- data.frame(
+            y = y_position,
+            x = line_x,
+            label = line_labels,
+            var_name = actual_var_name,
+            type = "variable",
+            is_tick = line_ticks,
+            stringsAsFactors = FALSE
+          )
         }
       }
     } else {
