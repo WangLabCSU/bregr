@@ -58,12 +58,37 @@
     coef_val <- coefs[i]
 
     # Try to match coefficient name to original variable
-    # Handle factor variables with level suffixes
-    base_var_name <- gsub("^(.+?)[0-9]+$", "\\1", var_name)
-
+    # Handle factor variables with level suffixes more robustly
+    # R creates coefficients like: var1, var2 (numeric levels) or varB, varC (character levels)
+    base_var_name <- var_name
+    
+    # Try different patterns to extract base variable name
+    if (grepl("[a-zA-Z_][a-zA-Z0-9_.]*[0-9]+$", var_name)) {
+      # Pattern: variable name ending with numbers (numeric factor levels)
+      base_var_name <- gsub("([a-zA-Z_][a-zA-Z0-9_.]*)([0-9]+)$", "\\1", var_name)
+    } else if (grepl("[a-zA-Z_][a-zA-Z0-9_.]*[A-Za-z]+$", var_name)) {
+      # Pattern: variable name ending with letters (character factor levels)
+      # More conservative: only strip if we can match it to a model frame variable
+      potential_bases <- c()
+      for (frame_var in names(model_frame)) {
+        if (startsWith(var_name, frame_var) && nchar(var_name) > nchar(frame_var)) {
+          potential_bases <- c(potential_bases, frame_var)
+        }
+      }
+      if (length(potential_bases) > 0) {
+        # Choose the longest match (most specific)
+        base_var_name <- potential_bases[which.max(nchar(potential_bases))]
+      }
+    }
+    
     # Find the base variable in model frame
-    matching_vars <- names(model_frame)[grepl(paste0("^", base_var_name), names(model_frame))]
+    matching_vars <- names(model_frame)[names(model_frame) == base_var_name]
     if (length(matching_vars) == 0) {
+      # Try partial matching if exact match fails
+      matching_vars <- names(model_frame)[grepl(paste0("^", base_var_name), names(model_frame))]
+    }
+    if (length(matching_vars) == 0) {
+      # Last resort: try substring matching
       matching_vars <- names(model_frame)[grepl(var_name, names(model_frame), fixed = TRUE)]
     }
 
@@ -105,36 +130,53 @@
         levels_found <- levels(var_data)
 
         # For factor variables, we need to map coefficient to the right level
+        # R factor encoding: first level is reference, coefficient name contains the level value
+        # Examples: sex2 -> level "2", ph.ecog1 -> level "1", x1B -> level "B"
+        level_value <- NULL
+        level_index <- NULL
+        
         if (grepl("[0-9]+$", var_name)) {
-          # Extract level number from coefficient name
-          level_num <- as.numeric(gsub(".*([0-9]+)$", "\\1", var_name))
-          if (level_num <= length(levels_found)) {
-            # Reference level gets baseline points
-            ref_points <- point_range[1] + diff(point_range) * 0.2
-            # Current level gets points based on coefficient
-            level_points <- ref_points + coef_val * point_scale_factor
-
-            # Create line segment between the two points
-            n_line_points <- 11
-            line_x <- seq(ref_points, level_points, length.out = n_line_points)
-            line_labels <- rep("", n_line_points)
-            line_labels[1] <- paste0(levels_found[1], " (ref)")
-            line_labels[n_line_points] <- levels_found[level_num]
-            line_ticks <- rep(FALSE, n_line_points)
-            line_ticks[c(1, n_line_points)] <- TRUE
-
-            nom_data[[i]] <- data.frame(
-              y = y_position,
-              x = line_x,
-              label = line_labels,
-              var_name = actual_var_name,
-              type = "variable",
-              is_tick = line_ticks,
-              stringsAsFactors = FALSE
-            )
-          }
+          # Extract numeric level value from coefficient name
+          level_value <- gsub(".*([0-9]+)$", "\\1", var_name)
+          # Find the position of this level value in the factor levels
+          level_index <- which(levels_found == level_value)
         } else {
-          # Simple two-level case
+          # Extract character level value from coefficient name
+          # Remove the base variable name to get the level
+          level_suffix <- gsub(paste0("^", base_var_name), "", var_name)
+          if (nchar(level_suffix) > 0) {
+            level_value <- level_suffix
+            level_index <- which(levels_found == level_value)
+          }
+        }
+
+        if (length(level_index) == 1 && level_index <= length(levels_found)) {
+          # Reference level gets baseline points
+          ref_points <- point_range[1] + diff(point_range) * 0.2
+          # Current level gets points based on coefficient
+          level_points <- ref_points + coef_val * point_scale_factor
+
+          # Create line segment between the two points
+          n_line_points <- 11
+          line_x <- seq(ref_points, level_points, length.out = n_line_points)
+          line_labels <- rep("", n_line_points)
+          line_labels[1] <- paste0(levels_found[1], " (ref)")
+          line_labels[n_line_points] <- levels_found[level_index]
+          line_ticks <- rep(FALSE, n_line_points)
+          line_ticks[c(1, n_line_points)] <- TRUE
+
+          nom_data[[i]] <- data.frame(
+            y = y_position,
+            x = line_x,
+            label = line_labels,
+            var_name = actual_var_name,
+            type = "variable",
+            is_tick = line_ticks,
+            stringsAsFactors = FALSE
+          )
+        } else if (length(levels_found) >= 2) {
+          # Fallback for when we can't determine the level number
+          # Assume it's comparing level 2 to level 1 (reference)
           ref_points <- point_range[1] + diff(point_range) * 0.2
           level_points <- ref_points + coef_val * point_scale_factor
 
@@ -143,7 +185,7 @@
           line_x <- seq(ref_points, level_points, length.out = n_line_points)
           line_labels <- rep("", n_line_points)
           line_labels[1] <- paste0(levels_found[1], " (ref)")
-          line_labels[n_line_points] <- if (length(levels_found) > 1) levels_found[2] else "Other"
+          line_labels[n_line_points] <- levels_found[2]
           line_ticks <- rep(FALSE, n_line_points)
           line_ticks[c(1, n_line_points)] <- TRUE
 
@@ -366,9 +408,45 @@
     var_name <- names(coefs)[i]
     coef_val <- coefs[i]
 
+    # Try to match coefficient name to original variable
+    # Handle factor variables with level suffixes more robustly
+    # R creates coefficients like: var1, var2 (numeric levels) or varB, varC (character levels)
+    base_var_name <- var_name
+    
+    # Try different patterns to extract base variable name
+    if (grepl("[a-zA-Z_][a-zA-Z0-9_.]*[0-9]+$", var_name)) {
+      # Pattern: variable name ending with numbers (numeric factor levels)
+      base_var_name <- gsub("([a-zA-Z_][a-zA-Z0-9_.]*)([0-9]+)$", "\\1", var_name)
+    } else if (grepl("[a-zA-Z_][a-zA-Z0-9_.]*[A-Za-z]+$", var_name)) {
+      # Pattern: variable name ending with letters (character factor levels)
+      # More conservative: only strip if we can match it to a model frame variable
+      potential_bases <- c()
+      for (frame_var in names(model_frame)) {
+        if (startsWith(var_name, frame_var) && nchar(var_name) > nchar(frame_var)) {
+          potential_bases <- c(potential_bases, frame_var)
+        }
+      }
+      if (length(potential_bases) > 0) {
+        # Choose the longest match (most specific)
+        base_var_name <- potential_bases[which.max(nchar(potential_bases))]
+      }
+    }
+    
+    # Find the base variable in model frame
+    matching_vars <- names(model_frame)[names(model_frame) == base_var_name]
+    if (length(matching_vars) == 0) {
+      # Try direct match first
+      matching_vars <- names(model_frame)[names(model_frame) == var_name]
+    }
+    if (length(matching_vars) == 0) {
+      # Try partial matching if exact match fails
+      matching_vars <- names(model_frame)[grepl(paste0("^", base_var_name), names(model_frame))]
+    }
+
     # Get variable data from model frame
-    if (var_name %in% colnames(model_frame)) {
-      var_data <- model_frame[[var_name]]
+    if (length(matching_vars) > 0) {
+      actual_var_name <- matching_vars[1]
+      var_data <- model_frame[[actual_var_name]]
 
       if (is.numeric(var_data)) {
         # Continuous variable - create proper scale with connecting line
@@ -393,7 +471,7 @@
           y = y_position,
           x = points,
           label = labels_line,
-          var_name = var_name,
+          var_name = actual_var_name,
           type = "variable",
           is_tick = is_tick_line,
           stringsAsFactors = FALSE
@@ -402,18 +480,40 @@
         # Categorical variable - improved handling
         if (is.factor(var_data)) {
           levels_found <- levels(var_data)
-          if (length(levels_found) > 1) {
+          
+          # For factor variables, we need to map coefficient to the right level
+          # R factor encoding: first level is reference, coefficient name contains the level value
+          # Examples: sex2 -> level "2", ph.ecog1 -> level "1", x1B -> level "B"
+          level_value <- NULL
+          level_index <- NULL
+          
+          if (grepl("[0-9]+$", var_name)) {
+            # Extract numeric level value from coefficient name
+            level_value <- gsub(".*([0-9]+)$", "\\1", var_name)
+            # Find the position of this level value in the factor levels
+            level_index <- which(levels_found == level_value)
+          } else {
+            # Extract character level value from coefficient name
+            # Remove the base variable name to get the level
+            level_suffix <- gsub(paste0("^", base_var_name), "", var_name)
+            if (nchar(level_suffix) > 0) {
+              level_value <- level_suffix
+              level_index <- which(levels_found == level_value)
+            }
+          }
+
+          if (length(level_index) == 1 && level_index <= length(levels_found)) {
             # Reference level gets baseline points
-            ref_level <- levels_found[1]
             ref_points <- point_range[1] + diff(point_range) * 0.2
+            # Current level gets points based on coefficient
             level_points <- ref_points + coef_val * point_scale_factor
 
-            # Create line segment
+            # Create line segment between the two points
             n_line_points <- 11
             line_x <- seq(ref_points, level_points, length.out = n_line_points)
             line_labels <- rep("", n_line_points)
-            line_labels[1] <- paste0(ref_level, " (ref)")
-            line_labels[n_line_points] <- if (length(levels_found) > 1) levels_found[2] else "Other"
+            line_labels[1] <- paste0(levels_found[1], " (ref)")
+            line_labels[n_line_points] <- levels_found[level_index]
             line_ticks <- rep(FALSE, n_line_points)
             line_ticks[c(1, n_line_points)] <- TRUE
 
@@ -421,7 +521,31 @@
               y = y_position,
               x = line_x,
               label = line_labels,
-              var_name = var_name,
+              var_name = actual_var_name,
+              type = "variable",
+              is_tick = line_ticks,
+              stringsAsFactors = FALSE
+            )
+          } else if (length(levels_found) >= 2) {
+            # Fallback for when we can't determine the level number
+            # Assume it's comparing level 2 to level 1 (reference)
+            ref_points <- point_range[1] + diff(point_range) * 0.2
+            level_points <- ref_points + coef_val * point_scale_factor
+
+            # Create line segment between the two points
+            n_line_points <- 11
+            line_x <- seq(ref_points, level_points, length.out = n_line_points)
+            line_labels <- rep("", n_line_points)
+            line_labels[1] <- paste0(levels_found[1], " (ref)")
+            line_labels[n_line_points] <- levels_found[2]
+            line_ticks <- rep(FALSE, n_line_points)
+            line_ticks[c(1, n_line_points)] <- TRUE
+
+            nom_data[[i]] <- data.frame(
+              y = y_position,
+              x = line_x,
+              label = line_labels,
+              var_name = actual_var_name,
               type = "variable",
               is_tick = line_ticks,
               stringsAsFactors = FALSE
