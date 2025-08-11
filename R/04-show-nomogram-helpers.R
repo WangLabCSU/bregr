@@ -51,15 +51,15 @@
   # Group coefficients by base variable to handle multi-level factors properly
   coef_groups <- list()
   base_var_mapping <- list()
-  
+
   for (i in seq_along(coefs)) {
     var_name <- names(coefs)[i]
     coef_val <- coefs[i]
-    
+
     # Try to match coefficient name to original variable
     # Handle factor variables with level suffixes more robustly
     base_var_name <- var_name
-    
+
     # Try different patterns to extract base variable name
     if (grepl("[a-zA-Z_][a-zA-Z0-9_.]*[0-9]+$", var_name)) {
       # Pattern: variable name ending with numbers (numeric factor levels)
@@ -76,7 +76,7 @@
         base_var_name <- potential_bases[which.max(nchar(potential_bases))]
       }
     }
-    
+
     # Find the base variable in model frame
     matching_vars <- names(model_frame)[names(model_frame) == base_var_name]
     if (length(matching_vars) == 0) {
@@ -85,9 +85,9 @@
     if (length(matching_vars) == 0) {
       matching_vars <- names(model_frame)[grepl(var_name, names(model_frame), fixed = TRUE)]
     }
-    
+
     actual_var_name <- if (length(matching_vars) > 0) matching_vars[1] else var_name
-    
+
     # Group coefficients by actual variable name
     if (is.null(coef_groups[[actual_var_name]])) {
       coef_groups[[actual_var_name]] <- list()
@@ -103,7 +103,7 @@
   for (actual_var_name in names(coef_groups)) {
     var_coefs <- coef_groups[[actual_var_name]]
     base_var_name <- base_var_mapping[[actual_var_name]]
-    
+
     if (actual_var_name %in% names(model_frame)) {
       var_data <- model_frame[[actual_var_name]]
 
@@ -138,22 +138,22 @@
       } else if (is.factor(var_data)) {
         # Categorical variable - create unified scale for all levels
         levels_found <- levels(var_data)
-        
+
         # Collect all coefficient mappings for this factor
         level_coefs <- list()
         for (coef_name in names(var_coefs)) {
           coef_val <- var_coefs[[coef_name]]
-          
+
           # Extract level from coefficient name more robustly
           # R creates coefficient names by appending the level to the variable name
           level_suffix <- gsub(paste0("^", base_var_name), "", coef_name)
-          
+
           # The suffix should match one of the factor levels exactly
           if (level_suffix %in% levels_found) {
             level_coefs[[level_suffix]] <- coef_val
           }
         }
-        
+
         # Determine reference level - it's the level that doesn't have a coefficient
         ref_level <- levels_found[1]  # Default to first level
         for (level in levels_found) {
@@ -162,43 +162,43 @@
             break
           }
         }
-        
+
         # Create a comprehensive factor scale showing all levels
         if (length(levels_found) > 1) {
           # Calculate points for each level
           ref_points <- point_range[1] + diff(point_range) * 0.2
-          
+
           # Start with reference level at baseline
           level_points <- list()
           level_points[[ref_level]] <- ref_points
-          
+
           # Add non-reference levels based on their coefficients
           for (level_val in names(level_coefs)) {
             level_points[[level_val]] <- ref_points + level_coefs[[level_val]] * point_scale_factor
           }
-          
+
           # Sort levels by their position values for drawing connecting lines
           level_positions <- sapply(levels_found, function(lv) {
             if (lv %in% names(level_points)) level_points[[lv]] else ref_points
           })
-          
+
           # Create points along the scale connecting all levels
           min_pos <- min(level_positions, na.rm = TRUE)
           max_pos <- max(level_positions, na.rm = TRUE)
-          
+
           # Ensure we have a reasonable range
           if (abs(max_pos - min_pos) < 5) {
             min_pos <- ref_points - 15
             max_pos <- ref_points + 15
           }
-          
+
           n_line_points <- 21
           line_x <- seq(min_pos, max_pos, length.out = n_line_points)
-          
+
           # Create labels only at actual level positions
           line_labels <- rep("", n_line_points)
           line_ticks <- rep(FALSE, n_line_points)
-          
+
           for (level_val in levels_found) {
             if (level_val %in% names(level_points)) {
               level_pos <- level_points[[level_val]]
@@ -212,7 +212,7 @@
               line_ticks[closest_idx] <- TRUE
             }
           }
-          
+
           nom_data[[length(nom_data) + 1]] <- data.frame(
             y = y_position,
             x = line_x,
@@ -231,7 +231,7 @@
           line_labels[6] <- paste0(levels_found[1], " (only level)")
           line_ticks <- rep(FALSE, n_line_points)
           line_ticks[6] <- TRUE
-          
+
           nom_data[[length(nom_data) + 1]] <- data.frame(
             y = y_position,
             x = line_x,
@@ -351,6 +351,7 @@
     title <- paste("Nomogram for", model_name, "Model")
   }
 
+  point_range <- range(plot_data$x)
   p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$x, y = .data$y)) +
     # Add subtle grid lines for easier reading
     ggplot2::geom_vline(
@@ -445,15 +446,15 @@
   # Group coefficients by base variable to handle multi-level factors properly
   coef_groups <- list()
   base_var_mapping <- list()
-  
+
   for (i in seq_along(coefs)) {
     var_name <- names(coefs)[i]
     coef_val <- coefs[i]
-    
+
     # Try to match coefficient name to original variable
     # Handle factor variables with level suffixes more robustly
     base_var_name <- var_name
-    
+
     # Try different patterns to extract base variable name
     if (grepl("[a-zA-Z_][a-zA-Z0-9_.]*[0-9]+$", var_name)) {
       # Pattern: variable name ending with numbers (numeric factor levels)
@@ -470,7 +471,7 @@
         base_var_name <- potential_bases[which.max(nchar(potential_bases))]
       }
     }
-    
+
     # Find the base variable in model frame
     matching_vars <- names(model_frame)[names(model_frame) == base_var_name]
     if (length(matching_vars) == 0) {
@@ -479,9 +480,9 @@
     if (length(matching_vars) == 0) {
       matching_vars <- names(model_frame)[grepl(paste0("^", base_var_name), names(model_frame))]
     }
-    
+
     actual_var_name <- if (length(matching_vars) > 0) matching_vars[1] else var_name
-    
+
     # Group coefficients by actual variable name
     if (is.null(coef_groups[[actual_var_name]])) {
       coef_groups[[actual_var_name]] <- list()
@@ -497,7 +498,7 @@
   for (actual_var_name in names(coef_groups)) {
     var_coefs <- coef_groups[[actual_var_name]]
     base_var_name <- base_var_mapping[[actual_var_name]]
-    
+
     if (actual_var_name %in% names(model_frame)) {
       var_data <- model_frame[[actual_var_name]]
 
@@ -532,22 +533,22 @@
       } else if (is.factor(var_data)) {
         # Categorical variable - create unified scale for all levels
         levels_found <- levels(var_data)
-        
+
         # Collect all coefficient mappings for this factor
         level_coefs <- list()
         for (coef_name in names(var_coefs)) {
           coef_val <- var_coefs[[coef_name]]
-          
+
           # Extract level from coefficient name more robustly
           # R creates coefficient names by appending the level to the variable name
           level_suffix <- gsub(paste0("^", base_var_name), "", coef_name)
-          
+
           # The suffix should match one of the factor levels exactly
           if (level_suffix %in% levels_found) {
             level_coefs[[level_suffix]] <- coef_val
           }
         }
-        
+
         # Determine reference level - it's the level that doesn't have a coefficient
         ref_level <- levels_found[1]  # Default to first level
         for (level in levels_found) {
@@ -556,43 +557,43 @@
             break
           }
         }
-        
+
         # Create a comprehensive factor scale showing all levels
         if (length(levels_found) > 1) {
           # Calculate points for each level
           ref_points <- point_range[1] + diff(point_range) * 0.2
-          
+
           # Start with reference level at baseline
           level_points <- list()
           level_points[[ref_level]] <- ref_points
-          
+
           # Add non-reference levels based on their coefficients
           for (level_val in names(level_coefs)) {
             level_points[[level_val]] <- ref_points + level_coefs[[level_val]] * point_scale_factor
           }
-          
+
           # Sort levels by their position values for drawing connecting lines
           level_positions <- sapply(levels_found, function(lv) {
             if (lv %in% names(level_points)) level_points[[lv]] else ref_points
           })
-          
+
           # Create points along the scale connecting all levels
           min_pos <- min(level_positions, na.rm = TRUE)
           max_pos <- max(level_positions, na.rm = TRUE)
-          
+
           # Ensure we have a reasonable range
           if (abs(max_pos - min_pos) < 5) {
             min_pos <- ref_points - 15
             max_pos <- ref_points + 15
           }
-          
+
           n_line_points <- 21
           line_x <- seq(min_pos, max_pos, length.out = n_line_points)
-          
+
           # Create labels only at actual level positions
           line_labels <- rep("", n_line_points)
           line_ticks <- rep(FALSE, n_line_points)
-          
+
           for (level_val in levels_found) {
             if (level_val %in% names(level_points)) {
               level_pos <- level_points[[level_val]]
@@ -606,7 +607,7 @@
               line_ticks[closest_idx] <- TRUE
             }
           }
-          
+
           nom_data[[length(nom_data) + 1]] <- data.frame(
             y = y_position,
             x = line_x,
@@ -625,7 +626,7 @@
           line_labels[6] <- paste0(levels_found[1], " (only level)")
           line_ticks <- rep(FALSE, n_line_points)
           line_ticks[6] <- TRUE
-          
+
           nom_data[[length(nom_data) + 1]] <- data.frame(
             y = y_position,
             x = line_x,
@@ -719,6 +720,7 @@
     title <- paste("Nomogram for", model_name, "Model")
   }
 
+  point_range <- range(plot_data$x)
   p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$x, y = .data$y)) +
     # Add subtle grid lines for easier reading
     ggplot2::geom_vline(
