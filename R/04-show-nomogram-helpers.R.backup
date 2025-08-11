@@ -224,7 +224,6 @@
           coef_val <- var_coefs[[coef_name]]
 
           # Extract level from coefficient name more robustly
-          # Handle both regular factors and factor() in formula
           # R creates coefficient names by appending the level to the variable name
           level_suffix <- gsub(paste0("^", base_var_name), "", coef_name)
 
