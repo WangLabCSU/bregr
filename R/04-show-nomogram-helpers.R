@@ -32,32 +32,79 @@
     coef_names <- names(var_coefs)
     coef_values <- unlist(var_coefs)
     
-    # Extract the factor levels from coefficient names
+    # Extract the factor levels from coefficient names and determine the factor variable
     factor_levels <- c()
     base_continuous_var <- ""
+    base_factor_var <- ""
     
     for (coef_name in coef_names) {
       # Parse interaction coefficient name like "hp:gear4" or "hp:factor(gear)4"
       if (grepl(":", coef_name)) {
         parts <- strsplit(coef_name, ":")[[1]]
         if (length(parts) == 2) {
-          base_continuous_var <- parts[1]
-          factor_part <- parts[2]
+          part1 <- parts[1]
+          part2 <- parts[2]
           
-          # Extract level from factor part
-          if (grepl("^factor\\(", factor_part)) {
-            level <- gsub("^factor\\([^)]+\\)", "", factor_part)
+          # Determine which part is continuous and which is factor
+          if (grepl("^factor\\(", part2)) {
+            # Pattern: var:factor(varname)level
+            base_continuous_var <- part1
+            base_factor_var <- gsub("^factor\\(([^)]+)\\).*$", "\\1", part2)
+            level <- gsub("^factor\\([^)]+\\)", "", part2)
+          } else if (grepl("[0-9]+$", part2) || grepl("[A-Za-z]+$", part2)) {
+            # Pattern: var:varlevel (like hp:gear4)
+            base_continuous_var <- part1
+            # Try to extract the base factor variable name
+            potential_base <- gsub("([a-zA-Z_][a-zA-Z0-9_.]*)([0-9]+|[A-Z][a-z]*)$", "\\1", part2)
+            if (nchar(potential_base) >= 2 && potential_base != part2) {
+              base_factor_var <- potential_base
+              level <- gsub(paste0("^", potential_base), "", part2)
+            } else {
+              # Couldn't extract base, use part2 as is
+              base_factor_var <- part2
+              level <- part2
+            }
           } else {
-            # Try to extract level by removing potential variable name prefix
-            level <- gsub("^[a-zA-Z_][a-zA-Z0-9_.]*", "", factor_part)
+            # Default case
+            base_continuous_var <- part1
+            base_factor_var <- part2
+            level <- part2
           }
+          
           factor_levels <- c(factor_levels, level)
         }
       }
     }
     
+    # Try to get the actual factor levels from model frame if available
+    all_factor_levels <- NULL
+    if (!is.null(model_frame) && base_factor_var %in% names(model_frame)) {
+      factor_data <- model_frame[[base_factor_var]]
+      if (is.factor(factor_data)) {
+        all_factor_levels <- levels(factor_data)
+      } else if (is.character(factor_data) || is.numeric(factor_data)) {
+        all_factor_levels <- sort(unique(factor_data))
+      }
+    }
+    
+    # Determine reference level - it's the level that doesn't have a coefficient
+    ref_level <- NULL
+    if (!is.null(all_factor_levels)) {
+      for (level in all_factor_levels) {
+        if (!(level %in% factor_levels)) {
+          ref_level <- level
+          break
+        }
+      }
+    }
+    if (is.null(ref_level)) {
+      # Default reference level if we can't determine it
+      ref_level <- "Reference"
+    }
+    
     # Create a scale that shows the interaction effect
-    n_line_points <- max(11, length(factor_levels) * 2 + 1)
+    total_levels <- length(factor_levels) + 1  # +1 for reference level
+    n_line_points <- max(11, total_levels * 3)
     points_vals <- seq(point_range[1] + diff(point_range) * 0.1,
       point_range[2] - diff(point_range) * 0.1,
       length.out = n_line_points
@@ -68,10 +115,10 @@
     
     if (length(factor_levels) > 0) {
       # Position labels at meaningful intervals showing the factor levels
-      label_positions <- round(seq(1, n_line_points, length.out = length(factor_levels) + 1))
+      label_positions <- round(seq(1, n_line_points, length.out = total_levels))
       
-      # Add reference level (assumed to be the missing level)
-      labels_vals[label_positions[1]] <- "Reference"
+      # Add reference level first
+      labels_vals[label_positions[1]] <- paste0(ref_level, " (ref)")
       tick_vals[label_positions[1]] <- TRUE
       
       # Add the levels we have coefficients for
@@ -246,6 +293,14 @@
     }
 
     actual_var_name <- if (length(matching_vars) > 0) matching_vars[1] else var_name
+
+    # Special case: if we extracted from factor() pattern but didnt find the base variable,
+    # check if the model frame has the full factor() expression
+    if (length(matching_vars) == 0 && grepl("^factor\\([^)]+\\)[A-Za-z0-9]+$", var_name)) {
+      factor_expr <- paste0("factor(", base_var_name, ")")
+      matching_vars <- names(model_frame)[names(model_frame) == factor_expr]
+      actual_var_name <- if (length(matching_vars) > 0) matching_vars[1] else var_name
+    }
 
     # Group coefficients by actual variable name
     if (is.null(coef_groups[[actual_var_name]])) {
@@ -608,20 +663,66 @@
   max_abs_coef <- max(abs(coefs))
   point_scale_factor <- diff(point_range) / (2 * max_abs_coef)
 
-  # Group coefficients by base variable to handle multi-level factors properly
+  # Group coefficients by base variable to handle multi-level factors and interactions properly
   coef_groups <- list()
   base_var_mapping <- list()
+  interaction_terms <- list()
 
   for (i in seq_along(coefs)) {
     var_name <- names(coefs)[i]
     coef_val <- coefs[i]
 
+    # Check if this is an interaction term
+    if (grepl(":", var_name)) {
+      # This is an interaction term - group by the base variables involved
+      interaction_parts <- strsplit(var_name, ":")[[1]]
+      
+      # For interactions like hp:gear4, hp:gear5, group them under "hp × gear"
+      base_parts <- c()
+      for (part in interaction_parts) {
+        # Extract base variable name (remove factor levels)
+        if (grepl("^factor\\(", part)) {
+          base_part <- gsub("^factor\\(([^)]+)\\).*$", "\\1", part)
+        } else {
+          # For factor variables like gear4, gear5, extract the base variable
+          # But for continuous variables like hp, keep as-is
+          if (grepl("[0-9A-Za-z]+$", part) && nchar(part) > 2) {
+            # Try to remove suffix only if it looks like a factor level
+            potential_base <- gsub("([a-zA-Z_][a-zA-Z0-9_.]*)([0-9]+|[A-Z][a-z]*)$", "\\1", part)
+            if (nchar(potential_base) >= 2 && potential_base != part) {
+              base_part <- potential_base
+            } else {
+              base_part <- part  # Keep original if extraction doesn't look right
+            }
+          } else {
+            base_part <- part  # Keep original for continuous variables
+          }
+        }
+        base_parts <- c(base_parts, base_part)
+      }
+      
+      # Create unified interaction key based on base variables
+      interaction_key <- paste0("Interaction: ", paste(unique(base_parts), collapse = " × "))
+      
+      if (is.null(coef_groups[[interaction_key]])) {
+        coef_groups[[interaction_key]] <- list()
+        base_var_mapping[[interaction_key]] <- interaction_key
+      }
+      coef_groups[[interaction_key]][[var_name]] <- coef_val
+      interaction_terms[[var_name]] <- interaction_parts
+      next
+    }
+
+    # Handle regular terms (including factors)
     # Try to match coefficient name to original variable
     # Handle factor variables with level suffixes more robustly
     base_var_name <- var_name
 
-    # Try different patterns to extract base variable name
-    if (grepl("[a-zA-Z_][a-zA-Z0-9_.]*[0-9]+$", var_name)) {
+    # Handle factor() in formula patterns like factor(gear)4
+    if (grepl("^factor\\([^)]+\\)[A-Za-z0-9]+$", var_name)) {
+      # Extract variable name from factor(varname)level
+      base_var_name <- gsub("^factor\\(([^)]+)\\).*$", "\\1", var_name)
+    } else if (grepl("[a-zA-Z_][a-zA-Z0-9_.]*[0-9]+$", var_name)) {
       # Pattern: variable name ending with numbers (numeric factor levels)
       base_var_name <- gsub("([a-zA-Z_][a-zA-Z0-9_.]*)([0-9]+)$", "\\1", var_name)
     } else if (grepl("[a-zA-Z_][a-zA-Z0-9_.]*[A-Za-z]+$", var_name)) {
@@ -640,13 +741,21 @@
     # Find the base variable in model frame
     matching_vars <- names(model_frame)[names(model_frame) == base_var_name]
     if (length(matching_vars) == 0) {
-      matching_vars <- names(model_frame)[names(model_frame) == var_name]
+      matching_vars <- names(model_frame)[grepl(paste0("^", base_var_name), names(model_frame))]
     }
     if (length(matching_vars) == 0) {
-      matching_vars <- names(model_frame)[grepl(paste0("^", base_var_name), names(model_frame))]
+      matching_vars <- names(model_frame)[grepl(var_name, names(model_frame), fixed = TRUE)]
     }
 
     actual_var_name <- if (length(matching_vars) > 0) matching_vars[1] else var_name
+
+    # Special case: if we extracted from factor() pattern but didnt find the base variable,
+    # check if the model frame has the full factor() expression
+    if (length(matching_vars) == 0 && grepl("^factor\\([^)]+\\)[A-Za-z0-9]+$", var_name)) {
+      factor_expr <- paste0("factor(", base_var_name, ")")
+      matching_vars <- names(model_frame)[names(model_frame) == factor_expr]
+      actual_var_name <- if (length(matching_vars) > 0) matching_vars[1] else var_name
+    }
 
     # Group coefficients by actual variable name
     if (is.null(coef_groups[[actual_var_name]])) {
