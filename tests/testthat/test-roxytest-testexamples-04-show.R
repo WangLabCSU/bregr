@@ -197,3 +197,20 @@ test_that("Function br_show_nomogram() @ L1377", {
   expect_s3_class(p2, "ggplot")
 })
 
+
+test_that("Function br_show_forest_circle() @ L1459", {
+  
+  m <- br_pipeline(mtcars,
+    y = "mpg",
+    x = colnames(mtcars)[2:4],
+    x2 = "vs",
+    method = "gaussian"
+  )
+  br_show_forest_circle(m)
+  br_show_forest_circle(m, style = "bars")
+  br_show_forest_circle(m, sort_by = "estimate")
+  br_show_forest_circle(m, ref_line = FALSE)
+  br_show_forest_circle(m, ref_line = 0.5)
+  assert_s3_class(br_show_forest_circle(m), "ggplot")
+})
+

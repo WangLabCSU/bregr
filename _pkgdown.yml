@@ -26,6 +26,7 @@ reference:
     desc: Visualize results using forest plots and more.
     contents:
     - br_show_forest
+    - br_show_forest_circle
     - br_show_risk_network
     - br_show_forest_ggstats
     - br_show_forest_ggstatsplot

@@ -1,9 +1,15 @@
 # bregr (development version)
 
-* Added `br_show_coxph_diagnostics()` for CoxPH diagnostic plots.
-* Added `br_show_nomogram()`.
-* Fixed interaction term display and factor variable scaling in `br_show_nomogram()`.
-* Added `dry_run` option to `br_pipeline()`.
+**Enhancements & New Features:**
+
+- Introduced `br_show_forest_circle()`for circular forest plots.
+- Added diagnostic visualization for Cox PH models via `br_show_coxph_diagnostics()`.
+- Implemented `br_show_nomogram()`for clinical prediction modeling.
+- Added `dry_run`option to `br_pipeline()`for pipeline validation.
+
+**Fixes & Improvements:**
+
+- Resolved interaction term display and factor scaling in `br_show_nomogram()`.
 
 # bregr 1.1.0
 

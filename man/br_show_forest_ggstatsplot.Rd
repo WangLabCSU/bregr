@@ -41,6 +41,7 @@ Other br_show:
 \code{\link{br_show_fitted_line}()},
 \code{\link{br_show_fitted_line_2d}()},
 \code{\link{br_show_forest}()},
+\code{\link{br_show_forest_circle}()},
 \code{\link{br_show_forest_ggstats}()},
 \code{\link{br_show_nomogram}()},
 \code{\link{br_show_residuals}()},
