@@ -21,7 +21,7 @@
 #' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
 #' @param clean Logical indicating whether to clean/condense redundant group/focal variable labels.
 #' If `TRUE`, remove "Group" or "Focal" variable column when the values in the result table
-#' are same (before performing `subset` and `drop`),
+#' are the same (before performing `subset` and `drop`),
 #' and reduce repeat values in column "Group", "Focal", and "Variable".
 #' @param rm_controls If `TRUE`, remove control terms.
 #' @param ... Additional arguments passed to [forestploter::forest()], run `vignette("forestploter-post", "forestploter")`
@@ -433,6 +433,457 @@ br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
   visreg::visreg2d(mod, data = broom.helpers::model_get_model_frame(mod), ...)
 }
 
+#' Show Cox proportional hazards model diagnostic plots
+#'
+#' @description
+#' `r lifecycle::badge('experimental')`
+#'
+#' Creates diagnostic plots specifically for Cox regression models.
+#' Focuses on Schoenfeld residuals plots to assess proportional hazards assumption
+#' and other Cox-specific diagnostics. Inspired by [survminer::ggcoxzph](https://search.r-project.org/CRAN/refmans/survminer/html/ggcoxzph.html) with
+#' enhanced visualization and computation optimizations to work in **bregr**.
+#'
+#' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
+#' @param idx Index or name (focal variable) of the Cox model to plot. Must be a single model.
+#' @param type Type of Cox diagnostic plot. Options: "schoenfeld" (default for Schoenfeld residuals),
+#' "martingale" (martingale residuals), "deviance" (deviance residuals).
+#' @param resid Logical, if TRUE the residuals are included on the plot along with smooth fit.
+#' @param se Logical, if TRUE confidence bands at two standard errors will be added.
+#' @param point_col Color for residual points.
+#' @param point_size Size for residual points.
+#' @param point_alpha Alpha (transparency) for residual points.
+#' @param ... Additional arguments passed to [survival::cox.zph].
+#' @returns A ggplot2 object or list of plots.
+#' @family br_show
+#' @export
+#' @examples
+#' # Create Cox models
+#' mds <- br_pipeline(
+#'   survival::lung,
+#'   y = c("time", "status"),
+#'   x = colnames(survival::lung)[6:10],
+#'   x2 = c("age", "sex"),
+#'   method = "coxph"
+#' )
+#'
+#' # Show Cox diagnostic plots
+#' p1 <- br_show_coxph_diagnostics(mds, idx = 1)
+#' p1
+#' p2 <- br_show_coxph_diagnostics(mds, type = "martingale")
+#' p2
+#'
+#' @testexamples
+#' expect_s3_class(p1, "alignpatches")
+#' expect_s3_class(p2, "ggplot")
+br_show_coxph_diagnostics <- function(
+    breg, idx = 1, type = "schoenfeld",
+    resid = TRUE, se = TRUE,
+    point_col = "red", point_size = 1, point_alpha = 0.6, ...) {
+  assert_breg_obj_with_results(breg)
+  if (length(idx) != 1) {
+    cli::cli_abort("Only one Cox model can be plotted at a time. Provide a single {.arg idx}.")
+  }
+
+  model <- br_get_models(breg, idx)
+  model_name <- if (is.character(idx)) idx else names(br_get_models(breg))[idx]
+
+  if (!inherits(model, "coxph")) {
+    cli::cli_abort("This function only works with Cox proportional hazards models. Model type: {class(model)[1]}")
+  }
+
+  .br_show_coxph_diagnostics(model, model_name, type, resid, se, point_col, point_size, point_alpha, ...)
+}
+
+# Internal function for Cox model diagnostics (enhanced with survminer approach and optimizations)
+.br_show_coxph_diagnostics <- function(model, model_name, type = "schoenfeld",
+                                       resid = TRUE, se = TRUE,
+                                       point_col = "red", point_size = 1, point_alpha = 0.6, ...) {
+  if (type == "schoenfeld") {
+    # Test proportional hazards and plot Schoenfeld residuals with optimizations
+    tryCatch(
+      {
+        ph_test <- survival::cox.zph(model, ...)
+
+        # Validate ph_test result
+        if (is.null(ph_test) || is.null(ph_test$table)) {
+          cli::cli_abort("Failed to compute Schoenfeld residuals - model may be invalid")
+        }
+
+        # Extract data for plotting (optimized data access)
+        time_points <- ph_test$time
+        residuals <- ph_test$y # cox.zph stores residuals in 'y' component
+        n_vars <- nrow(ph_test$table) - 1 # Exclude GLOBAL row
+
+        if (n_vars == 0 || is.null(residuals)) {
+          cli::cli_abort("No variables found for Schoenfeld residuals plot")
+        }
+
+        # Pre-allocate plots list for efficiency
+        plots <- vector("list", length = if (is.matrix(residuals)) ncol(residuals) else 1)
+
+        if (is.matrix(residuals)) {
+          var_names <- colnames(residuals)
+          names(plots) <- var_names
+
+          # Optimized vectorized NA removal
+          valid_rows <- !apply(is.na(residuals), 1, any)
+          clean_time <- time_points[valid_rows]
+          clean_residuals <- residuals[valid_rows, , drop = FALSE]
+
+          if (nrow(clean_residuals) == 0) {
+            cli::cli_abort("No valid residuals found after removing NA values")
+          }
+
+          # Create plots for each variable (vectorized approach)
+          for (i in seq_len(ncol(clean_residuals))) {
+            var_name <- var_names[i]
+
+            # Prepare optimized data frame
+            plot_data <- data.frame(
+              time = clean_time,
+              residuals = clean_residuals[, i],
+              stringsAsFactors = FALSE
+            )
+
+            # Additional check for this specific variable
+            valid_obs <- !is.na(plot_data$residuals)
+            if (sum(valid_obs) == 0) {
+              cli::cli_warn("No valid residuals for variable {var_name}")
+              next
+            }
+
+            plot_data <- plot_data[valid_obs, ]
+
+            # Get p-value for this variable with error handling
+            p_val <- tryCatch(
+              {
+                ph_test$table[var_name, "p"]
+              },
+              error = function(e) {
+                cli::cli_warn("Could not extract p-value for {var_name}: {e$message}")
+                NA_real_
+              }
+            )
+
+            # Format p-value and status with better formatting
+            if (!is.na(p_val)) {
+              p_text <- if (p_val < 0.001) {
+                "p < 0.001"
+              } else {
+                paste0("p = ", format.pval(p_val, digits = 3))
+              }
+              ph_status <- if (p_val < 0.05) "PH Assumption Violated" else "PH Assumption Satisfied"
+              status_color <- if (p_val < 0.05) "red" else "darkgreen"
+            } else {
+              p_text <- "p = NA"
+              ph_status <- "PH Status Unknown"
+              status_color <- "orange"
+            }
+
+            # Create plot with enhanced survminer-inspired styling
+            p <- ggplot2::ggplot(
+              plot_data,
+              ggplot2::aes(x = .data$time, y = .data$residuals)
+            )
+
+            # Add points if requested with improved styling
+            if (resid) {
+              p <- p + ggplot2::geom_point(
+                color = point_col,
+                size = point_size,
+                alpha = point_alpha,
+                stroke = 0 # Remove point borders for cleaner look
+              )
+            }
+
+            # Enhanced smooth line with better parameters
+            p <- p + ggplot2::geom_smooth(
+              method = "loess",
+              se = se,
+              color = "steelblue",
+              linewidth = 1.2,
+              span = 0.75 # Optimal smoothing parameter
+            )
+
+            # Add horizontal reference line at 0 with better styling
+            p <- p + ggplot2::geom_hline(
+              yintercept = 0,
+              linetype = "dashed",
+              color = "grey30",
+              alpha = 0.8,
+              linewidth = 0.8
+            )
+
+            # Enhanced styling inspired by survminer with status colors
+            p <- p + ggplot2::labs(
+              title = paste("Schoenfeld Residuals:", var_name),
+              subtitle = paste0(model_name, " - ", ph_status, " (", p_text, ")"),
+              x = "Time",
+              y = "Scaled Schoenfeld Residuals"
+            ) +
+              ggplot2::theme_minimal() +
+              ggplot2::theme(
+                plot.title = ggplot2::element_text(face = "bold", size = 12),
+                plot.subtitle = ggplot2::element_text(size = 10, color = status_color),
+                panel.grid.minor = ggplot2::element_blank(),
+                panel.grid.major = ggplot2::element_line(colour = "grey90"),
+                plot.background = ggplot2::element_rect(fill = "white", color = NA)
+              )
+
+            plots[[var_name]] <- p
+          }
+        } else {
+          # Single variable case - optimized handling
+          # Remove NA values efficiently
+          valid_indices <- !is.na(residuals)
+          if (sum(valid_indices) == 0) {
+            cli::cli_abort("No valid residuals for plotting")
+          }
+
+          plot_data <- data.frame(
+            time = time_points[valid_indices],
+            residuals = as.vector(residuals[valid_indices]),
+            stringsAsFactors = FALSE
+          )
+
+          # Get global p-value with error handling
+          global_p <- tryCatch(
+            {
+              ph_test$table["GLOBAL", "p"]
+            },
+            error = function(e) {
+              cli::cli_warn("Could not extract global p-value: {e$message}")
+              NA_real_
+            }
+          )
+
+          # Enhanced p-value formatting and status
+          if (!is.na(global_p)) {
+            p_text <- if (global_p < 0.001) {
+              "p < 0.001"
+            } else {
+              paste0("p = ", format.pval(global_p, digits = 3))
+            }
+            ph_status <- if (global_p < 0.05) "PH Assumption Violated" else "PH Assumption Satisfied"
+            status_color <- if (global_p < 0.05) "red" else "darkgreen"
+          } else {
+            p_text <- "p = NA"
+            ph_status <- "PH Status Unknown"
+            status_color <- "orange"
+          }
+
+          # Create enhanced single variable plot
+          p <- ggplot2::ggplot(
+            plot_data,
+            ggplot2::aes(x = .data$time, y = .data$residuals)
+          )
+
+          if (resid) {
+            p <- p + ggplot2::geom_point(
+              color = point_col,
+              size = point_size,
+              alpha = point_alpha,
+              stroke = 0
+            )
+          }
+
+          p <- p + ggplot2::geom_smooth(
+            method = "loess",
+            se = se,
+            color = "steelblue",
+            linewidth = 1.2,
+            span = 0.75
+          ) +
+            ggplot2::geom_hline(
+              yintercept = 0,
+              linetype = "dashed",
+              color = "grey30",
+              alpha = 0.8,
+              linewidth = 0.8
+            ) +
+            ggplot2::labs(
+              title = "Schoenfeld Residuals",
+              subtitle = paste0(model_name, " - ", ph_status, " (", p_text, ")"),
+              x = "Time",
+              y = "Scaled Schoenfeld Residuals"
+            ) +
+            ggplot2::theme_minimal() +
+            ggplot2::theme(
+              plot.title = ggplot2::element_text(face = "bold", size = 12),
+              plot.subtitle = ggplot2::element_text(size = 10, color = status_color),
+              panel.grid.minor = ggplot2::element_blank(),
+              panel.grid.major = ggplot2::element_line(colour = "grey90"),
+              plot.background = ggplot2::element_rect(fill = "white", color = NA)
+            )
+
+          plots[["single"]] <- p
+        }
+
+        # Filter out NULL plots and return optimized result
+        valid_plots <- plots[!sapply(plots, is.null)]
+
+        if (length(valid_plots) == 0) {
+          cli::cli_abort("No valid plots could be created")
+        } else if (length(valid_plots) == 1) {
+          return(valid_plots[[1]])
+        } else {
+          rlang::check_installed("ggalign")
+          # Enhanced plot combination with better error handling
+          tryCatch(
+            {
+              combined_plot <- ggalign::align_plots(!!!valid_plots)
+              return(combined_plot)
+            },
+            error = function(e) {
+              cli::cli_warn("Failed to combine plots with ggalign: {e$message}. Returning list of plots.")
+              return(valid_plots)
+            }
+          )
+        }
+      },
+      error = function(e) {
+        cli::cli_abort("Failed to create Schoenfeld residuals plot: {e$message}")
+      }
+    )
+  } else if (type == "martingale") {
+    # Optimized martingale residuals plot with error handling
+    tryCatch(
+      {
+        mart_resid <- residuals(model, type = "martingale")
+        fitted_vals <- predict(model)
+
+        # Check for valid residuals
+        if (is.null(mart_resid) || is.null(fitted_vals)) {
+          cli::cli_abort("Failed to compute martingale residuals or fitted values")
+        }
+
+        # Remove NA values efficiently
+        valid_indices <- !is.na(mart_resid) & !is.na(fitted_vals)
+        if (sum(valid_indices) == 0) {
+          cli::cli_abort("No valid observations for martingale residuals plot")
+        }
+
+        plot_data <- data.frame(
+          fitted = fitted_vals[valid_indices],
+          residuals = mart_resid[valid_indices],
+          stringsAsFactors = FALSE
+        )
+
+        # Enhanced martingale residuals plot
+        p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = fitted, y = residuals)) +
+          ggplot2::geom_point(
+            color = point_col,
+            size = point_size,
+            alpha = point_alpha,
+            stroke = 0
+          ) +
+          ggplot2::geom_smooth(
+            method = "loess",
+            se = se,
+            color = "steelblue",
+            linewidth = 1.2,
+            span = 0.75
+          ) +
+          ggplot2::geom_hline(
+            yintercept = 0,
+            linetype = "dashed",
+            color = "grey30",
+            alpha = 0.8,
+            linewidth = 0.8
+          ) +
+          ggplot2::labs(
+            title = "Martingale Residuals",
+            subtitle = paste("Cox Model:", model_name),
+            x = "Linear Predictor",
+            y = "Martingale Residuals"
+          ) +
+          ggplot2::theme_minimal() +
+          ggplot2::theme(
+            plot.title = ggplot2::element_text(face = "bold", size = 12),
+            plot.subtitle = ggplot2::element_text(size = 10),
+            panel.grid.minor = ggplot2::element_blank(),
+            panel.grid.major = ggplot2::element_line(colour = "grey90"),
+            plot.background = ggplot2::element_rect(fill = "white", color = NA)
+          )
+
+        return(p)
+      },
+      error = function(e) {
+        cli::cli_abort("Failed to create martingale residuals plot: {e$message}")
+      }
+    )
+  } else if (type == "deviance") {
+    # Optimized deviance residuals plot with error handling
+    tryCatch(
+      {
+        dev_resid <- residuals(model, type = "deviance")
+        fitted_vals <- predict(model)
+
+        # Check for valid residuals
+        if (is.null(dev_resid) || is.null(fitted_vals)) {
+          cli::cli_abort("Failed to compute deviance residuals or fitted values")
+        }
+
+        # Remove NA values efficiently
+        valid_indices <- !is.na(dev_resid) & !is.na(fitted_vals)
+        if (sum(valid_indices) == 0) {
+          cli::cli_abort("No valid observations for deviance residuals plot")
+        }
+
+        plot_data <- data.frame(
+          fitted = fitted_vals[valid_indices],
+          residuals = dev_resid[valid_indices],
+          stringsAsFactors = FALSE
+        )
+
+        # Enhanced deviance residuals plot
+        p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = fitted, y = residuals)) +
+          ggplot2::geom_point(
+            color = point_col,
+            size = point_size,
+            alpha = point_alpha,
+            stroke = 0
+          ) +
+          ggplot2::geom_smooth(
+            method = "loess",
+            se = se,
+            color = "steelblue",
+            linewidth = 1.2,
+            span = 0.75
+          ) +
+          ggplot2::geom_hline(
+            yintercept = 0,
+            linetype = "dashed",
+            color = "grey30",
+            alpha = 0.8,
+            linewidth = 0.8
+          ) +
+          ggplot2::labs(
+            title = "Deviance Residuals",
+            subtitle = paste("Cox Model:", model_name),
+            x = "Linear Predictor",
+            y = "Deviance Residuals"
+          ) +
+          ggplot2::theme_minimal() +
+          ggplot2::theme(
+            plot.title = ggplot2::element_text(face = "bold", size = 12),
+            plot.subtitle = ggplot2::element_text(size = 10),
+            panel.grid.minor = ggplot2::element_blank(),
+            panel.grid.major = ggplot2::element_line(colour = "grey90"),
+            plot.background = ggplot2::element_rect(fill = "white", color = NA)
+          )
+
+        return(p)
+      },
+      error = function(e) {
+        cli::cli_abort("Failed to create deviance residuals plot: {e$message}")
+      }
+    )
+  } else {
+    cli::cli_abort("Diagnostic type '{type}' not implemented for Cox models. Use 'schoenfeld', 'martingale', or 'deviance'.")
+  }
+}
+
 #' Show model tidy results in table format
 #'
 #' @description
@@ -469,6 +920,7 @@ br_show_table <- function(breg, ..., args_table_format = list(), export = FALSE,
   tbl
 }
 
+
 #' Show regression models with `gtsummary` interface
 #'
 #' @description
@@ -503,11 +955,7 @@ br_show_table_gt <- function(
   assert_breg_obj_with_results(breg)
   rlang::check_installed("gtsummary")
 
-  mds <- if (!is.null(idx)) {
-    br_get_model(breg, idx)
-  } else {
-    br_get_models(breg)
-  }
+  mds <- br_get_models(breg, idx)
   if (length(mds) == 1) {
     mds <- mds[[1]]
   }
@@ -531,6 +979,437 @@ br_show_table_gt <- function(
   t
 }
 
+#' Show survival curves based on model scores
+#'
+#' @description
+#' `r lifecycle::badge('experimental')`
+#'
+#' Generate survival curves by grouping observations based on model prediction scores.
+#' This function is specifically designed for Cox regression models and creates
+#' survival curves comparing different risk groups.
+#'
+#' @param breg A `breg` object with fitted Cox regression models.
+#' @param idx Index or name of the model to use for prediction.
+#' If NULL, uses the first model.
+#' @param n_groups Number of groups to create based on score quantiles. Default is 3.
+#' @param group_labels Custom labels for the groups. If NULL, uses "Low", "Medium", "High"
+#' for 3 groups or "Q1", "Q2", etc. for other numbers.
+#' @param title Plot title. If NULL, generates automatic title.
+#' @param subtitle Plot subtitle.
+#' @returns A ggplot2 object showing survival curves.
+#' @export
+#' @family br_show
+#' @examples
+#' \donttest{
+#' # Cox regression example with survival curves
+#' if (requireNamespace("survival", quietly = TRUE)) {
+#'   lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
+#'   mds <- br_pipeline(
+#'     lung,
+#'     y = c("time", "status"),
+#'     x = c("age", "ph.ecog"),
+#'     x2 = "sex",
+#'     method = "coxph"
+#'   )
+#'   p <- br_show_survival_curves(mds)
+#'   print(p)
+#' }
+#' }
+br_show_survival_curves <- function(breg,
+                                    idx = NULL,
+                                    n_groups = 3,
+                                    group_labels = NULL,
+                                    title = NULL,
+                                    subtitle = NULL) {
+  assert_breg_obj_with_results(breg)
+
+  # Get the model to use
+  if (is.null(idx)) {
+    cli::cli_inform("{.arg idx} not set, use the first model")
+    idx <- 1
+  } else {
+    if (length(idx) != 1) {
+      cli::cli_abort("please specify one model")
+    }
+  }
+  model <- br_get_models(breg, idx)
+
+  # Check if we have survival models
+  if (!inherits(model, "coxph")) {
+    cli::cli_abort("survival curves are only supported for Cox regression models (coxph)")
+  }
+
+  # Get predictions (risk scores)
+  scores <- br_predict(breg, idx = idx, type = "lp")
+  data <- br_get_data(breg)
+
+  # Get survival variables
+  y_vars <- br_get_y(breg)
+  if (length(y_vars) != 2) {
+    cli::cli_abort("expected 2 survival variables (time, status), got {length(y_vars)}")
+  }
+
+  time_var <- y_vars[1]
+  status_var <- y_vars[2]
+
+  # Create score groups
+  score_quantiles <- quantile(scores, probs = seq(0, 1, length.out = n_groups + 1), na.rm = TRUE)
+
+  # Handle case where scores have little variation
+  if (length(unique(score_quantiles)) <= 2) {
+    cli::cli_warn("score values have limited variation, grouping may not be meaningful")
+  }
+
+  score_groups <- cut(scores,
+    breaks = score_quantiles,
+    include.lowest = TRUE,
+    labels = FALSE
+  )
+
+  # Create group labels
+  if (is.null(group_labels)) {
+    if (n_groups == 3) {
+      group_labels <- c("Low Risk", "Medium Risk", "High Risk")
+    } else if (n_groups == 2) {
+      group_labels <- c("Low Risk", "High Risk")
+    } else {
+      group_labels <- paste0("Q", 1:n_groups)
+    }
+  } else if (length(group_labels) != n_groups) {
+    cli::cli_abort("length of group_labels ({length(group_labels)}) must match n_groups ({n_groups})")
+  }
+
+  # Prepare data for survival analysis
+  surv_data <- data |>
+    dplyr::mutate(
+      .score = scores,
+      .score_group = factor(score_groups, labels = group_labels),
+      .time = .data[[time_var]],
+      .status = .data[[status_var]]
+    ) |>
+    dplyr::filter(!is.na(.data$.score_group))
+
+  # Create survival object
+  surv_obj <- survival::Surv(surv_data$.time, surv_data$.status)
+
+  # Fit Kaplan-Meier curves for each group
+  km_fit <- survival::survfit(surv_obj ~ .score_group, data = surv_data)
+
+  # Create survival curve data for plotting
+  surv_summary <- summary(km_fit)
+
+  plot_data <- data.frame(
+    time = surv_summary$time,
+    surv = surv_summary$surv,
+    group = surv_summary$strata,
+    upper = surv_summary$upper,
+    lower = surv_summary$lower
+  )
+
+  # Clean group names while preserving factor level order
+  plot_data$group <- gsub(".*=", "", plot_data$group)
+
+  # Convert back to factor with the same level order as the original group_labels
+  # to ensure correct legend ordering
+  plot_data$group <- factor(plot_data$group, levels = group_labels)
+
+  # Create the plot
+  if (is.null(title)) {
+    focal_var <- names(br_get_models(breg))[idx %||% 1]
+    title <- paste("Survival Curves by", focal_var, "Model Score")
+  }
+
+  p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$time, y = .data$surv, color = .data$group)) +
+    ggplot2::geom_step(linewidth = 1) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = .data$lower, ymax = .data$upper, fill = .data$group),
+      alpha = 0.3, color = NA
+    ) +
+    ggplot2::scale_y_continuous(limits = c(0, 1), labels = function(x) paste0(x * 100, "%")) +
+    ggplot2::labs(
+      title = title,
+      subtitle = subtitle,
+      x = "Time",
+      y = "Survival Probability",
+      color = "Risk Group",
+      fill = "Risk Group"
+    ) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
+      legend.position = "bottom",
+      plot.title = ggplot2::element_text(hjust = 0.5),
+      plot.subtitle = ggplot2::element_text(hjust = 0.5)
+    )
+
+  # Add log-rank test p-value if requested
+  if (n_groups > 1) {
+    logrank_test <- survival::survdiff(surv_obj ~ .score_group, data = surv_data)
+    p_value <- pchisq(logrank_test$chisq, df = length(logrank_test$n) - 1, lower.tail = FALSE)
+
+    p <- p + ggplot2::labs(caption = paste("Log-rank test p-value:", format.pval(p_value, digits = 3)))
+  }
+
+  return(p)
+}
+
+#' Show residuals vs fitted plot for regression models
+#'
+#' @description
+#' `r lifecycle::badge('experimental')`
+#'
+#' This function creates residual plots to diagnose model fit. It can display:
+#' - Residuals vs fitted values plots for individual models
+#' - Multiple residual plots when multiple models are selected
+#' - Customizable plot appearance through ggplot2
+#'
+#' @inheritParams br_show_forest
+#' @param idx Index or names (focal variables) of the model(s). If `NULL` (default),
+#' all models are included. If length-1, shows residuals for a single model.
+#' If length > 1, shows faceted plots for multiple models.
+#' @param plot_type Character string specifying the type of residual plot.
+#' Options: "fitted" (residuals vs fitted values, default), "qq" (Q-Q plot),
+#' "scale_location" (scale-location plot).
+#' @export
+#' @returns A ggplot object
+#' @family br_show
+#' @examples
+#' m <- br_pipeline(mtcars,
+#'   y = "mpg",
+#'   x = colnames(mtcars)[2:4],
+#'   x2 = "vs",
+#'   method = "gaussian"
+#' )
+#'
+#' # Single model residual plot
+#' br_show_residuals(m, idx = 1)
+#'
+#' # Multiple models
+#' br_show_residuals(m, idx = c(1, 2))
+#'
+#' # All models
+#' br_show_residuals(m)
+#'
+#' @testexamples
+#' expect_s3_class(br_show_residuals(m, idx = 1), "ggplot")
+br_show_residuals <- function(breg, idx = NULL, plot_type = "fitted") {
+  assert_breg_obj_with_results(breg)
+  plot_type <- rlang::arg_match(plot_type, c("fitted", "qq", "scale_location"))
+
+  mds <- br_get_models(breg, idx)
+
+  # Check if single model or multiple models
+  if (insight::is_model(mds)) {
+    # Single model case
+    .plot_single_residuals(mds, plot_type)
+  } else {
+    # Multiple models case
+    .plot_multiple_residuals(mds, plot_type)
+  }
+}
+
+# Helper function for single model residual plot
+.plot_single_residuals <- function(model, plot_type, ...) {
+  # Extract fitted values and residuals
+  fitted_vals <- stats::fitted(model)
+  residuals_vals <- stats::residuals(model)
+
+  # Create data frame for plotting
+  plot_data <- data.frame(
+    fitted = fitted_vals,
+    residuals = residuals_vals,
+    sqrt_abs_residuals = sqrt(abs(residuals_vals))
+  )
+
+  # Create base plot based on plot_type
+  if (plot_type == "fitted") {
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$fitted, y = .data$residuals)) +
+      ggplot2::geom_point(alpha = 0.6) +
+      ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+      ggplot2::geom_smooth(method = "loess", se = FALSE, color = "blue", linewidth = 0.5) +
+      ggplot2::labs(
+        x = "Fitted Values",
+        y = "Residuals",
+        title = "Residuals vs Fitted"
+      ) +
+      ggplot2::theme_minimal()
+  } else if (plot_type == "qq") {
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(sample = .data$residuals)) +
+      ggplot2::stat_qq() +
+      ggplot2::stat_qq_line(color = "red", linetype = "dashed") +
+      ggplot2::labs(
+        x = "Theoretical Quantiles",
+        y = "Sample Quantiles",
+        title = "Q-Q Plot of Residuals"
+      ) +
+      ggplot2::theme_minimal()
+  } else if (plot_type == "scale_location") {
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$fitted, y = .data$sqrt_abs_residuals)) +
+      ggplot2::geom_point(alpha = 0.6) +
+      ggplot2::geom_smooth(method = "loess", se = FALSE, color = "red", linewidth = 0.5) +
+      ggplot2::labs(
+        x = "Fitted Values",
+        y = expression(sqrt(abs("Residuals"))),
+        title = "Scale-Location Plot"
+      ) +
+      ggplot2::theme_minimal()
+  }
+
+  return(p)
+}
+
+# Helper function for multiple models residual plots
+.plot_multiple_residuals <- function(models, plot_type, ...) {
+  # Extract residuals data for all models
+  all_data <- list()
+
+  for (i in seq_along(models)) {
+    model <- models[[i]]
+    model_name <- if (is.null(names(models)[i])) paste("Model", i) else names(models)[i]
+
+    fitted_vals <- stats::fitted(model)
+    residuals_vals <- stats::residuals(model)
+
+    all_data[[i]] <- data.frame(
+      fitted = fitted_vals,
+      residuals = residuals_vals,
+      sqrt_abs_residuals = sqrt(abs(residuals_vals)),
+      model = model_name,
+      stringsAsFactors = FALSE
+    )
+  }
+
+  # Combine all data
+  plot_data <- do.call(rbind, all_data)
+
+  # Create faceted plot based on plot_type
+  if (plot_type == "fitted") {
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$fitted, y = .data$residuals)) +
+      ggplot2::geom_point(alpha = 0.6) +
+      ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+      ggplot2::geom_smooth(method = "loess", se = FALSE, color = "blue", linewidth = 0.5) +
+      ggplot2::facet_wrap(~model, scales = "free") +
+      ggplot2::labs(
+        x = "Fitted Values",
+        y = "Residuals",
+        title = "Residuals vs Fitted"
+      ) +
+      ggplot2::theme_minimal()
+  } else if (plot_type == "qq") {
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(sample = .data$residuals)) +
+      ggplot2::stat_qq() +
+      ggplot2::stat_qq_line(color = "red", linetype = "dashed") +
+      ggplot2::facet_wrap(~model, scales = "free") +
+      ggplot2::labs(
+        x = "Theoretical Quantiles",
+        y = "Sample Quantiles",
+        title = "Q-Q Plot of Residuals"
+      ) +
+      ggplot2::theme_minimal()
+  } else if (plot_type == "scale_location") {
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data$fitted, y = .data$sqrt_abs_residuals)) +
+      ggplot2::geom_point(alpha = 0.6) +
+      ggplot2::geom_smooth(method = "loess", se = FALSE, color = "red", linewidth = 0.5) +
+      ggplot2::facet_wrap(~model, scales = "free") +
+      ggplot2::labs(
+        x = "Fitted Values",
+        y = expression(sqrt(abs("Residuals"))),
+        title = "Scale-Location Plot"
+      ) +
+      ggplot2::theme_minimal()
+  }
+
+  return(p)
+}
+
+
+#' Show nomogram for regression models
+#'
+#' @description
+#' `r lifecycle::badge('experimental')`
+#'
+#' Creates a nomogram (graphical calculator) for regression models, particularly
+#' useful for Cox proportional hazards models. A nomogram allows visual calculation
+#' of predicted outcomes by assigning points to variable values and summing them
+#' to get total points that correspond to predicted probabilities.
+#'
+#' @param breg A `breg` object with fitted regression models.
+#' @param idx Index or name of the model to use for the nomogram.
+#' If NULL, uses the first model.
+#' @param time_points For Cox models, time points at which to show survival probabilities.
+#' Default is c(12, 24, 36) representing months.
+#' @param fun_at For non-survival models, the function values at which to show predictions.
+#' @param point_range Range of points to use in the nomogram scale. Default is c(0, 100).
+#' @param title Plot title. If NULL, generates automatic title.
+#' @param subtitle Plot subtitle.
+#' @returns A ggplot2 object showing the nomogram.
+#' @export
+#' @family br_show
+#' @examples
+#' \donttest{
+#' # Cox regression nomogram
+#'
+#' lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
+#' lung$ph.ecog <- factor(lung$ph.ecog)
+#' mds <- br_pipeline(
+#'   lung,
+#'   y = c("time", "status"),
+#'   x = c("age", "ph.ecog"),
+#'   x2 = "sex",
+#'   method = "coxph"
+#' )
+#' p <- br_show_nomogram(mds)
+#' p
+#'
+#'
+#' # Linear regression nomogram
+#' mds_lm <- br_pipeline(
+#'   mtcars,
+#'   y = "mpg",
+#'   x = c("hp", "wt"),
+#'   x2 = "vs",
+#'   method = "gaussian"
+#' )
+#' p2 <- br_show_nomogram(mds_lm, fun_at = c(15, 20, 25, 30))
+#' p2
+#' }
+#' @testexamples
+#' expect_s3_class(p, "ggplot")
+#' expect_s3_class(p2, "ggplot")
+br_show_nomogram <- function(breg,
+                             idx = NULL,
+                             time_points = c(12, 24, 36),
+                             fun_at = NULL,
+                             point_range = c(0, 100),
+                             title = NULL,
+                             subtitle = NULL) {
+  assert_breg_obj_with_results(breg)
+
+  # Get the model to use
+  if (is.null(idx)) {
+    cli::cli_inform("{.arg idx} not set, use the first model")
+    idx <- 1
+  } else {
+    if (length(idx) != 1) {
+      cli::cli_abort("please specify one model")
+    }
+  }
+
+  model <- br_get_models(breg, idx)
+  model_name <- if (!rlang::is_string(idx)) {
+    br_get_model_names(breg)[idx]
+  } else {
+    idx
+  }
+
+  # Check model type and dispatch to appropriate function
+  if (inherits(model, "coxph")) {
+    .create_coxph_nomogram(model, time_points, point_range, title, subtitle, model_name)
+  } else if (inherits(model, c("lm", "glm"))) {
+    .create_lm_nomogram(model, fun_at, point_range, title, subtitle, model_name)
+  } else {
+    cli::cli_abort("Nomograms are currently supported for Cox regression (coxph) and linear/generalized linear models (lm/glm)")
+  }
+}
+
 #' Show a circular forest plot for regression results
 #'
 #' @description
@@ -541,13 +1420,16 @@ br_show_table_gt <- function(
 #' The function uses the same input as [br_show_forest()] but displays the results
 #' in a circular format using [ggplot2::coord_polar()].
 #'
-#' @inheritParams br_show_forest
+#' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
+#' @param rm_controls If `TRUE`, remove control terms.
 #' @param style Character string specifying the style of circular forest plot.
 #' Options are:
 #' - `"points"` (default): Display point estimates with error bars in circular format
-#' - `"bars"`: Display as bars with points overlaid (inspired by reference code 2)
-#' @param reference_line Logical indicating whether to show reference lines.
-#' If `TRUE`, adds dashed horizontal lines at y = 0 and other meaningful values.
+#' - `"bars"`: Display as bars with points overlaid
+#' @param ref_line Logical or numeric. If `TRUE`, shows reference circle at default value
+#' (1 for exponentiated estimates, 0 for regular estimates).
+#' If numeric, shows reference circle at specified value.
+#' If `FALSE`, no reference circle is shown.
 #' @param sort_by Character string specifying how to sort the variables.
 #' Options are:
 #' - `"none"` (default): No sorting, use original order
@@ -555,6 +1437,10 @@ br_show_table_gt <- function(
 #' - `"estimate_desc"`: Sort by effect estimate (descending)
 #' - `"pvalue"`: Sort by p-value (ascending, most significant first)
 #' - `"variable"`: Sort alphabetically by variable name
+#' @param subset Expression for subsetting the results data (`br_get_results(breg)`).
+#' @param drop Column indices to drop from the display table.
+#' @param log_first Log transformed the estimates and their confident intervals.
+#' For only log scaled axis of the forest, use `x_trans = "log"`.
 #' @param ... Additional arguments passed to ggplot2 functions.
 #' @returns A ggplot object
 #' @export
@@ -567,30 +1453,30 @@ br_show_table_gt <- function(
 #'   method = "gaussian"
 #' )
 #' br_show_forest_circle(m)
-#' br_show_forest_circle(m, clean = TRUE, style = "bars")
+#' br_show_forest_circle(m, style = "bars")
 #' br_show_forest_circle(m, sort_by = "estimate")
+#' br_show_forest_circle(m, ref_line = FALSE)
+#' br_show_forest_circle(m, ref_line = 0.5)
 #' @testexamples
 #' assert_s3_class(br_show_forest_circle(m), "ggplot")
 br_show_forest_circle <- function(
     breg,
-    clean = TRUE,
     rm_controls = FALSE,
     style = c("points", "bars"),
-    reference_line = TRUE,
+    ref_line = TRUE,
     sort_by = c("none", "estimate", "estimate_desc", "pvalue", "variable"),
     subset = NULL,
     drop = NULL,
-    log_first = FALSE) {
+    log_first = FALSE,
+    ...) {
 
   assert_breg_obj_with_results(breg)
   assert_bool(rm_controls)
-  assert_bool(reference_line)
   style <- match.arg(style)
   sort_by <- match.arg(sort_by)
 
-  # Get the data using the same logic as br_show_forest
+  # Get the data using br_get_results
   dt <- br_get_results(breg)
-  x2 <- br_get_x2(breg)
 
   if (log_first) {
     dt <- dt |> dplyr::mutate(
@@ -600,8 +1486,25 @@ br_show_forest_circle <- function(
     )
   }
 
+  # Determine reference line value based on exponentiate attribute
   exponentiate <- attr(breg, "exponentiate")
-  ref_line_value <- if (exponentiate && !log_first) 1L else 0L
+  default_ref_value <- if (exponentiate && !log_first) 1L else 0L
+
+  # Handle ref_line parameter following br_show_forest design
+  if (is.logical(ref_line)) {
+    if (ref_line) {
+      ref_line_value <- default_ref_value
+      show_ref_line <- TRUE
+    } else {
+      show_ref_line <- FALSE
+      ref_line_value <- NULL
+    }
+  } else if (is.numeric(ref_line)) {
+    ref_line_value <- ref_line
+    show_ref_line <- TRUE
+  } else {
+    cli_abort("ref_line must be logical or numeric")
+  }
 
   if (rm_controls) {
     dt <- dt |> dplyr::filter(.data$Focal_variable == .data$variable)
@@ -612,32 +1515,26 @@ br_show_forest_circle <- function(
     dt <- dt |> dplyr::filter(!!subset)
   }
 
-  has_group <- !is.null(br_get_group_by(breg))
-
-  # Clean data following br_show_forest logic but adapted for circular plot
-  if (clean) {
-    dt <- dt |>
-      dplyr::mutate(
-        label = if_else(
-          vctrs::vec_equal(.data$variable, .data$label, na_equal = TRUE),
-          "", .data$label
-        )
-      )
-  }
-
-  # Create a unique identifier for positioning and handle missing values
+  # Enhanced data validation and cleaning
   dt <- dt |>
     dplyr::mutate(
-      # Ensure confidence intervals are valid
-      conf.low = if_else(is.na(.data$conf.low) | is.infinite(.data$conf.low), .data$estimate, .data$conf.low),
-      conf.high = if_else(is.na(.data$conf.high) | is.infinite(.data$conf.high), .data$estimate, .data$conf.high),
-      # Filter out rows with invalid estimates
-      valid_estimate = !is.na(.data$estimate) & !is.infinite(.data$estimate)
+      # Handle infinite and missing values
+      conf.low = dplyr::case_when(
+        is.na(.data$conf.low) | is.infinite(.data$conf.low) ~ .data$estimate,
+        TRUE ~ .data$conf.low
+      ),
+      conf.high = dplyr::case_when(
+        is.na(.data$conf.high) | is.infinite(.data$conf.high) ~ .data$estimate,
+        TRUE ~ .data$conf.high
+      ),
+      # Filter for valid estimates
+      valid_estimate = !is.na(.data$estimate) & !is.infinite(.data$estimate) &
+                      !is.na(.data$conf.low) & !is.na(.data$conf.high)
     ) |>
     dplyr::filter(.data$valid_estimate) |>
     dplyr::select(-valid_estimate)
 
-  # If no valid data after filtering, return an empty plot
+  # Check if we have valid data after filtering
   if (nrow(dt) == 0) {
     return(ggplot2::ggplot() +
            ggplot2::annotate("text", x = 0, y = 0, label = "No valid data to plot") +
@@ -658,13 +1555,17 @@ br_show_forest_circle <- function(
   # Create display labels and positioning
   dt <- dt |>
     dplyr::mutate(
-      display_label = if_else(.data$label == "", .data$variable, .data$label),
+      display_label = dplyr::case_when(
+        !is.na(.data$label) & .data$label != "" ~ .data$label,
+        TRUE ~ .data$variable
+      ),
       # Create unique labels in case of duplicates
       display_label = make.unique(.data$display_label, sep = "_"),
       x_pos = factor(.data$display_label, levels = unique(.data$display_label))
     )
 
-  # Handle grouping for colors - use a more robust approach
+  # Handle grouping for colors - robust approach  
+  has_group <- !is.null(br_get_group_by(breg))
   if (has_group && "Group_variable" %in% colnames(dt) && length(unique(dt$Group_variable)) > 1) {
     color_var <- "Group_variable"
   } else if ("Focal_variable" %in% colnames(dt) && length(unique(dt$Focal_variable)) > 1) {
@@ -673,12 +1574,9 @@ br_show_forest_circle <- function(
     color_var <- "variable"
   }
 
-  # Create a base offset for better visualization in polar coordinates
-  base_offset <- max(abs(c(dt$conf.low, dt$conf.high, dt$estimate)), na.rm = TRUE) + 1
-
+  # Create the base plot
   if (style == "points") {
-    # Style 1: Points with segments for error bars (more suitable for polar coordinates)
-    # Based on reference code 2 pattern but adapted for forest plot data
+    # Points style with proper error bars using segments for polar coordinates
     p <- ggplot2::ggplot(dt, ggplot2::aes(x = .data$x_pos)) +
       ggplot2::geom_point(
         ggplot2::aes(y = .data$estimate, color = .data[[color_var]]),
@@ -691,10 +1589,11 @@ br_show_forest_circle <- function(
           color = .data[[color_var]]
         ),
         linewidth = 0.8
-      ) +
-      ggplot2::coord_polar()
+      )
   } else {
-    # Style 2: Bars with points overlaid (closely following reference code 2)
+    # Bars style
+    base_offset <- max(abs(c(dt$conf.low, dt$conf.high, dt$estimate)), na.rm = TRUE) + 1
+    
     dt <- dt |>
       dplyr::mutate(
         bar_height = 1,  # Base height for bars
@@ -719,13 +1618,19 @@ br_show_forest_circle <- function(
           color = .data[[color_var]]
         ),
         linewidth = 0.8
-      ) +
-      ggplot2::coord_polar()
+      )
   }
 
-  # Add reference lines if requested (adjusted for style)
-  if (reference_line) {
-    ref_y <- if (style == "points") ref_line_value else ref_line_value + base_offset
+  # Convert to polar coordinates
+  p <- p + ggplot2::coord_polar()
+
+  # Add reference circle if requested
+  if (show_ref_line) {
+    ref_y <- if (style == "points") {
+      ref_line_value
+    } else {
+      ref_line_value + base_offset
+    }
     p <- p + ggplot2::geom_hline(
       yintercept = ref_y,
       linetype = "dashed",
@@ -734,35 +1639,40 @@ br_show_forest_circle <- function(
     )
   }
 
-  # Enhanced theming following reference code patterns
+  # Enhanced theming with proper axis display
+  axis_label <- if (log_first) "log(Estimate)" else "Estimate"
+  
   p <- p +
     ggplot2::theme_minimal() +
     ggplot2::theme(
-      legend.position = "right",
-      plot.title = ggplot2::element_text(hjust = 0.5, size = 14),
-      legend.title = ggplot2::element_text(size = 10),
-      legend.text = ggplot2::element_text(size = 8),
+      # Remove default polar grid lines for cleaner visualization
+      panel.grid.major.x = ggplot2::element_blank(),
+      panel.grid.minor.x = ggplot2::element_blank(),
+      panel.grid.minor.y = ggplot2::element_blank(),
+      # Keep radial grid lines but make them subtle
       panel.grid.major.y = ggplot2::element_line(
-        color = 'gray60',
-        linewidth = 0.5,
-        linetype = 'dashed'
-      ),
-      panel.grid.minor.y = ggplot2::element_line(
         color = 'gray80',
         linewidth = 0.3,
         linetype = 'dotted'
       ),
+      # Display proper variable names on angular axis
       axis.text.x = ggplot2::element_text(size = 8, color = "black"),
+      # Display numerical values on radial axis  
       axis.text.y = ggplot2::element_text(size = 8, color = "black"),
       axis.title = ggplot2::element_blank(),
+      legend.position = "right",
+      plot.title = ggplot2::element_text(hjust = 0.5, size = 14),
+      legend.title = ggplot2::element_text(size = 10),
+      legend.text = ggplot2::element_text(size = 8),
       panel.background = ggplot2::element_blank()
     ) +
     ggplot2::labs(
       title = "Circular Forest Plot",
-      color = gsub("_", " ", color_var)
+      color = gsub("_", " ", color_var),
+      caption = paste("Values represent:", axis_label)
     )
 
-  # Use color palette similar to reference code
+  # Apply color palette
   n_groups <- length(unique(dt[[color_var]]))
   if (n_groups > 1) {
     # Colors inspired by reference code

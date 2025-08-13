@@ -86,7 +86,29 @@ test_that("Function br_show_fitted_line_2d() @ L423", {
 })
 
 
-test_that("Function br_show_table() @ L463", {
+test_that("Function br_show_coxph_diagnostics() @ L478", {
+  
+  # Create Cox models
+  mds <- br_pipeline(
+    survival::lung,
+    y = c("time", "status"),
+    x = colnames(survival::lung)[6:10],
+    x2 = c("age", "sex"),
+    method = "coxph"
+  )
+  
+  # Show Cox diagnostic plots
+  p1 <- br_show_coxph_diagnostics(mds, idx = 1)
+  p1
+  p2 <- br_show_coxph_diagnostics(mds, type = "martingale")
+  p2
+  
+  expect_s3_class(p1, "alignpatches")
+  expect_s3_class(p2, "ggplot")
+})
+
+
+test_that("Function br_show_table() @ L914", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
@@ -104,7 +126,7 @@ test_that("Function br_show_table() @ L463", {
 })
 
 
-test_that("Function br_show_table_gt() @ L500", {
+test_that("Function br_show_table_gt() @ L952", {
   
   if (rlang::is_installed("gtsummary")) {
     m <- br_pipeline(mtcars,
@@ -120,7 +142,63 @@ test_that("Function br_show_table_gt() @ L500", {
 })
 
 
-test_that("Function br_show_forest_circle() @ L574", {
+test_that("Function br_show_residuals() @ L1193", {
+  
+  m <- br_pipeline(mtcars,
+    y = "mpg",
+    x = colnames(mtcars)[2:4],
+    x2 = "vs",
+    method = "gaussian"
+  )
+  
+  # Single model residual plot
+  br_show_residuals(m, idx = 1)
+  
+  # Multiple models
+  br_show_residuals(m, idx = c(1, 2))
+  
+  # All models
+  br_show_residuals(m)
+  
+  expect_s3_class(br_show_residuals(m, idx = 1), "ggplot")
+})
+
+
+test_that("Function br_show_nomogram() @ L1377", {
+  
+  
+  # Cox regression nomogram
+  
+  lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
+  lung$ph.ecog <- factor(lung$ph.ecog)
+  mds <- br_pipeline(
+    lung,
+    y = c("time", "status"),
+    x = c("age", "ph.ecog"),
+    x2 = "sex",
+    method = "coxph"
+  )
+  p <- br_show_nomogram(mds)
+  p
+  
+  
+  # Linear regression nomogram
+  mds_lm <- br_pipeline(
+    mtcars,
+    y = "mpg",
+    x = c("hp", "wt"),
+    x2 = "vs",
+    method = "gaussian"
+  )
+  p2 <- br_show_nomogram(mds_lm, fun_at = c(15, 20, 25, 30))
+  p2
+  
+  expect_s3_class(p, "ggplot")
+  expect_s3_class(p2, "ggplot")
+})
+
+
+test_that("Function br_show_forest_circle() @ L1446", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
@@ -129,8 +207,10 @@ test_that("Function br_show_forest_circle() @ L574", {
     method = "gaussian"
   )
   br_show_forest_circle(m)
-  br_show_forest_circle(m, clean = TRUE, style = "bars")
+  br_show_forest_circle(m, style = "bars")
   br_show_forest_circle(m, sort_by = "estimate")
+  br_show_forest_circle(m, ref_line = FALSE)
+  br_show_forest_circle(m, ref_line = 0.5)
   assert_s3_class(br_show_forest_circle(m), "ggplot")
 })
 
