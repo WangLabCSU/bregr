@@ -120,7 +120,7 @@ test_that("Function br_show_table_gt() @ L500", {
 })
 
 
-test_that("Function br_show_forest_circle() @ L536", {
+test_that("Function br_show_forest_circle() @ L574", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
@@ -128,6 +128,9 @@ test_that("Function br_show_forest_circle() @ L536", {
     x2 = "vs",
     method = "gaussian"
   )
+  br_show_forest_circle(m)
+  br_show_forest_circle(m, clean = TRUE, style = "bars")
+  br_show_forest_circle(m, sort_by = "estimate")
   assert_s3_class(br_show_forest_circle(m), "ggplot")
 })
 

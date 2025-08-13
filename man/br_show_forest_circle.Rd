@@ -10,6 +10,7 @@ br_show_forest_circle(
   rm_controls = FALSE,
   style = c("points", "bars"),
   reference_line = TRUE,
+  sort_by = c("none", "estimate", "estimate_desc", "pvalue", "variable"),
   subset = NULL,
   drop = NULL,
   log_first = FALSE
@@ -35,6 +36,16 @@ Options are:
 \item{reference_line}{Logical indicating whether to show reference lines.
 If \code{TRUE}, adds dashed horizontal lines at y = 0 and other meaningful values.}
 
+\item{sort_by}{Character string specifying how to sort the variables.
+Options are:
+\itemize{
+\item \code{"none"} (default): No sorting, use original order
+\item \code{"estimate"}: Sort by effect estimate (ascending)
+\item \code{"estimate_desc"}: Sort by effect estimate (descending)
+\item \code{"pvalue"}: Sort by p-value (ascending, most significant first)
+\item \code{"variable"}: Sort alphabetically by variable name
+}}
+
 \item{subset}{Expression for subsetting the results data (\code{br_get_results(breg)}).}
 
 \item{drop}{Column indices to drop from the display table.}
@@ -48,7 +59,7 @@ For only log scaled axis of the forest, use \code{x_trans = "log"}.}
 A ggplot object
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 
 This function creates a circular (polar) forest plot from regression results,
 providing an alternative visualization to the traditional linear forest plot.
@@ -64,6 +75,7 @@ m <- br_pipeline(mtcars,
 )
 br_show_forest_circle(m)
 br_show_forest_circle(m, clean = TRUE, style = "bars")
+br_show_forest_circle(m, sort_by = "estimate")
 }
 \seealso{
 Other br_show: 

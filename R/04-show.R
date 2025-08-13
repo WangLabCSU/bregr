@@ -534,7 +534,7 @@ br_show_table_gt <- function(
 #' Show a circular forest plot for regression results
 #'
 #' @description
-#' `r lifecycle::badge('stable')`
+#' `r lifecycle::badge('experimental')`
 #'
 #' This function creates a circular (polar) forest plot from regression results,
 #' providing an alternative visualization to the traditional linear forest plot.
@@ -552,7 +552,7 @@ br_show_table_gt <- function(
 #' Options are:
 #' - `"none"` (default): No sorting, use original order
 #' - `"estimate"`: Sort by effect estimate (ascending)
-#' - `"estimate_desc"`: Sort by effect estimate (descending) 
+#' - `"estimate_desc"`: Sort by effect estimate (descending)
 #' - `"pvalue"`: Sort by p-value (ascending, most significant first)
 #' - `"variable"`: Sort alphabetically by variable name
 #' @param ... Additional arguments passed to ggplot2 functions.
@@ -581,13 +581,13 @@ br_show_forest_circle <- function(
     subset = NULL,
     drop = NULL,
     log_first = FALSE) {
-  
+
   assert_breg_obj_with_results(breg)
   assert_bool(rm_controls)
   assert_bool(reference_line)
   style <- match.arg(style)
   sort_by <- match.arg(sort_by)
-  
+
   # Get the data using the same logic as br_show_forest
   dt <- br_get_results(breg)
   x2 <- br_get_x2(breg)
@@ -599,21 +599,21 @@ br_show_forest_circle <- function(
       conf.low = log(.data$conf.low)
     )
   }
-  
+
   exponentiate <- attr(breg, "exponentiate")
   ref_line_value <- if (exponentiate && !log_first) 1L else 0L
 
   if (rm_controls) {
     dt <- dt |> dplyr::filter(.data$Focal_variable == .data$variable)
   }
-  
+
   subset <- rlang::enquo(subset)
   if (!rlang::quo_is_null(subset)) {
     dt <- dt |> dplyr::filter(!!subset)
   }
 
   has_group <- !is.null(br_get_group_by(breg))
-  
+
   # Clean data following br_show_forest logic but adapted for circular plot
   if (clean) {
     dt <- dt |>
@@ -639,7 +639,7 @@ br_show_forest_circle <- function(
 
   # If no valid data after filtering, return an empty plot
   if (nrow(dt) == 0) {
-    return(ggplot2::ggplot() + 
+    return(ggplot2::ggplot() +
            ggplot2::annotate("text", x = 0, y = 0, label = "No valid data to plot") +
            ggplot2::theme_void())
   }
@@ -654,7 +654,7 @@ br_show_forest_circle <- function(
       dt  # fallback to original order
     )
   }
-  
+
   # Create display labels and positioning
   dt <- dt |>
     dplyr::mutate(
@@ -675,19 +675,19 @@ br_show_forest_circle <- function(
 
   # Create a base offset for better visualization in polar coordinates
   base_offset <- max(abs(c(dt$conf.low, dt$conf.high, dt$estimate)), na.rm = TRUE) + 1
-  
+
   if (style == "points") {
     # Style 1: Points with segments for error bars (more suitable for polar coordinates)
     # Based on reference code 2 pattern but adapted for forest plot data
     p <- ggplot2::ggplot(dt, ggplot2::aes(x = .data$x_pos)) +
       ggplot2::geom_point(
-        ggplot2::aes(y = .data$estimate, color = .data[[color_var]]), 
+        ggplot2::aes(y = .data$estimate, color = .data[[color_var]]),
         size = 2
       ) +
       ggplot2::geom_segment(
         ggplot2::aes(
-          y = .data$conf.low, 
-          yend = .data$conf.high, 
+          y = .data$conf.low,
+          yend = .data$conf.high,
           color = .data[[color_var]]
         ),
         linewidth = 0.8
@@ -699,10 +699,10 @@ br_show_forest_circle <- function(
       dplyr::mutate(
         bar_height = 1,  # Base height for bars
         point_y = .data$estimate + base_offset,  # Offset points above bars
-        ci_low = .data$conf.low + base_offset,   # Offset CI accordingly  
+        ci_low = .data$conf.low + base_offset,   # Offset CI accordingly
         ci_high = .data$conf.high + base_offset
       )
-    
+
     p <- ggplot2::ggplot(dt, ggplot2::aes(x = .data$x_pos)) +
       ggplot2::geom_col(
         ggplot2::aes(y = .data$bar_height, fill = .data[[color_var]]),
@@ -743,13 +743,13 @@ br_show_forest_circle <- function(
       legend.title = ggplot2::element_text(size = 10),
       legend.text = ggplot2::element_text(size = 8),
       panel.grid.major.y = ggplot2::element_line(
-        color = 'gray60', 
-        linewidth = 0.5, 
+        color = 'gray60',
+        linewidth = 0.5,
         linetype = 'dashed'
       ),
       panel.grid.minor.y = ggplot2::element_line(
-        color = 'gray80', 
-        linewidth = 0.3, 
+        color = 'gray80',
+        linewidth = 0.3,
         linetype = 'dotted'
       ),
       axis.text.x = ggplot2::element_text(size = 8, color = "black"),
@@ -771,9 +771,9 @@ br_show_forest_circle <- function(
       colors <- rainbow(n_groups)
     }
     colors <- colors[1:n_groups]
-    
+
     p <- p + ggplot2::scale_color_manual(values = colors)
-    
+
     # Only add fill scale if style uses bars (which uses fill aesthetic)
     if (style == "bars") {
       p <- p + ggplot2::scale_fill_manual(values = colors, guide = "none")
