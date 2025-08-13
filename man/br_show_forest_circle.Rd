@@ -6,23 +6,18 @@
 \usage{
 br_show_forest_circle(
   breg,
-  clean = TRUE,
   rm_controls = FALSE,
   style = c("points", "bars"),
-  reference_line = TRUE,
+  ref_line = TRUE,
   sort_by = c("none", "estimate", "estimate_desc", "pvalue", "variable"),
   subset = NULL,
   drop = NULL,
-  log_first = FALSE
+  log_first = FALSE,
+  ...
 )
 }
 \arguments{
 \item{breg}{A regression object with results (must pass \code{assert_breg_obj_with_results()}).}
-
-\item{clean}{Logical indicating whether to clean/condense redundant group/focal variable labels.
-If \code{TRUE}, remove "Group" or "Focal" variable column when the values in the result table
-are same (before performing \code{subset} and \code{drop}),
-and reduce repeat values in column "Group", "Focal", and "Variable".}
 
 \item{rm_controls}{If \code{TRUE}, remove control terms.}
 
@@ -30,11 +25,13 @@ and reduce repeat values in column "Group", "Focal", and "Variable".}
 Options are:
 \itemize{
 \item \code{"points"} (default): Display point estimates with error bars in circular format
-\item \code{"bars"}: Display as bars with points overlaid (inspired by reference code 2)
+\item \code{"bars"}: Display as bars with points overlaid
 }}
 
-\item{reference_line}{Logical indicating whether to show reference lines.
-If \code{TRUE}, adds dashed horizontal lines at y = 0 and other meaningful values.}
+\item{ref_line}{Logical or numeric. If \code{TRUE}, shows reference circle at default value
+(1 for exponentiated estimates, 0 for regular estimates).
+If numeric, shows reference circle at specified value.
+If \code{FALSE}, no reference circle is shown.}
 
 \item{sort_by}{Character string specifying how to sort the variables.
 Options are:
@@ -74,17 +71,23 @@ m <- br_pipeline(mtcars,
   method = "gaussian"
 )
 br_show_forest_circle(m)
-br_show_forest_circle(m, clean = TRUE, style = "bars")
+br_show_forest_circle(m, style = "bars")
 br_show_forest_circle(m, sort_by = "estimate")
+br_show_forest_circle(m, ref_line = FALSE)
+br_show_forest_circle(m, ref_line = 0.5)
 }
 \seealso{
 Other br_show: 
+\code{\link{br_show_coxph_diagnostics}()},
 \code{\link{br_show_fitted_line}()},
 \code{\link{br_show_fitted_line_2d}()},
 \code{\link{br_show_forest}()},
 \code{\link{br_show_forest_ggstats}()},
 \code{\link{br_show_forest_ggstatsplot}()},
+\code{\link{br_show_nomogram}()},
+\code{\link{br_show_residuals}()},
 \code{\link{br_show_risk_network}()},
+\code{\link{br_show_survival_curves}()},
 \code{\link{br_show_table}()},
 \code{\link{br_show_table_gt}()}
 }

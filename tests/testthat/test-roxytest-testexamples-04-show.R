@@ -198,7 +198,7 @@ test_that("Function br_show_nomogram() @ L1377", {
 })
 
 
-test_that("Function br_show_forest_circle() @ L1446", {
+test_that("Function br_show_forest_circle() @ L1462", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
