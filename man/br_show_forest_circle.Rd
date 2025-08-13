@@ -69,6 +69,9 @@ br_show_forest_circle(m, sort_by = "estimate")
 br_show_forest_circle(m, ref_line = FALSE)
 br_show_forest_circle(m, ref_line = 0.5)
 }
+\references{
+Implementation of circular forest plot \verb{https://mp.weixin.qq.com/s/PBKcsEFGrDSQJp6ZmUgfHA}
+}
 \seealso{
 Other br_show: 
 \code{\link{br_show_coxph_diagnostics}()},

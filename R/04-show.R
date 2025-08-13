@@ -1456,6 +1456,8 @@ br_show_nomogram <- function(breg,
 #' br_show_forest_circle(m, ref_line = 0.5)
 #' @testexamples
 #' assert_s3_class(br_show_forest_circle(m), "ggplot")
+#' @references
+#' Implementation of circular forest plot `https://mp.weixin.qq.com/s/PBKcsEFGrDSQJp6ZmUgfHA`
 br_show_forest_circle <- function(
     breg,
     rm_controls = FALSE,
