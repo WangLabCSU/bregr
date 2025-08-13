@@ -155,7 +155,7 @@ test_that("br_show_nomogram correctly handles factor variables", {
   lung <- survival::lung |> dplyr::filter(ph.ecog != 3)
   lung$ph.ecog <- factor(lung$ph.ecog)
   lung$sex <- factor(lung$sex)
-  
+
   mds <- br_pipeline(
     lung,
     y = c("time", "status"),
@@ -169,19 +169,19 @@ test_that("br_show_nomogram correctly handles factor variables", {
     p1 <- br_show_nomogram(mds)
     p2 <- br_show_nomogram(mds, idx = 2)
   })
-  
+
   expect_s3_class(p1, "ggplot")
   expect_s3_class(p2, "ggplot")
-  
+
   # Check that the plot data contains the expected factor levels
   plot_data_1 <- p1$data
   plot_data_2 <- p2$data
-  
+
   # For model 1 (age + sex), should have sex factor with levels
   sex_data_1 <- plot_data_1[plot_data_1$var_name == "sex" & plot_data_1$is_tick & plot_data_1$label != "", ]
   expect_true(any(grepl("1.*ref", sex_data_1$label)))
   expect_true(any(grepl("2", sex_data_1$label)))
-  
+
   # For model 2 (ph.ecog + sex), should have ph.ecog factor with levels
   ph_ecog_data_2 <- plot_data_2[plot_data_2$var_name == "ph.ecog" & plot_data_2$is_tick & plot_data_2$label != "", ]
   expect_true(any(grepl("0.*ref", ph_ecog_data_2$label)))
@@ -194,7 +194,7 @@ test_that("br_show_nomogram factor level mapping is correct", {
     y = rnorm(100),
     x1 = factor(rep(c("A", "B", "C"), length.out = 100))
   )
-  
+
   # Create simple pipeline with just one factor variable
   mds_test <- br_pipeline(
     test_data,
@@ -202,21 +202,21 @@ test_that("br_show_nomogram factor level mapping is correct", {
     x = "x1",
     method = "gaussian"
   )
-  
+
   # Should create nomogram without errors
   p <- br_show_nomogram(mds_test)
   expect_s3_class(p, "ggplot")
-  
+
   # Check that factor variables are properly represented
   plot_data <- p$data
-  
+
   # Should have data for the factor variable (the original variable name, not coefficient names)
   expect_true("x1" %in% plot_data$var_name)
-  
+
   # Factor variables should have reference and level labels
   x1_labels <- plot_data[plot_data$var_name == "x1" & plot_data$is_tick & plot_data$label != "", ]$label
-  
+
   expect_true(any(grepl("ref", x1_labels)))
-  expect_true(any(grepl("A", x1_labels)))  # Reference level
-  expect_true(any(grepl("B", x1_labels)) || any(grepl("C", x1_labels)))  # At least one non-reference level
+  expect_true(any(grepl("A", x1_labels))) # Reference level
+  expect_true(any(grepl("B", x1_labels)) || any(grepl("C", x1_labels))) # At least one non-reference level
 })

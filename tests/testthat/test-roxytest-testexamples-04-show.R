@@ -108,7 +108,7 @@ test_that("Function br_show_coxph_diagnostics() @ L478", {
 })
 
 
-test_that("Function br_show_table() @ L911", {
+test_that("Function br_show_table() @ L914", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
@@ -126,7 +126,7 @@ test_that("Function br_show_table() @ L911", {
 })
 
 
-test_that("Function br_show_table_gt() @ L949", {
+test_that("Function br_show_table_gt() @ L952", {
   
   if (rlang::is_installed("gtsummary")) {
     m <- br_pipeline(mtcars,
@@ -142,7 +142,7 @@ test_that("Function br_show_table_gt() @ L949", {
 })
 
 
-test_that("Function br_show_residuals() @ L1190", {
+test_that("Function br_show_residuals() @ L1193", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
@@ -164,7 +164,7 @@ test_that("Function br_show_residuals() @ L1190", {
 })
 
 
-test_that("Function br_show_nomogram() @ L1374", {
+test_that("Function br_show_nomogram() @ L1377", {
   
   
   # Cox regression nomogram

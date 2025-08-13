@@ -440,7 +440,7 @@ br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
 #'
 #' Creates diagnostic plots specifically for Cox regression models.
 #' Focuses on Schoenfeld residuals plots to assess proportional hazards assumption
-#' and other Cox-specific diagnostics. Inspired by [survminer::ggcoxzph] with
+#' and other Cox-specific diagnostics. Inspired by [survminer::ggcoxzph](https://search.r-project.org/CRAN/refmans/survminer/html/ggcoxzph.html) with
 #' enhanced visualization and computation optimizations to work in **bregr**.
 #'
 #' @param breg A regression object with results (must pass `assert_breg_obj_with_results()`).
@@ -583,7 +583,8 @@ br_show_coxph_diagnostics <- function(
             # Create plot with enhanced survminer-inspired styling
             p <- ggplot2::ggplot(
               plot_data,
-              ggplot2::aes(x = .data$time, y = .data$residuals))
+              ggplot2::aes(x = .data$time, y = .data$residuals)
+            )
 
             # Add points if requested with improved styling
             if (resid) {
@@ -674,7 +675,8 @@ br_show_coxph_diagnostics <- function(
           # Create enhanced single variable plot
           p <- ggplot2::ggplot(
             plot_data,
-            ggplot2::aes(x = .data$time, y = .data$residuals))
+            ggplot2::aes(x = .data$time, y = .data$residuals)
+          )
 
           if (resid) {
             p <- p + ggplot2::geom_point(
@@ -735,7 +737,8 @@ br_show_coxph_diagnostics <- function(
             error = function(e) {
               cli::cli_warn("Failed to combine plots with ggalign: {e$message}. Returning list of plots.")
               return(valid_plots)
-            })
+            }
+          )
         }
       },
       error = function(e) {
