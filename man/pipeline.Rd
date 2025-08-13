@@ -19,6 +19,7 @@ br_pipeline(
   group_by = NULL,
   n_workers = 1L,
   run_parallel = lifecycle::deprecated(),
+  dry_run = FALSE,
   model_args = list(),
   run_args = list(),
   filter_x = FALSE,
@@ -76,6 +77,9 @@ for examples.}
 \item{n_workers, run_parallel}{Integer, indicating integer number
 of workers to launch, default is \code{1L}. When \verb{>1},
 run modeling code in parallel in the background.}
+
+\item{dry_run}{If \code{TRUE}, generates modeling descriptions without
+executing the run. Use this to inspect the construction first.}
 
 \item{model_args}{A list of arguments passed to \code{br_set_model()}.}
 

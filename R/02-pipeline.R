@@ -53,6 +53,8 @@
 #' - `br_run()` for passing other configurations for obtaining modeling results with [broom.helpers::tidy_plus_plus()].
 #' e.g., The default value for `exponentiate` is `FALSE` (coefficients are not exponentiated).
 #' For logistic, and Cox-PH regressions models, `exponentiate` is set to `TRUE` at default.
+#' @param dry_run If `TRUE`, generates modeling descriptions without
+#' executing the run. Use this to inspect the construction first.
 #' @param model_args A list of arguments passed to `br_set_model()`.
 #' @param run_args A list of arguments passed to `br_run()`.
 #' @param filter_x Logical, whether to enable pre-filtering of focal variables. Default is `FALSE`.
@@ -127,6 +129,7 @@ br_pipeline <- function(
     data, y, x, method, x2 = NULL,
     group_by = NULL,
     n_workers = 1L, run_parallel = lifecycle::deprecated(),
+    dry_run = FALSE,
     model_args = list(),
     run_args = list(),
     filter_x = FALSE,
@@ -139,7 +142,7 @@ br_pipeline <- function(
     n_workers <- run_parallel
   }
 
-  breg(data) |>
+  br <- breg(data) |>
     br_set_y(y) |>
     br_set_x(x,
       filter_x = filter_x, filter_na_prop = filter_na_prop,
@@ -147,11 +150,20 @@ br_pipeline <- function(
       filter_min_levels = filter_min_levels
     ) |>
     br_set_x2(x2) |>
-    br_set_model(method = method, !!!model_args) |>
-    br_run(
+    br_set_model(method = method, !!!model_args)
+  if (dry_run) {
+    cli::cli_inform(
+      c("{.arg dry_run} is enabled",
+        "i" = "check your models with {.code br_get_models()}"
+      )
+    )
+    return(br)
+  } else {
+    br |> br_run(
       group_by = group_by, n_workers = n_workers,
       !!!run_args
     )
+  }
 }
 
 #' @describeIn pipeline Set dependent variables for model construction.

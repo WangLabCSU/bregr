@@ -104,7 +104,7 @@
 # Helper function to create improved interaction term display
 .create_interaction_display <- function(var_name, var_coefs, point_range, y_position, model_frame = NULL) {
   # Parse interaction components to create meaningful display
-  interaction_components <- strsplit(gsub("Interaction: ", "", var_name), " × ")[[1]]
+  interaction_components <- strsplit(gsub("Interaction: ", "", var_name), " x ")[[1]]
 
   if (length(var_coefs) > 1 && !is.null(model_frame)) {
     # Multiple interaction coefficients - analyze them to understand the structure
@@ -151,94 +151,54 @@
       }
 
       # Create display based on the factor structure
-      # For factor×factor interactions, we need to be more sophisticated
+      # For factorxfactor interactions, we need to be more sophisticated
       display_labels <- c()
       ref_level <- NULL
 
       # Determine reference levels and create meaningful display
-      if (!is.null(var1_levels) && !is.null(var2_levels)) {
-        # Both variables are factors - this is a factor×factor interaction
-        var1_ref <- setdiff(var1_levels, var1_levels_in_coefs)
-        var2_ref <- setdiff(var2_levels, var2_levels_in_coefs)
+      # Both variables are factors - this is a factorxfactor interaction
+      var1_ref <- setdiff(var1_levels, var1_levels_in_coefs)
+      var2_ref <- setdiff(var2_levels, var2_levels_in_coefs)
 
-        # For factor×factor interactions, show the most informative combination
-        if (length(var1_ref) > 0 && length(var2_ref) > 0) {
-          ref_level <- paste0(var1, ":", var1_ref[1], " × ", var2, ":", var2_ref[1])
-        } else if (length(var1_ref) > 0) {
-          ref_level <- paste0(var1, ":", var1_ref[1], " × ", var2, ":ref")
-        } else if (length(var2_ref) > 0) {
-          ref_level <- paste0(var1, ":ref × ", var2, ":", var2_ref[1])
-        }
-
-        # For complex factor×factor interactions, show representative levels
-        display_labels <- c()
-        if (!is.null(ref_level)) {
-          display_labels <- c(paste0(ref_level, " (ref)"))
-        }
-
-        # Add some representative coefficient combinations
-        coef_count <- 0
-        max_display_coefs <- 4 # Limit display to avoid clutter
-
-        for (coef_name in names(var_coefs)) {
-          if (coef_count >= max_display_coefs) break
-
-          # Create a meaningful label for this coefficient
-          parsed <- interaction_info[[coef_name]]
-          if (!is.null(parsed)) {
-            coef_label <- ""
-            for (i in 1:2) {
-              if (!is.null(parsed$levels[i]) && !is.na(parsed$levels[i])) {
-                if (coef_label != "") coef_label <- paste0(coef_label, " × ")
-                coef_label <- paste0(coef_label, parsed$base_vars[i], ":", parsed$levels[i])
-              }
-            }
-            if (coef_label != "") {
-              display_labels <- c(display_labels, coef_label)
-              coef_count <- coef_count + 1
-            }
-          }
-        }
-      } else if (!is.null(var1_levels)) {
-        # var1 is factor, var2 is continuous (e.g., gear×hp)
-        var1_ref <- setdiff(var1_levels, var1_levels_in_coefs)
-        if (length(var1_ref) > 0) {
-          ref_level <- paste0(var1, ":", var1_ref[1], " × ", var2, ":ref")
-        }
-
-        display_labels <- c()
-        if (!is.null(ref_level)) {
-          display_labels <- c(paste0(ref_level, " (ref)"))
-        }
-
-        # Add levels that have coefficients
-        for (level in var1_levels_in_coefs) {
-          if (!is.na(level)) {
-            display_labels <- c(display_labels, paste0(var1, ":", level))
-          }
-        }
-      } else if (!is.null(var2_levels)) {
-        # var1 is continuous, var2 is factor (e.g., hp×gear)
-        var2_ref <- setdiff(var2_levels, var2_levels_in_coefs)
-        if (length(var2_ref) > 0) {
-          ref_level <- paste0(var1, ":52 × ", var2, ":", var2_ref[1]) # Use a representative value for continuous
-        }
-
-        display_labels <- c()
-        if (!is.null(ref_level)) {
-          display_labels <- c(paste0(ref_level, " (ref)"))
-        }
-
-        # Add levels that have coefficients
-        for (level in var2_levels_in_coefs) {
-          if (!is.na(level)) {
-            display_labels <- c(display_labels, level)
-          }
-        }
-      } else {
-        # Both continuous - shouldn't happen for typical interaction terms with factors
-        display_labels <- c("Reference", gsub(".*:", "", names(var_coefs)))
+      # For factorxfactor interactions, show the most informative combination
+      if (length(var1_ref) > 0 && length(var2_ref) > 0) {
+        ref_level <- paste0(var1, ":", var1_ref[1], " x ", var2, ":", var2_ref[1])
+      } else if (length(var1_ref) > 0) {
+        ref_level <- paste0(var1, ":", var1_ref[1], " x ", var2)
+      } else if (length(var2_ref) > 0) {
+        ref_level <- paste0(var1, " x ", var2, ":", var2_ref[1])
       }
+
+      # For complex factorxfactor interactions, show representative levels
+      display_labels <- c()
+      if (!is.null(ref_level)) {
+        display_labels <- c(paste0(ref_level, " (ref)"))
+      }
+
+      # Add some representative coefficient combinations
+      coef_count <- 0
+      max_display_coefs <- 4 # Limit display to avoid clutter
+
+      for (coef_name in names(var_coefs)) {
+        if (coef_count >= max_display_coefs) break
+
+        # Create a meaningful label for this coefficient
+        parsed <- interaction_info[[coef_name]]
+        if (!is.null(parsed)) {
+          coef_label <- ""
+          for (i in 1:2) {
+            if (!is.null(parsed$levels[i]) && !is.na(parsed$levels[i])) {
+              if (coef_label != "") coef_label <- paste0(coef_label, " x ")
+              coef_label <- paste0(coef_label, parsed$base_vars[i], ":", parsed$levels[i])
+            }
+          }
+          if (coef_label != "") {
+            display_labels <- c(display_labels, coef_label)
+            coef_count <- coef_count + 1
+          }
+        }
+      }
+
 
       # If we have meaningful display labels, use them; otherwise fall back
       if (length(display_labels) == 0) {
@@ -377,7 +337,7 @@
       if (!is.null(parsed_interaction)) {
         # Create unified interaction key based on base variables
         base_vars <- unique(parsed_interaction$base_vars)
-        interaction_key <- paste0("Interaction: ", paste(base_vars, collapse = " × "))
+        interaction_key <- paste0("Interaction: ", paste(base_vars, collapse = " x "))
 
         if (is.null(coef_groups[[interaction_key]])) {
           coef_groups[[interaction_key]] <- list()
@@ -790,7 +750,7 @@
       if (!is.null(parsed_interaction)) {
         # Create unified interaction key based on base variables
         base_vars <- unique(parsed_interaction$base_vars)
-        interaction_key <- paste0("Interaction: ", paste(base_vars, collapse = " × "))
+        interaction_key <- paste0("Interaction: ", paste(base_vars, collapse = " x "))
 
         if (is.null(coef_groups[[interaction_key]])) {
           coef_groups[[interaction_key]] <- list()

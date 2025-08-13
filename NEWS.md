@@ -1,8 +1,9 @@
 # bregr (development version)
 
 * Added `br_show_coxph_diagnostics()` for CoxPH diagnostic plots.
-* Fixed interaction term display and factor variable scaling in `br_show_nomogram()`.
 * Added `br_show_nomogram()`.
+* Fixed interaction term display and factor variable scaling in `br_show_nomogram()`.
+* Added `dry_run` option to `br_pipeline()`.
 
 # bregr 1.1.0
 
