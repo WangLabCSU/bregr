@@ -64,6 +64,7 @@ Supports both GLM and Cox-PH models with options for focal/control terms and par
 <span>  group_by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_workers <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  run_parallel <span class="op">=</span> <span class="fu">lifecycle</span><span class="fu">::</span><span class="fu"><a href="https://lifecycle.r-lib.org/reference/deprecated.html" class="external-link">deprecated</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  dry_run <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  model_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  run_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  filter_x <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -138,6 +139,11 @@ for examples.</p></dd>
 <dd><p>Integer, indicating integer number
 of workers to launch, default is <code>1L</code>. When <code>&gt;1</code>,
 run modeling code in parallel in the background.</p></dd>
+
+
+<dt id="arg-dry-run">dry_run<a class="anchor" aria-label="anchor" href="#arg-dry-run"></a></dt>
+<dd><p>If <code>TRUE</code>, generates modeling descriptions without
+executing the run. Use this to inspect the construction first.</p></dd>
 
 
 <dt id="arg-model-args">model_args<a class="anchor" aria-label="anchor" href="#arg-model-args"></a></dt>
