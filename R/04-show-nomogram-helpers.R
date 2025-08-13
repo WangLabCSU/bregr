@@ -2,6 +2,35 @@
 #
 # Internal functions to support the br_show_nomogram function
 
+# Helper function to create improved factor scale ranges
+.create_factor_scale_range <- function(level_positions, levels_found, ref_points) {
+  min_pos <- min(level_positions, na.rm = TRUE)
+  max_pos <- max(level_positions, na.rm = TRUE)
+  
+  # For factor variables, create a more balanced scale
+  if (length(levels_found) <= 3) {
+    # For small factors (2-3 levels), center the scale around the levels
+    center_pos <- (min_pos + max_pos) / 2
+    half_range <- max(abs(max_pos - min_pos) / 2, 10)  # Minimum half-range of 10
+    min_pos <- center_pos - half_range
+    max_pos <- center_pos + half_range
+    n_line_points <- 11  # Fewer points for simpler display
+  } else {
+    # For larger factors, ensure we have a reasonable range
+    if (abs(max_pos - min_pos) < 5) {
+      min_pos <- ref_points - 15
+      max_pos <- ref_points + 15
+    }
+    n_line_points <- 21
+  }
+  
+  return(list(
+    min_pos = min_pos,
+    max_pos = max_pos,
+    n_line_points = n_line_points
+  ))
+}
+
 # Helper function to extract base variable name from coefficient
 .extract_base_var_name <- function(coef_name, model_frame_vars) {
   # Handle factor() in formula patterns first - most specific
@@ -515,18 +544,9 @@
             if (lv %in% names(level_points)) level_points[[lv]] else ref_points
           })
 
-          # Create points along the scale connecting all levels
-          min_pos <- min(level_positions, na.rm = TRUE)
-          max_pos <- max(level_positions, na.rm = TRUE)
-
-          # Ensure we have a reasonable range
-          if (abs(max_pos - min_pos) < 5) {
-            min_pos <- ref_points - 15
-            max_pos <- ref_points + 15
-          }
-
-          n_line_points <- 21
-          line_x <- seq(min_pos, max_pos, length.out = n_line_points)
+          # Create points along the scale connecting all levels - improved for Cox models
+          scale_range <- .create_factor_scale_range(level_positions, levels_found, ref_points)
+          line_x <- seq(scale_range$min_pos, scale_range$max_pos, length.out = scale_range$n_line_points)
 
           # Create labels only at actual level positions
           line_labels <- rep("", n_line_points)
@@ -929,18 +949,9 @@
             if (lv %in% names(level_points)) level_points[[lv]] else ref_points
           })
 
-          # Create points along the scale connecting all levels
-          min_pos <- min(level_positions, na.rm = TRUE)
-          max_pos <- max(level_positions, na.rm = TRUE)
-
-          # Ensure we have a reasonable range
-          if (abs(max_pos - min_pos) < 5) {
-            min_pos <- ref_points - 15
-            max_pos <- ref_points + 15
-          }
-
-          n_line_points <- 21
-          line_x <- seq(min_pos, max_pos, length.out = n_line_points)
+          # Create points along the scale connecting all levels - improved for LM models
+          scale_range <- .create_factor_scale_range(level_positions, levels_found, ref_points)
+          line_x <- seq(scale_range$min_pos, scale_range$max_pos, length.out = scale_range$n_line_points)
 
           # Create labels only at actual level positions
           line_labels <- rep("", n_line_points)
