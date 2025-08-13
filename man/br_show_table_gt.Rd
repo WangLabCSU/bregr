@@ -24,7 +24,7 @@ a default spanning header. If \code{FALSE}, no header will be placed.}
 A table
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 
 Provides an interface to visualize the model results with \href{https://github.com/ddsjoberg/gtsummary/}{\strong{gtsummary}} package in table format.
 check \url{https://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html#customize-output} to see possible output customization.

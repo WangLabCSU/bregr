@@ -1,7 +1,7 @@
 #' Package availability
 #'
 #' @description
-#' `r lifecycle::badge('experimental')`
+#' `r lifecycle::badge('stable')`
 #'
 #' Package resource, definitions ready for use.
 #'

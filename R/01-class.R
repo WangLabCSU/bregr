@@ -70,7 +70,7 @@ breg <- new_class("breg",
 
 #' Print method for breg object
 #' @description
-#' `r lifecycle::badge('experimental')`
+#' `r lifecycle::badge('stable')`
 #' @name print.breg
 #' @param x An object of class `breg`.
 #' @param ... Additional arguments (currently not used).

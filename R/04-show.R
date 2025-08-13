@@ -924,7 +924,7 @@ br_show_table <- function(breg, ..., args_table_format = list(), export = FALSE,
 #' Show regression models with `gtsummary` interface
 #'
 #' @description
-#' `r lifecycle::badge('experimental')`
+#' `r lifecycle::badge('stable')`
 #'
 #' Provides an interface to visualize the model results with [**gtsummary**](https://github.com/ddsjoberg/gtsummary/) package in table format.
 #' check <https://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html#customize-output> to see possible output customization.
