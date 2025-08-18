@@ -1,4 +1,4 @@
-# bregr (development version)
+# bregr 1.2.0
 
 **Enhancements & New Features:**
 
