@@ -30,7 +30,7 @@ if (!requireNamespace("UCSCXenaShiny")) {
 library(UCSCXenaShiny)
 ```
 
-[**UCSCXenaShiny**](https://openbiox.github.io/UCSCXenaShiny/reference) offers extensive builtin cancer datasets and data query functions to facilitate analysis and visualization.
+[**UCSCXenaShiny**](https://openbiox.github.io/UCSCXenaShiny/reference/) offers extensive builtin cancer datasets and data query functions to facilitate analysis and visualization.
 
 ## Obtain Data
 
