@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">bregr</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,7 @@ Wang</h4>
 University<br><a class="author_email" href="mailto:#"></a><a href="mailto:wangshx@csu.edu.cn" class="email">wangshx@csu.edu.cn</a>
       </address>
                   
-            <h4 data-toc-skip class="date">2025-08-19</h4>
+            <h4 data-toc-skip class="date">2025-08-20</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/WangLabCSU/bregr/blob/main/vignettes/save-model-file.Rmd" class="external-link"><code>vignettes/save-model-file.Rmd</code></a></small>
       <div class="d-none name"><code>save-model-file.Rmd</code></div>
@@ -79,7 +79,7 @@ University<br><a class="author_email" href="mailto:#"></a><a href="mailto:wangsh
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/WangLabCSU/bregr" class="external-link">bregr</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Welcome to 'bregr' package!</span></span>
 <span><span class="co">#&gt; =======================================================================</span></span>
-<span><span class="co">#&gt; You are using bregr version 1.2.0</span></span>
+<span><span class="co">#&gt; You are using bregr version 1.2.0.9000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Project home : https://github.com/WangLabCSU/bregr</span></span>
 <span><span class="co">#&gt; Documentation: https://wanglabcsu.github.io/bregr/</span></span>
@@ -101,7 +101,7 @@ saved as local files (<code>bregr.save_model</code>, default is
 <span>  <span class="fu"><a href="../reference/pipeline.html">br_set_x2</a></span><span class="op">(</span><span class="st">"vs"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/pipeline.html">br_set_model</a></span><span class="op">(</span><span class="st">"gaussian"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/pipeline.html">br_run</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; model save is enabled with result path <span style="color: #0000BB;">/tmp/RtmpIU7Tcb</span></span></span>
+<span><span class="co">#&gt; model save is enabled with result path <span style="color: #0000BB;">/tmp/Rtmp1gJlxO</span></span></span>
 <span><span class="co">#&gt; <span style="color: #555555;">This message is displayed once per session.</span></span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>bregr.save_model <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -110,13 +110,13 @@ verify this by examining the model objects:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m</span><span class="op">@</span><span class="va">models</span></span>
 <span><span class="co">#&gt; $cyl</span></span>
-<span><span class="co">#&gt; /tmp/RtmpIU7Tcb/3be6d574-7ce3-11f0-872d-7ced8d7cf06c.qs</span></span>
+<span><span class="co">#&gt; /tmp/Rtmp1gJlxO/74260eb8-7d75-11f0-a60d-7ced8d7c9228.qs</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $disp</span></span>
-<span><span class="co">#&gt; /tmp/RtmpIU7Tcb/3c18eeec-7ce3-11f0-872d-7ced8d7cf06c.qs</span></span>
+<span><span class="co">#&gt; /tmp/Rtmp1gJlxO/74567fb2-7d75-11f0-a60d-7ced8d7c9228.qs</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $hp</span></span>
-<span><span class="co">#&gt; /tmp/RtmpIU7Tcb/3c442e72-7ce3-11f0-872d-7ced8d7cf06c.qs</span></span></code></pre></div>
+<span><span class="co">#&gt; /tmp/Rtmp1gJlxO/7480286c-7d75-11f0-a60d-7ced8d7c9228.qs</span></span></code></pre></div>
 <p>We can retrieve the saved models using the following commands:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/accessors.html">br_get_models</a></span><span class="op">(</span><span class="va">m</span>, <span class="fl">1</span><span class="op">)</span></span>
