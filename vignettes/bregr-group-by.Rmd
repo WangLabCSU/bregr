@@ -65,7 +65,7 @@ We can optimize the plot for better visualization, for example, by removing the 
 br_show_forest(
   mds,
   drop = 2,
-  subset = !(Group_variable == "2" & variable == "ph.ecog" & label == 3)
+  subset = !(Group_variable == "Female" & variable == "ph.ecog" & label == 3)
 )
 ```
 
