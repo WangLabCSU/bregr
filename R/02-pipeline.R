@@ -86,6 +86,8 @@
 #'   br_set_x2("vs") |> # set control variables
 #'   br_set_model("gaussian") |>
 #'   br_run()
+#'
+#' \donttest{
 #' # 1.3. Group by model -------------
 #' m3 <- breg(mtcars) |>
 #'   br_set_y("mpg") |>
@@ -103,7 +105,6 @@
 #' )
 #'
 #' # 3. Customized model -----------
-#' \dontrun{
 #' dt <- data.frame(x = rnorm(100))
 #' dt$y <- rpois(100, exp(1 + dt$x))
 #'
@@ -119,6 +120,7 @@
 #' assert_breg_obj(m2)
 #' assert_breg_obj(m3)
 #' assert_breg_obj(m4)
+#' assert_breg_obj(m5)
 #' @seealso [accessors] for accessing `breg` object properties.
 NULL
 

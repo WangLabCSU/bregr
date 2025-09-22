@@ -176,6 +176,8 @@ m2 <- breg(mtcars) |>
   br_set_x2("vs") |> # set control variables
   br_set_model("gaussian") |>
   br_run()
+
+\donttest{
 # 1.3. Group by model -------------
 m3 <- breg(mtcars) |>
   br_set_y("mpg") |>
@@ -193,7 +195,6 @@ m4 <- br_pipeline(mtcars,
 )
 
 # 3. Customized model -----------
-\dontrun{
 dt <- data.frame(x = rnorm(100))
 dt$y <- rpois(100, exp(1 + dt$x))
 

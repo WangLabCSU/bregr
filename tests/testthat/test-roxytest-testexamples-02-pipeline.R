@@ -2,7 +2,7 @@
 
 # File R/"02-pipeline.R": @testexamples
 
-test_that("[unknown alias] @ L123", {
+test_that("[unknown alias] @ L125", {
   
   library(bregr)
   # 1. Pipeline -------------------------
@@ -28,6 +28,8 @@ test_that("[unknown alias] @ L123", {
     br_set_x2("vs") |> # set control variables
     br_set_model("gaussian") |>
     br_run()
+  
+  
   # 1.3. Group by model -------------
   m3 <- breg(mtcars) |>
     br_set_y("mpg") |>
@@ -45,11 +47,20 @@ test_that("[unknown alias] @ L123", {
   )
   
   # 3. Customized model -----------
+  dt <- data.frame(x = rnorm(100))
+  dt$y <- rpois(100, exp(1 + dt$x))
+  
+  m5 <- breg(dt) |>
+    br_set_y("y") |>
+    br_set_x("x") |>
+    br_set_model(method = 'quasi(variance = "mu", link = "log")') |>
+    br_run()
   
   
   assert_breg_obj(m)
   assert_breg_obj(m2)
   assert_breg_obj(m3)
   assert_breg_obj(m4)
+  assert_breg_obj(m5)
 })
 

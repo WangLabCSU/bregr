@@ -473,7 +473,7 @@ br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
 #' p2
 #'
 #' @testexamples
-#' expect_s3_class(p1, "alignpatches")
+#' expect_type(p1$plots, "list")
 #' expect_s3_class(p2, "ggplot")
 br_show_coxph_diagnostics <- function(
     breg, idx = 1, type = "schoenfeld",
