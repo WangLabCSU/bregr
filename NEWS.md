@@ -1,4 +1,8 @@
-# bregr (development version)
+# bregr 1.3.0
+
+- Updated paper citation.
+- Updated tests in `br_pipeline()` to reduce running time.
+- Fixed CRAN check issue in `br_show_coxph_diagnostics()`.
 
 # bregr 1.2.0
 
