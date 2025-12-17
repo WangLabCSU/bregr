@@ -4,7 +4,7 @@
 library(bregr)
 #> Welcome to 'bregr' package!
 #> =======================================================================
-#> You are using bregr version 1.3.0
+#> You are using bregr version 1.3.1
 #> 
 #> Project home : https://github.com/WangLabCSU/bregr
 #> Documentation: https://wanglabcsu.github.io/bregr/
@@ -30,7 +30,7 @@ m <- breg(mtcars) |>
   br_set_x2("vs") |>
   br_set_model("gaussian") |>
   br_run()
-#> model save is enabled with result path /tmp/RtmpqxKTBS
+#> model save is enabled with result path /tmp/RtmpEoEnJS
 #> This message is displayed once per session.
 
 options(bregr.save_model = FALSE)
@@ -42,13 +42,13 @@ this by examining the model objects:
 ``` r
 m@models
 #> $cyl
-#> /tmp/RtmpqxKTBS/c366f5b8-db54-11f0-bb16-002248541036.qs
+#> /tmp/RtmpEoEnJS/49f5882e-db55-11f0-bc9c-0022488d8629.qs
 #> 
 #> $disp
-#> /tmp/RtmpqxKTBS/c39f4080-db54-11f0-bb16-002248541036.qs
+#> /tmp/RtmpEoEnJS/4a2903d4-db55-11f0-bc9c-0022488d8629.qs
 #> 
 #> $hp
-#> /tmp/RtmpqxKTBS/c3ce2f08-db54-11f0-bb16-002248541036.qs
+#> /tmp/RtmpEoEnJS/4a567a62-db55-11f0-bc9c-0022488d8629.qs
 ```
 
 We can retrieve the saved models using the following commands:
