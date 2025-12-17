@@ -1,3 +1,7 @@
+# bregr 1.3.1
+
+- Fixed typo in class construction.
+
 # bregr 1.3.0
 
 - Updated paper citation.

@@ -44,6 +44,7 @@ A simplified overview of batch regression modeling is given below for
 illustration:
 
 <p align="center">
+
 <img src="man/figures/breg_formula.svg">
 </p>
 
@@ -77,11 +78,13 @@ Load package(s):
 library(bregr)
 #> Welcome to 'bregr' package!
 #> =======================================================================
-#> You are using bregr version 1.1.0.9000
+#> You are using bregr version 1.3.0
 #> 
 #> Project home : https://github.com/WangLabCSU/bregr
 #> Documentation: https://wanglabcsu.github.io/bregr/
-#> Cite as      : arXiv:2110.14232
+#> Cite as      : https://doi.org/10.1002/mdr2.70028
+#>   Wang, S., Peng, Y., Shu, C., Wang, C., Yang, Y., Zhao, Y., Cui, Y., Hu, D. and Zhou, J.-G. (2025),
+#>   bregr: An R Package for Streamlined Batch Processing and Visualization of Biomedical Regression Models. Med Research.
 #> =======================================================================
 #> 
 ```
@@ -137,7 +140,7 @@ mds_p <- br_pipeline(
   n_workers = 3
 )
 #> exponentiate estimates of model(s) constructed from coxph method at default
-#> ■■■■■■■                           20% | ETA: 46s
+#> ■■■■■■■■■■■■■                     40% | ETA: 16s
 #>                                                  
 ```
 
@@ -425,18 +428,26 @@ site](https://wanglabcsu.github.io/bregr/).
 
 ``` r
 covr::package_coverage()
-#> bregr Coverage: 70.35%
+#> bregr Coverage: 67.03%
 #> R/98-utils.R: 58.17%
+#> R/04-show-nomogram-helpers.R: 60.00%
+#> R/01-class.R: 61.19%
 #> R/07-diagnostics.R: 63.41%
-#> R/06-avail.R: 66.07%
-#> R/04-show.R: 66.80%
-#> R/04-show-nomogram-helpers.R: 68.59%
+#> R/04-show.R: 66.52%
 #> R/03-accessors.R: 75.31%
-#> R/02-pipeline.R: 77.36%
-#> R/01-class.R: 90.70%
-#> R/99-zzz.R: 90.91%
+#> R/02-pipeline.R: 75.74%
+#> R/06-avail.R: 78.57%
+#> R/99-zzz.R: 92.31%
 #> R/05-polar.R: 92.37%
 ```
+
+## Citation
+
+If you use **bregr** in academic field, please cite:
+
+- Wang S, Peng Y, Shu C, et al. bregr: An R Package for Streamlined
+  Batch Processing and Visualization of Biomedical Regression
+  Models\[J\]. Med Research, 2025. <https://doi.org/10.1002/mdr2.70028>
 
 ## Related/Similar Project(s)
 

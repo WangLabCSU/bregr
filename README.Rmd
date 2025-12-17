@@ -233,6 +233,12 @@ All functions are documented in the [package reference](https://wanglabcsu.githu
 covr::package_coverage()
 ```
 
+## Citation
+
+If you use **bregr** in academic field, please cite:
+
+- Wang S, Peng Y, Shu C, et al. bregr: An R Package for Streamlined Batch Processing and Visualization of Biomedical Regression Models[J]. Med Research, 2025. https://doi.org/10.1002/mdr2.70028
+
 ## Related/Similar Project(s)
 
 - [ezcox: Easily Process a Batch of Cox Models](https://github.com/ShixiangWang/ezcox/)

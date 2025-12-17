@@ -12,7 +12,7 @@ Maintainer: Shixiang Wang <w_shixiang@163.com>
 Description: Easily processes batches of univariate or multivariate
     regression models. Returns results in a tidy format and generates
     visualization plots for straightforward interpretation (Wang,
-    Shixiang, et al. (2021) <DOI:10.1002/mdr2.70028>).
+    Shixiang, et al. (2025) <DOI:10.1002/mdr2.70028>).
 License: GPL (>= 3)
 URL: https://github.com/WangLabCSU/bregr,
     https://wanglabcsu.github.io/bregr/
@@ -62,4 +62,4 @@ Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE, roclets = c("collate", "namespace", "rd",
     "roxytest::testthat_roclet"))
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
