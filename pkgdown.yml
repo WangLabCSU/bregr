@@ -1,5 +1,5 @@
 pandoc: 3.1.11
-pkgdown: 2.1.3
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   bregr-group-by: bregr-group-by.html
@@ -7,7 +7,7 @@ articles:
   quick-analyze-cancer-data: quick-analyze-cancer-data.html
   save-model-file: save-model-file.html
   supported-models: supported-models.html
-last_built: 2025-09-22T09:39Z
+last_built: 2025-12-17T14:19Z
 urls:
   reference: https://wanglabcsu.github.io/bregr/reference
   article: https://wanglabcsu.github.io/bregr/articles
