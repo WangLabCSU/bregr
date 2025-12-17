@@ -63,7 +63,7 @@ breg <- new_class("breg",
       config = config,
       models = models,
       results = results %||% data.frame(),
-      results_tidy = results %||% data.frame()
+      results_tidy = results_tidy %||% data.frame()
     )
   }
 )
