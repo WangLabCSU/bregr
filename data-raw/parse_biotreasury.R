@@ -330,8 +330,14 @@ if (FALSE) {
   # tools_data <- fromJSON(content(response, "text"))
 }
 
-# Print information about this script
-message("
+#' Print information about this script
+#' 
+#' Display usage information for the biotreasury parsing functions.
+#' Call this function to see available functions and examples.
+#' 
+#' @export
+show_biotreasury_info <- function() {
+  message("
 ========================================================================
 biotreasury.cn Tool ID Extraction Script
 ========================================================================
@@ -360,3 +366,9 @@ Example:
 For more information, see comments in this file.
 ========================================================================
 ")
+}
+
+# Print info message only when script is run directly (not sourced)
+if (sys.nframe() == 0) {
+  show_biotreasury_info()
+}

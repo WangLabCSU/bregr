@@ -192,9 +192,9 @@ test_json_parsing <- function() {
 # Main test runner
 run_all_tests <- function() {
   cat("\n")
-  cat("=" |> rep(70) |> paste(collapse = ""), "\n")
+  cat(paste(rep("=", 70), collapse = ""), "\n")
   cat("  biotreasury.cn Tool ID Extraction - Test Suite\n")
-  cat("=" |> rep(70) |> paste(collapse = ""), "\n")
+  cat(paste(rep("=", 70), collapse = ""), "\n")
   cat("\n")
   
   test_extract_tool_id()
@@ -203,7 +203,7 @@ run_all_tests <- function() {
   test_html_parsing()
   test_json_parsing()
   
-  cat("=" |> rep(70) |> paste(collapse = ""), "\n")
+  cat(paste(rep("=", 70), collapse = ""), "\n")
   cat("  Test suite completed\n")
   cat("=" |> rep(70) |> paste(collapse = ""), "\n")
   cat("\n")
