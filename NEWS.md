@@ -1,3 +1,5 @@
+# bregr (development version)
+
 # bregr 1.3.1
 
 - Fixed typo in class construction.
