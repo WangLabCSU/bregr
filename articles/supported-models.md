@@ -4,7 +4,7 @@
 library(bregr)
 #> Welcome to 'bregr' package!
 #> =======================================================================
-#> You are using bregr version 1.3.1
+#> You are using bregr version 1.3.1.9000
 #> 
 #> Project home : https://github.com/WangLabCSU/bregr
 #> Documentation: https://wanglabcsu.github.io/bregr/
@@ -223,8 +223,8 @@ br_avail_method_config("coxph")
 #> {
 #>     glue::glue("survival::Surv({paste(y, collapse = ', ')})")
 #> }
-#> <bytecode: 0x56487416a938>
-#> <environment: 0x5648779a7690>
+#> <bytecode: 0x555a83926400>
+#> <environment: 0x555a786b2f28>
 #> 
 #> $args_method
 #> NULL

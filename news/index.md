@@ -1,6 +1,10 @@
 # Changelog
 
+## bregr (development version)
+
 ## bregr 1.3.1
+
+CRAN release: 2025-12-17
 
 - Fixed typo in class construction.
 

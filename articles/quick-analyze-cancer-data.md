@@ -4,7 +4,7 @@
 library(bregr)
 #> Welcome to 'bregr' package!
 #> =======================================================================
-#> You are using bregr version 1.3.1
+#> You are using bregr version 1.3.1.9000
 #> 
 #> Project home : https://github.com/WangLabCSU/bregr
 #> Documentation: https://wanglabcsu.github.io/bregr/
