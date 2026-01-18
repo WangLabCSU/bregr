@@ -531,7 +531,7 @@ runner_ <- function(m, data, dots, opts = NULL) {
   }
 
   if (isTRUE(as.logical(getOption("bregr.save_model", default = FALSE)))) {
-    rlang::check_installed(c("fs", "ids", "qs"))
+    rlang::check_installed(c("ids", "qs"))
     md_path <- getOption("bregr.path", default = "")
     if (md_path == "") {
       if (requireNamespace("fs", quietly = TRUE)) {
