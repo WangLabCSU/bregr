@@ -50,7 +50,7 @@ Suggests:
     lme4,
     merDeriv,
     parallel,
-    qs,
+    qs2,
     rmarkdown,
     testthat (>= 3.0.0),
     UCSCXenaShiny,
