@@ -350,12 +350,12 @@ br_show_forest_comparison <- function(
   # Select and rename columns for display
   dt <- dt |>
     dplyr::select(
-      Variable = .data$variable,
-      Level = .data$label,
-      Mode = .data$mode,
-      N = .data$n_obs,
-      ` `,
-      `Estimate (95% CI)`,
+      Variable = "variable",
+      Level = "label",
+      Mode = "mode",
+      N = "n_obs",
+      " ",
+      "Estimate (95% CI)",
       P,
       estimate,
       conf.low,

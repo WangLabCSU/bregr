@@ -114,6 +114,7 @@ test_that("print method for breg_comparison works", {
     method = "coxph"
   )
   
-  # Should not error
-  expect_output(print(comparison), "breg_comparison")
+  # Should not error and return output with "breg_comparison"
+  output <- capture.output(print(comparison))
+  expect_true(any(grepl("breg_comparison", output)))
 })
