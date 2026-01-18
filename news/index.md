@@ -1,6 +1,6 @@
 # Changelog
 
-## bregr (development version)
+## bregr 1.3.2
 
 - Checked with
   `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))` and
