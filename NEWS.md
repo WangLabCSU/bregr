@@ -1,5 +1,6 @@
 # bregr 1.4.0
 
+- Added `br_compare_models()` and `br_show_forest_comparison()` (#54).
 - Replaced the deprecated package `qs` with `qs2`.
 
 # bregr 1.3.2
