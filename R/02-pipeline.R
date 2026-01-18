@@ -560,7 +560,7 @@ runner_ <- function(m, data, dots, opts = NULL) {
     } else {
       md_file <- file.path(md_path, paste0(dg, ".qs"))
     }
-    qs2::qsave(model, file = md_file)
+    qs2::qs_save(model, file = md_file)
     model <- md_file
   }
 
