@@ -1,6 +1,1 @@
-## R CMD check results
-
-0 errors | 0 warnings | 1 note
-
-* This is a new release.
-* Fixed suggested online check issues.
+* Checked with `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))` and fixed reported check issues.

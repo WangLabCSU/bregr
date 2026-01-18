@@ -54,7 +54,7 @@ A ggplot object
 This function creates a circular (polar) forest plot from regression results,
 providing an alternative visualization to the traditional linear forest plot.
 The function uses the same input as \code{\link[=br_show_forest]{br_show_forest()}} but displays the results
-in a circular format using \code{\link[ggplot2:coord_polar]{ggplot2::coord_polar()}}.
+in a circular format using \code{\link[ggplot2:coord_radial]{ggplot2::coord_polar()}}.
 }
 \examples{
 m <- br_pipeline(mtcars,

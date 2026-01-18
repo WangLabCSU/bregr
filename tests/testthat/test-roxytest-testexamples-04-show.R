@@ -17,7 +17,7 @@ test_that("Function br_show_forest() @ L51", {
 })
 
 
-test_that("Function br_show_forest_ggstats() @ L301", {
+test_that("Function br_show_forest_ggstats() @ L302", {
   
   if (rlang::is_installed("ggstats")) {
     m <- br_pipeline(mtcars,
@@ -33,7 +33,7 @@ test_that("Function br_show_forest_ggstats() @ L301", {
 })
 
 
-test_that("Function br_show_forest_ggstatsplot() @ L344", {
+test_that("Function br_show_forest_ggstatsplot() @ L345", {
   
   if (rlang::is_installed("ggstats")) {
     m <- br_pipeline(mtcars,
@@ -49,7 +49,7 @@ test_that("Function br_show_forest_ggstatsplot() @ L344", {
 })
 
 
-test_that("Function br_show_fitted_line() @ L384", {
+test_that("Function br_show_fitted_line() @ L385", {
   
   if (rlang::is_installed("visreg")) {
     m <- br_pipeline(mtcars,
@@ -69,7 +69,7 @@ test_that("Function br_show_fitted_line() @ L384", {
 })
 
 
-test_that("Function br_show_fitted_line_2d() @ L423", {
+test_that("Function br_show_fitted_line_2d() @ L424", {
   
   if (rlang::is_installed("visreg")) {
     m <- br_pipeline(mtcars,
@@ -86,7 +86,7 @@ test_that("Function br_show_fitted_line_2d() @ L423", {
 })
 
 
-test_that("Function br_show_coxph_diagnostics() @ L478", {
+test_that("Function br_show_coxph_diagnostics() @ L479", {
   
   # Create Cox models
   mds <- br_pipeline(
@@ -108,7 +108,7 @@ test_that("Function br_show_coxph_diagnostics() @ L478", {
 })
 
 
-test_that("Function br_show_table() @ L914", {
+test_that("Function br_show_table() @ L920", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
@@ -126,7 +126,7 @@ test_that("Function br_show_table() @ L914", {
 })
 
 
-test_that("Function br_show_table_gt() @ L952", {
+test_that("Function br_show_table_gt() @ L958", {
   
   if (rlang::is_installed("gtsummary")) {
     m <- br_pipeline(mtcars,
@@ -142,7 +142,7 @@ test_that("Function br_show_table_gt() @ L952", {
 })
 
 
-test_that("Function br_show_residuals() @ L1193", {
+test_that("Function br_show_residuals() @ L1200", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
@@ -164,7 +164,7 @@ test_that("Function br_show_residuals() @ L1193", {
 })
 
 
-test_that("Function br_show_nomogram() @ L1377", {
+test_that("Function br_show_nomogram() @ L1384", {
   
   
   # Cox regression nomogram
@@ -198,7 +198,7 @@ test_that("Function br_show_nomogram() @ L1377", {
 })
 
 
-test_that("Function br_show_forest_circle() @ L1461", {
+test_that("Function br_show_forest_circle() @ L1468", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",

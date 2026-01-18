@@ -27,8 +27,12 @@ mod_surv <- br_pipeline(
   x2 = c("factor(sex)"),
   method = "coxph"
 )
-p <- br_show_risk_network(mod_surv)
-p
+
+if (requireNamespace("ggnewscale")) {
+  p <- br_show_risk_network(mod_surv)
+  p
+}
+
 }
 \seealso{
 Other br_show: 

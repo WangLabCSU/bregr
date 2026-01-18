@@ -18,10 +18,16 @@
 #'   x2 = c("factor(sex)"),
 #'   method = "coxph"
 #' )
-#' p <- br_show_risk_network(mod_surv)
-#' p
+#'
+#' if (requireNamespace("ggnewscale")) {
+#'   p <- br_show_risk_network(mod_surv)
+#'   p
+#' }
+#'
 #' @testexamples
+#' if (requireNamespace("ggnewscale")) {
 #' assert_s3_class(p, "ggplot")
+#' }
 br_show_risk_network <- function(breg, ...) {
   assert_breg_obj_with_results(breg)
   rlang::check_installed("ggnewscale")

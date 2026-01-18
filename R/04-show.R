@@ -49,14 +49,15 @@
 #' @testexamples
 #' assert_s3_class(br_show_forest(m), "forestplot")
 br_show_forest <- function(
-    breg,
-    clean = TRUE,
-    rm_controls = FALSE,
-    ...,
-    subset = NULL,
-    drop = NULL,
-    tab_headers = NULL,
-    log_first = FALSE) {
+  breg,
+  clean = TRUE,
+  rm_controls = FALSE,
+  ...,
+  subset = NULL,
+  drop = NULL,
+  tab_headers = NULL,
+  log_first = FALSE
+) {
   assert_breg_obj_with_results(breg)
   assert_bool(rm_controls)
 
@@ -476,9 +477,10 @@ br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
 #' expect_type(p1$plots, "list")
 #' expect_s3_class(p2, "ggplot")
 br_show_coxph_diagnostics <- function(
-    breg, idx = 1, type = "schoenfeld",
-    resid = TRUE, se = TRUE,
-    point_col = "red", point_size = 1, point_alpha = 0.6, ...) {
+  breg, idx = 1, type = "schoenfeld",
+  resid = TRUE, se = TRUE,
+  point_col = "red", point_size = 1, point_alpha = 0.6, ...
+) {
   assert_breg_obj_with_results(breg)
   if (length(idx) != 1) {
     cli::cli_abort("Only one Cox model can be plotted at a time. Provide a single {.arg idx}.")
@@ -954,8 +956,9 @@ br_show_table <- function(breg, ..., args_table_format = list(), export = FALSE,
 #' @testexamples
 #' expect_true(TRUE)
 br_show_table_gt <- function(
-    breg, idx = NULL, ...,
-    tab_spanner = NULL) {
+  breg, idx = NULL, ...,
+  tab_spanner = NULL
+) {
   assert_breg_obj_with_results(breg)
   rlang::check_installed("gtsummary")
 
@@ -1463,13 +1466,14 @@ br_show_nomogram <- function(breg,
 #' @references
 #' Implementation of circular forest plot `https://mp.weixin.qq.com/s/PBKcsEFGrDSQJp6ZmUgfHA`
 br_show_forest_circle <- function(
-    breg,
-    rm_controls = FALSE,
-    style = c("points", "bars"),
-    ref_line = TRUE,
-    sort_by = c("none", "estimate", "estimate_desc", "pvalue", "variable"),
-    subset = NULL,
-    log_first = FALSE) {
+  breg,
+  rm_controls = FALSE,
+  style = c("points", "bars"),
+  ref_line = TRUE,
+  sort_by = c("none", "estimate", "estimate_desc", "pvalue", "variable"),
+  subset = NULL,
+  log_first = FALSE
+) {
   assert_breg_obj_with_results(breg)
   assert_bool(rm_controls)
   style <- match.arg(style)

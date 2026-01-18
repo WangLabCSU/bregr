@@ -128,17 +128,18 @@ NULL
 #' Which could be splitted into the following steps
 #' @export
 br_pipeline <- function(
-    data, y, x, method, x2 = NULL,
-    group_by = NULL,
-    n_workers = 1L, run_parallel = lifecycle::deprecated(),
-    dry_run = FALSE,
-    model_args = list(),
-    run_args = list(),
-    filter_x = FALSE,
-    filter_na_prop = 0.8,
-    filter_sd_min = 1e-6,
-    filter_var_min = 1e-6,
-    filter_min_levels = 2) {
+  data, y, x, method, x2 = NULL,
+  group_by = NULL,
+  n_workers = 1L, run_parallel = lifecycle::deprecated(),
+  dry_run = FALSE,
+  model_args = list(),
+  run_args = list(),
+  filter_x = FALSE,
+  filter_na_prop = 0.8,
+  filter_sd_min = 1e-6,
+  filter_var_min = 1e-6,
+  filter_min_levels = 2
+) {
   if (lifecycle::is_present(run_parallel)) {
     lifecycle::deprecate_warn("1.1.0", "bregr::br_run(run_parallel = )", "bregr::br_run(n_workers = )")
     n_workers <- run_parallel
