@@ -356,10 +356,7 @@ br_show_forest_comparison <- function(
       N = "n_obs",
       " ",
       "Estimate (95% CI)",
-      .data$P,
-      .data$estimate,
-      .data$conf.low,
-      .data$conf.high
+      c("P", "estimate", "conf.low", "conf.high")
     )
 
   # Set reference line
