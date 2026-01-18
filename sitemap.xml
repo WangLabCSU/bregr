@@ -13,6 +13,7 @@
 <url><loc>https://wanglabcsu.github.io/bregr/news/index.html</loc></url>
 <url><loc>https://wanglabcsu.github.io/bregr/reference/accessors.html</loc></url>
 <url><loc>https://wanglabcsu.github.io/bregr/reference/avails.html</loc></url>
+<url><loc>https://wanglabcsu.github.io/bregr/reference/br_compare_models.html</loc></url>
 <url><loc>https://wanglabcsu.github.io/bregr/reference/br_diagnose.html</loc></url>
 <url><loc>https://wanglabcsu.github.io/bregr/reference/br_predict.html</loc></url>
 <url><loc>https://wanglabcsu.github.io/bregr/reference/br_show_coxph_diagnostics.html</loc></url>
@@ -20,6 +21,7 @@
 <url><loc>https://wanglabcsu.github.io/bregr/reference/br_show_fitted_line_2d.html</loc></url>
 <url><loc>https://wanglabcsu.github.io/bregr/reference/br_show_forest.html</loc></url>
 <url><loc>https://wanglabcsu.github.io/bregr/reference/br_show_forest_circle.html</loc></url>
+<url><loc>https://wanglabcsu.github.io/bregr/reference/br_show_forest_comparison.html</loc></url>
 <url><loc>https://wanglabcsu.github.io/bregr/reference/br_show_forest_ggstats.html</loc></url>
 <url><loc>https://wanglabcsu.github.io/bregr/reference/br_show_forest_ggstatsplot.html</loc></url>
 <url><loc>https://wanglabcsu.github.io/bregr/reference/br_show_nomogram.html</loc></url>
@@ -35,5 +37,6 @@
 <url><loc>https://wanglabcsu.github.io/bregr/reference/polar_connect.html</loc></url>
 <url><loc>https://wanglabcsu.github.io/bregr/reference/polar_init.html</loc></url>
 <url><loc>https://wanglabcsu.github.io/bregr/reference/print.breg.html</loc></url>
+<url><loc>https://wanglabcsu.github.io/bregr/reference/print.breg_comparison.html</loc></url>
 </urlset>
 

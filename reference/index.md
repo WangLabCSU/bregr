@@ -8,6 +8,8 @@ Class definition and printing.
   **\[stable\]** : Creates a new breg-class object
 - [`print.breg`](https://wanglabcsu.github.io/bregr/reference/print.breg.md)
   **\[stable\]** : Print method for breg object
+- [`print(`*`<breg_comparison>`*`)`](https://wanglabcsu.github.io/bregr/reference/print.breg_comparison.md)
+  : Print method for breg_comparison object
 
 ## Workflow
 
@@ -20,6 +22,8 @@ Core workflow and pipeline wrapper.
   [`br_set_model()`](https://wanglabcsu.github.io/bregr/reference/pipeline.md)
   [`br_run()`](https://wanglabcsu.github.io/bregr/reference/pipeline.md)
   **\[stable\]** : Modeling and analysis pipeline
+- [`br_compare_models()`](https://wanglabcsu.github.io/bregr/reference/br_compare_models.md)
+  **\[experimental\]** : Compare univariate and multivariate models
 
 ## Accessor
 
@@ -65,6 +69,9 @@ Visualize results using forest plots and more.
   **\[stable\]** :
 
   Show a forest plot with `ggstatsplot` interface
+
+- [`br_show_forest_comparison()`](https://wanglabcsu.github.io/bregr/reference/br_show_forest_comparison.md)
+  **\[experimental\]** : Show forest plot for model comparison
 
 ## Model Diagnostics and Use
 

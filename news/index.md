@@ -1,5 +1,9 @@
 # Changelog
 
+## bregr 1.4.0
+
+- Replaced the deprecated package `qs` with `qs2`.
+
 ## bregr 1.3.2
 
 - Checked with

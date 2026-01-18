@@ -16,13 +16,13 @@ Source:
 [`DESCRIPTION`](https://github.com/WangLabCSU/bregr/blob/main/DESCRIPTION)
 
 Wang S, Peng Y, Shu C (2026). *bregr: Easy and Efficient Batch
-Processing of Regression Models*. R package version 1.3.2,
+Processing of Regression Models*. R package version 1.4.0,
 <https://github.com/WangLabCSU/bregr>.
 
     @Manual{,
       title = {bregr: Easy and Efficient Batch Processing of Regression Models},
       author = {Shixiang Wang and Yun Peng and Chenyang Shu},
       year = {2026},
-      note = {R package version 1.3.2},
+      note = {R package version 1.4.0},
       url = {https://github.com/WangLabCSU/bregr},
     }

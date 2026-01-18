@@ -188,6 +188,7 @@ br_show_table(result)
   for faster package management
 - Skip vignette building during development iterations
 - Use `_R_CHECK_FORCE_SUGGESTS_=false` for faster checking
+- Use `_R_CHECK_DEPENDS_ONLY_=true` for depends checking
 - Consider parallel testing for large test suites
 
 ## Common Issues and Solutions

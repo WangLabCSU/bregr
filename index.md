@@ -63,7 +63,7 @@ Load package(s):
 library(bregr)
 #> Welcome to 'bregr' package!
 #> =======================================================================
-#> You are using bregr version 1.3.0
+#> You are using bregr version 1.3.2
 #> 
 #> Project home : https://github.com/WangLabCSU/bregr
 #> Documentation: https://wanglabcsu.github.io/bregr/
@@ -125,8 +125,9 @@ mds_p <- br_pipeline(
   n_workers = 3
 )
 #> exponentiate estimates of model(s) constructed from coxph method at default
-#> ■■■■■■■■■■■■■                     40% | ETA: 16s
-#>                                                  
+#> ■■■■■■■                           20% | ETA: 13s
+#> 
+#> ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s
 ```
 
 ``` r
@@ -300,6 +301,36 @@ constructed model(s), e.g.,
 and
 [`br_show_fitted_line_2d()`](https://wanglabcsu.github.io/bregr/reference/br_show_fitted_line_2d.md).
 
+#### Comparing Univariate vs Multivariate Models
+
+A common analysis task is to compare how predictor effects change when
+modeled individually (univariate) versus together (multivariate). The
+[`br_compare_models()`](https://wanglabcsu.github.io/bregr/reference/br_compare_models.md)
+function builds both types of models and displays them side-by-side:
+
+``` r
+# Compare univariate and multivariate models
+comparison <- br_compare_models(
+  lung,
+  y = c("time", "status"),
+  x = c("ph.ecog", "ph.karno", "pat.karno"),
+  x2 = c("age", "sex"),
+  method = "coxph"
+)
+#> Building univariate models...
+#> exponentiate estimates of model(s) constructed from coxph method at default
+#> Building multivariate model...
+#> exponentiate estimates of model(s) constructed from coxph method at default
+
+# Show forest plot with both models
+br_show_forest_comparison(comparison)
+```
+
+![](reference/figures/README-unnamed-chunk-9-1.png)
+
+This allows you to see how adjusting for other predictors affects the
+estimates for each variable.
+
 For Cox-PH modeling results (focal variables must be continuous type),
 we provide a risk network plotting function.
 
@@ -319,7 +350,7 @@ br_show_risk_network(mds2)
 #> please note only continuous focal terms analyzed and visualized
 ```
 
-![](reference/figures/README-unnamed-chunk-10-1.png)
+![](reference/figures/README-unnamed-chunk-11-1.png)
 
 #### Model Score Prediction and Survival Curves
 
@@ -349,7 +380,7 @@ br_show_survival_curves(
 #> values
 ```
 
-![](reference/figures/README-unnamed-chunk-12-1.png)
+![](reference/figures/README-unnamed-chunk-13-1.png)
 
 ### Table
 
@@ -417,17 +448,6 @@ site](https://wanglabcsu.github.io/bregr/).
 
 ``` r
 covr::package_coverage()
-#> bregr Coverage: 67.03%
-#> R/98-utils.R: 58.17%
-#> R/04-show-nomogram-helpers.R: 60.00%
-#> R/01-class.R: 61.19%
-#> R/07-diagnostics.R: 63.41%
-#> R/04-show.R: 66.52%
-#> R/03-accessors.R: 75.31%
-#> R/02-pipeline.R: 75.74%
-#> R/06-avail.R: 78.57%
-#> R/99-zzz.R: 92.31%
-#> R/05-polar.R: 92.37%
 ```
 
 ## Citation
