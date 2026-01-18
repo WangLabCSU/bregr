@@ -58,7 +58,12 @@ mod_surv <- br_pipeline(
   method = "coxph"
 )
 #> exponentiate estimates of model(s) constructed from coxph method at default
-p <- br_show_risk_network(mod_surv)
+
+if (requireNamespace("ggnewscale")) {
+  p <- br_show_risk_network(mod_surv)
+  p
+}
+#> Loading required namespace: ggnewscale
 #> please note only continuous focal terms analyzed and visualized
-p
+
 ```

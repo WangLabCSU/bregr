@@ -2,7 +2,7 @@
 
 Easily processes batches of univariate or multivariate regression
 models. Returns results in a tidy format and generates visualization
-plots for straightforward interpretation (Wang, Shixiang, et al. (2021)
+plots for straightforward interpretation (Wang, Shixiang, et al. (2025)
 [doi:10.1002/mdr2.70028](https://doi.org/10.1002/mdr2.70028) ).
 
 ## See also

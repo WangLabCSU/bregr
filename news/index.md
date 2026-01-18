@@ -2,6 +2,10 @@
 
 ## bregr (development version)
 
+- Checked with
+  `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))` and
+  fixed reported check issues.
+
 ## bregr 1.3.1
 
 CRAN release: 2025-12-17
