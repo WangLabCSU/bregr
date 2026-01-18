@@ -727,18 +727,22 @@ br_show_coxph_diagnostics <- function(
         } else if (length(valid_plots) == 1) {
           return(valid_plots[[1]])
         } else {
-          rlang::check_installed("ggalign")
-          # Enhanced plot combination with better error handling
-          tryCatch(
-            {
-              combined_plot <- ggalign::align_plots(!!!valid_plots)
-              return(combined_plot)
-            },
-            error = function(e) {
-              cli::cli_warn("Failed to combine plots with ggalign: {e$message}. Returning list of plots.")
-              return(valid_plots)
-            }
-          )
+          # Try to combine plots with ggalign if available
+          if (requireNamespace("ggalign", quietly = TRUE)) {
+            tryCatch(
+              {
+                combined_plot <- ggalign::align_plots(!!!valid_plots)
+                return(combined_plot)
+              },
+              error = function(e) {
+                cli::cli_warn("Failed to combine plots with ggalign: {e$message}. Returning list of plots.")
+                return(list(plots = valid_plots))
+              }
+            )
+          } else {
+            cli::cli_inform("Package 'ggalign' is not available. Returning list of plots instead of combined plot.")
+            return(list(plots = valid_plots))
+          }
         }
       },
       error = function(e) {
