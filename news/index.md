@@ -2,6 +2,11 @@
 
 ## bregr 1.4.0
 
+- Added
+  [`br_compare_models()`](https://wanglabcsu.github.io/bregr/reference/br_compare_models.md)
+  and
+  [`br_show_forest_comparison()`](https://wanglabcsu.github.io/bregr/reference/br_show_forest_comparison.md)
+  ([\#54](https://github.com/WangLabCSU/bregr/issues/54)).
 - Replaced the deprecated package `qs` with `qs2`.
 
 ## bregr 1.3.2
