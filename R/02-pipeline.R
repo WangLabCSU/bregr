@@ -534,19 +534,31 @@ runner_ <- function(m, data, dots, opts = NULL) {
     rlang::check_installed(c("fs", "ids", "qs"))
     md_path <- getOption("bregr.path", default = "")
     if (md_path == "") {
-      md_path <- fs::path_temp()
+      if (requireNamespace("fs", quietly = TRUE)) {
+        md_path <- fs::path_temp()
+      } else {
+        md_path <- tempdir()
+      }
     }
     cli::cli_inform("model save is enabled with result path {md_path}",
       .frequency = "once", .frequency_id = md_path
     )
-    fs::dir_create(md_path)
+    if (requireNamespace("fs", quietly = TRUE)) {
+      fs::dir_create(md_path)
+    } else {
+      dir.create(md_path, showWarnings = FALSE, recursive = TRUE)
+    }
     dg <- suppressWarnings(ids::uuid(1, use_time = TRUE))
     if (!rlang::is_string(dg)) {
       cli::cli_abort(
         "failed to generate uuid for file, please check"
       )
     }
-    md_file <- fs::path(md_path, dg, ext = "qs")
+    if (requireNamespace("fs", quietly = TRUE)) {
+      md_file <- fs::path(md_path, dg, ext = "qs")
+    } else {
+      md_file <- file.path(md_path, paste0(dg, ".qs"))
+    }
     qs::qsave(model, file = md_file)
     model <- md_file
   }
