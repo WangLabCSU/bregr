@@ -167,6 +167,26 @@ br_show_forest(
 We also provide some interfaces from other packages for plotting constructed model(s), e.g., `br_show_forest_ggstats()`, `br_show_forest_ggstatsplot()`, `br_show_fitted_line()`,
 and `br_show_fitted_line_2d()`.
 
+#### Comparing Univariate vs Multivariate Models
+
+A common analysis task is to compare how predictor effects change when modeled individually (univariate) versus together (multivariate). The `br_compare_models()` function builds both types of models and displays them side-by-side:
+
+```{r dpi=150, fig.height=5}
+# Compare univariate and multivariate models
+comparison <- br_compare_models(
+  lung,
+  y = c("time", "status"),
+  x = c("ph.ecog", "ph.karno", "pat.karno"),
+  x2 = c("age", "sex"),
+  method = "coxph"
+)
+
+# Show forest plot with both models
+br_show_forest_comparison(comparison)
+```
+
+This allows you to see how adjusting for other predictors affects the estimates for each variable.
+
 For Cox-PH modeling results (focal variables must be continuous type), we provide a risk network plotting function.
 
 ```{r}
@@ -229,7 +249,7 @@ All functions are documented in the [package reference](https://wanglabcsu.githu
 
 ## Coverage
 
-```{r}
+```{r eval=FALSE}
 covr::package_coverage()
 ```
 

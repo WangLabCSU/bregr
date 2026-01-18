@@ -532,7 +532,7 @@ runner_ <- function(m, data, dots, opts = NULL) {
   }
 
   if (isTRUE(as.logical(getOption("bregr.save_model", default = FALSE)))) {
-    rlang::check_installed(c("ids", "qs"))
+    rlang::check_installed(c("ids", "qs2"))
     md_path <- getOption("bregr.path", default = "")
     if (md_path == "") {
       if (requireNamespace("fs", quietly = TRUE)) {
@@ -560,7 +560,7 @@ runner_ <- function(m, data, dots, opts = NULL) {
     } else {
       md_file <- file.path(md_path, paste0(dg, ".qs"))
     }
-    qs::qsave(model, file = md_file)
+    qs2::qs_save(model, file = md_file)
     model <- md_file
   }
 

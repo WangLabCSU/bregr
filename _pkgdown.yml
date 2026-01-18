@@ -14,10 +14,12 @@ reference:
     contents:
     - breg
     - print.breg
+    - print.breg_comparison
   - title: Workflow
     desc: Core workflow and pipeline wrapper.
     contents:
     - br_pipeline
+    - br_compare_models
   - title: Accessor
     desc: Attributes and data accessors from [breg] objects.
     contents:
@@ -30,6 +32,7 @@ reference:
     - br_show_risk_network
     - br_show_forest_ggstats
     - br_show_forest_ggstatsplot
+    - br_show_forest_comparison
   - title: Model Diagnostics and Use
     desc: Inspect and visualize models for diagnostic purposes, and enable effective model utilization.
     contents:
