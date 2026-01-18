@@ -74,11 +74,11 @@ br_compare_models <- function(
   assert_character(y, allow_na = FALSE)
   assert_character(x, allow_na = FALSE)
   assert_character(x2, allow_na = FALSE, allow_null = TRUE)
-  
+
   if (length(x) < 2) {
     cli::cli_abort("{.arg x} must contain at least 2 variables for comparison")
   }
-  
+
   # Build univariate models (each x separately with x2 as controls)
   cli::cli_inform("Building univariate models...")
   univariate <- br_pipeline(
@@ -92,73 +92,73 @@ br_compare_models <- function(
     run_args = run_args,
     ...
   )
-  
+
   # Build multivariate model (all x together with x2 as controls)
   cli::cli_inform("Building multivariate model...")
   # For multivariate, we treat all x as x2 (controls) with a dummy focal variable
   # Actually, we need to create a single model with all x variables
   # We can do this by setting x to just the first variable name and x2 to include all others
-  
+
   # Create a multivariate model by combining all x into the model
   # We'll use a different approach: build using the same pipeline but with all x combined
   x_combined <- paste(x, collapse = " + ")
-  
+
   # Build the multivariate model with all focal variables
   multivariate_br <- breg(data) |>
     br_set_y(y) |>
-    br_set_x(x[1])  # Use first as placeholder
-  
+    br_set_x(x[1]) # Use first as placeholder
+
   # Set x2 to include all x except first, plus original x2
   if (is.null(x2)) {
     multivariate_br <- multivariate_br |> br_set_x2(x[-1])
   } else {
     multivariate_br <- multivariate_br |> br_set_x2(c(x[-1], x2))
   }
-  
+
   # Now we need to hack this to create a single model with all x variables
   # Let's take a different approach - manually construct the multivariate model
-  
+
   # Actually, let's use a cleaner approach:
   # Build a single-model breg object with all x as focal (using a dummy approach)
   multivariate <- build_multivariate_model(data, y, x, x2, method, run_args)
-  
+
   # Add mode column to distinguish results
   univariate_results <- br_get_results(univariate)
   univariate_results$mode <- "univariate"
-  
+
   multivariate_results <- br_get_results(multivariate)
   multivariate_results$mode <- "multivariate"
-  
+
   univariate_results_tidy <- br_get_results(univariate, tidy = TRUE)
   univariate_results_tidy$mode <- "univariate"
-  
+
   multivariate_results_tidy <- br_get_results(multivariate, tidy = TRUE)
   multivariate_results_tidy$mode <- "multivariate"
-  
+
   # Filter to only focal variables for comparison
   univariate_results_focal <- univariate_results |>
     dplyr::filter(.data$Focal_variable == .data$variable)
-  
+
   multivariate_results_focal <- multivariate_results |>
     dplyr::filter(.data$variable %in% x)
-  
+
   univariate_results_tidy_focal <- univariate_results_tidy |>
     dplyr::filter(.data$Focal_variable == .data$term)
-  
+
   multivariate_results_tidy_focal <- multivariate_results_tidy |>
     dplyr::filter(.data$term %in% x)
-  
+
   # Combine results
   combined_results <- dplyr::bind_rows(
     univariate_results_focal,
     multivariate_results_focal
   )
-  
+
   combined_results_tidy <- dplyr::bind_rows(
     univariate_results_tidy_focal,
     multivariate_results_tidy_focal
   )
-  
+
   # Create comparison object
   comparison <- list(
     univariate = univariate,
@@ -166,10 +166,10 @@ br_compare_models <- function(
     combined_results = combined_results,
     combined_results_tidy = combined_results_tidy
   )
-  
+
   class(comparison) <- c("breg_comparison", "list")
   attr(comparison, "exponentiate") <- attr(univariate, "exponentiate")
-  
+
   comparison
 }
 
@@ -183,32 +183,32 @@ build_multivariate_model <- function(data, y, x, x2, method, run_args) {
   br <- breg(data) |>
     br_set_y(y) |>
     br_set_x(x[1])
-  
+
   # Combine remaining x with x2
   if (length(x) > 1) {
     combined_x2 <- c(x[-1], x2)
   } else {
     combined_x2 <- x2
   }
-  
+
   if (!is.null(combined_x2) && length(combined_x2) > 0) {
     br <- br |> br_set_x2(combined_x2)
   }
-  
+
   br <- br |> br_set_model(method)
-  
+
   # Run with specified arguments
   if (length(run_args) > 0) {
     br <- do.call(br_run, c(list(obj = br), run_args))
   } else {
     br <- br_run(br)
   }
-  
+
   # Modify the results to treat all x variables as focal
   # We need to extract results for all x variables and mark them as focal
   results <- br@results
   results_tidy <- br@results_tidy
-  
+
   # Update Focal_variable for all x variables
   results <- results |>
     dplyr::mutate(
@@ -218,7 +218,7 @@ build_multivariate_model <- function(data, y, x, x2, method, run_args) {
         .data$Focal_variable
       )
     )
-  
+
   results_tidy <- results_tidy |>
     dplyr::mutate(
       Focal_variable = dplyr::if_else(
@@ -227,10 +227,10 @@ build_multivariate_model <- function(data, y, x, x2, method, run_args) {
         .data$Focal_variable
       )
     )
-  
+
   br@results <- results
   br@results_tidy <- results_tidy
-  
+
   br
 }
 
@@ -276,19 +276,19 @@ br_show_forest_comparison <- function(
   if (!inherits(comparison, "breg_comparison")) {
     cli::cli_abort("{.arg comparison} must be a {.cls breg_comparison} object from {.fn br_compare_models}")
   }
-  
+
   dots <- rlang::list2(...)
   exponentiate <- attr(comparison, "exponentiate")
-  
+
   # Get combined results
   dt <- comparison$combined_results
-  
+
   if (rm_controls) {
     # Only show focal variables
     dt <- dt |>
       dplyr::filter(.data$Focal_variable == .data$variable)
   }
-  
+
   # Format the data for forest plot
   dt <- dt |>
     dplyr::arrange(.data$variable, .data$mode) |>
@@ -300,9 +300,9 @@ br_show_forest_comparison <- function(
         TRUE ~
           sprintf(
             "%.2f (%.2f to %.2f)",
-            estimate,
-            conf.low,
-            conf.high
+            .data$estimate,
+            .data$conf.low,
+            .data$conf.high
           )
       ),
       P = if_else(
@@ -318,7 +318,7 @@ br_show_forest_comparison <- function(
       ),
       mode = tools::toTitleCase(.data$mode)
     )
-  
+
   # Calculate xlim if not provided
   if (is.null(xlim)) {
     xlim <- c(
@@ -334,7 +334,7 @@ br_show_forest_comparison <- function(
       xlim[2] <- 100
     }
   }
-  
+
   # Group by variable to show them together
   dt <- dt |>
     dplyr::group_by(.data$variable) |>
@@ -346,7 +346,7 @@ br_show_forest_comparison <- function(
       )
     ) |>
     dplyr::ungroup()
-  
+
   # Select and rename columns for display
   dt <- dt |>
     dplyr::select(
@@ -356,17 +356,17 @@ br_show_forest_comparison <- function(
       N = "n_obs",
       " ",
       "Estimate (95% CI)",
-      P,
-      estimate,
-      conf.low,
-      conf.high
+      .data$P,
+      .data$estimate,
+      .data$conf.low,
+      .data$conf.high
     )
-  
+
   # Set reference line
   if (exponentiate && !("ref_line" %in% names(dots))) {
     dots[["ref_line"]] <- 1L
   }
-  
+
   # Create forest plot
   p <- do.call(
     forestploter::forest,
@@ -382,7 +382,7 @@ br_show_forest_comparison <- function(
       dots
     )
   )
-  
+
   p
 }
 

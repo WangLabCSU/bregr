@@ -27,7 +27,7 @@ test_that("Function br_compare_models() @ L62", {
 })
 
 
-test_that("Function br_show_forest_comparison() @ L271", {
+test_that("Function br_show_forest_comparison() @ L270", {
   
   lung <- survival::lung |>
     dplyr::filter(ph.ecog != 3)
