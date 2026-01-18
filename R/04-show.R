@@ -49,14 +49,15 @@
 #' @testexamples
 #' assert_s3_class(br_show_forest(m), "forestplot")
 br_show_forest <- function(
-    breg,
-    clean = TRUE,
-    rm_controls = FALSE,
-    ...,
-    subset = NULL,
-    drop = NULL,
-    tab_headers = NULL,
-    log_first = FALSE) {
+  breg,
+  clean = TRUE,
+  rm_controls = FALSE,
+  ...,
+  subset = NULL,
+  drop = NULL,
+  tab_headers = NULL,
+  log_first = FALSE
+) {
   assert_breg_obj_with_results(breg)
   assert_bool(rm_controls)
 
@@ -476,9 +477,10 @@ br_show_fitted_line_2d <- function(breg, idx = 1, ...) {
 #' expect_type(p1$plots, "list")
 #' expect_s3_class(p2, "ggplot")
 br_show_coxph_diagnostics <- function(
-    breg, idx = 1, type = "schoenfeld",
-    resid = TRUE, se = TRUE,
-    point_col = "red", point_size = 1, point_alpha = 0.6, ...) {
+  breg, idx = 1, type = "schoenfeld",
+  resid = TRUE, se = TRUE,
+  point_col = "red", point_size = 1, point_alpha = 0.6, ...
+) {
   assert_breg_obj_with_results(breg)
   if (length(idx) != 1) {
     cli::cli_abort("Only one Cox model can be plotted at a time. Provide a single {.arg idx}.")
@@ -727,18 +729,22 @@ br_show_coxph_diagnostics <- function(
         } else if (length(valid_plots) == 1) {
           return(valid_plots[[1]])
         } else {
-          rlang::check_installed("ggalign")
-          # Enhanced plot combination with better error handling
-          tryCatch(
-            {
-              combined_plot <- ggalign::align_plots(!!!valid_plots)
-              return(combined_plot)
-            },
-            error = function(e) {
-              cli::cli_warn("Failed to combine plots with ggalign: {e$message}. Returning list of plots.")
-              return(valid_plots)
-            }
-          )
+          # Try to combine plots with ggalign if available
+          if (requireNamespace("ggalign", quietly = TRUE)) {
+            tryCatch(
+              {
+                combined_plot <- ggalign::align_plots(!!!valid_plots)
+                return(combined_plot)
+              },
+              error = function(e) {
+                cli::cli_warn("Failed to combine plots with ggalign: {e$message}. Returning list of plots.")
+                return(list(plots = valid_plots))
+              }
+            )
+          } else {
+            cli::cli_inform("Package 'ggalign' is not available. Returning list of plots instead of combined plot.")
+            return(list(plots = valid_plots))
+          }
         }
       },
       error = function(e) {
@@ -950,8 +956,9 @@ br_show_table <- function(breg, ..., args_table_format = list(), export = FALSE,
 #' @testexamples
 #' expect_true(TRUE)
 br_show_table_gt <- function(
-    breg, idx = NULL, ...,
-    tab_spanner = NULL) {
+  breg, idx = NULL, ...,
+  tab_spanner = NULL
+) {
   assert_breg_obj_with_results(breg)
   rlang::check_installed("gtsummary")
 
@@ -1459,13 +1466,14 @@ br_show_nomogram <- function(breg,
 #' @references
 #' Implementation of circular forest plot `https://mp.weixin.qq.com/s/PBKcsEFGrDSQJp6ZmUgfHA`
 br_show_forest_circle <- function(
-    breg,
-    rm_controls = FALSE,
-    style = c("points", "bars"),
-    ref_line = TRUE,
-    sort_by = c("none", "estimate", "estimate_desc", "pvalue", "variable"),
-    subset = NULL,
-    log_first = FALSE) {
+  breg,
+  rm_controls = FALSE,
+  style = c("points", "bars"),
+  ref_line = TRUE,
+  sort_by = c("none", "estimate", "estimate_desc", "pvalue", "variable"),
+  subset = NULL,
+  log_first = FALSE
+) {
   assert_breg_obj_with_results(breg)
   assert_bool(rm_controls)
   style <- match.arg(style)

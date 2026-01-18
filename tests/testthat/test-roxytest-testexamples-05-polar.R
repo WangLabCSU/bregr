@@ -2,7 +2,7 @@
 
 # File R/"05-polar.R": @testexamples
 
-test_that("Function br_show_risk_network() @ L25", {
+test_that("Function br_show_risk_network() @ L31", {
   
   lung <- survival::lung
   # Cox-PH regression
@@ -13,13 +13,19 @@ test_that("Function br_show_risk_network() @ L25", {
     x2 = c("factor(sex)"),
     method = "coxph"
   )
-  p <- br_show_risk_network(mod_surv)
-  p
+  
+  if (requireNamespace("ggnewscale")) {
+    p <- br_show_risk_network(mod_surv)
+    p
+  }
+  
+  if (requireNamespace("ggnewscale")) {
   assert_s3_class(p, "ggplot")
+  }
 })
 
 
-test_that("Function polar_init() @ L213", {
+test_that("Function polar_init() @ L219", {
   
   library(ggplot2)
   # -------------------

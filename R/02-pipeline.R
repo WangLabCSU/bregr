@@ -128,17 +128,18 @@ NULL
 #' Which could be splitted into the following steps
 #' @export
 br_pipeline <- function(
-    data, y, x, method, x2 = NULL,
-    group_by = NULL,
-    n_workers = 1L, run_parallel = lifecycle::deprecated(),
-    dry_run = FALSE,
-    model_args = list(),
-    run_args = list(),
-    filter_x = FALSE,
-    filter_na_prop = 0.8,
-    filter_sd_min = 1e-6,
-    filter_var_min = 1e-6,
-    filter_min_levels = 2) {
+  data, y, x, method, x2 = NULL,
+  group_by = NULL,
+  n_workers = 1L, run_parallel = lifecycle::deprecated(),
+  dry_run = FALSE,
+  model_args = list(),
+  run_args = list(),
+  filter_x = FALSE,
+  filter_na_prop = 0.8,
+  filter_sd_min = 1e-6,
+  filter_var_min = 1e-6,
+  filter_min_levels = 2
+) {
   if (lifecycle::is_present(run_parallel)) {
     lifecycle::deprecate_warn("1.1.0", "bregr::br_run(run_parallel = )", "bregr::br_run(n_workers = )")
     n_workers <- run_parallel
@@ -531,22 +532,34 @@ runner_ <- function(m, data, dots, opts = NULL) {
   }
 
   if (isTRUE(as.logical(getOption("bregr.save_model", default = FALSE)))) {
-    rlang::check_installed(c("fs", "ids", "qs"))
+    rlang::check_installed(c("ids", "qs"))
     md_path <- getOption("bregr.path", default = "")
     if (md_path == "") {
-      md_path <- fs::path_temp()
+      if (requireNamespace("fs", quietly = TRUE)) {
+        md_path <- fs::path_temp()
+      } else {
+        md_path <- tempdir()
+      }
     }
     cli::cli_inform("model save is enabled with result path {md_path}",
       .frequency = "once", .frequency_id = md_path
     )
-    fs::dir_create(md_path)
+    if (requireNamespace("fs", quietly = TRUE)) {
+      fs::dir_create(md_path)
+    } else {
+      dir.create(md_path, showWarnings = FALSE, recursive = TRUE)
+    }
     dg <- suppressWarnings(ids::uuid(1, use_time = TRUE))
     if (!rlang::is_string(dg)) {
       cli::cli_abort(
         "failed to generate uuid for file, please check"
       )
     }
-    md_file <- fs::path(md_path, dg, ext = "qs")
+    if (requireNamespace("fs", quietly = TRUE)) {
+      md_file <- fs::path(md_path, dg, ext = "qs")
+    } else {
+      md_file <- file.path(md_path, paste0(dg, ".qs"))
+    }
     qs::qsave(model, file = md_file)
     model <- md_file
   }
