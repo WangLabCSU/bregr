@@ -66,18 +66,18 @@ br_show_forest(m, clean = TRUE, drop = 3)
 br_show_forest(m, clean = FALSE)
 }
 \seealso{
-Other br_show:
-\code{\link[=br_show_coxph_diagnostics]{br_show_coxph_diagnostics()}},
-\code{\link[=br_show_fitted_line]{br_show_fitted_line()}},
-\code{\link[=br_show_fitted_line_2d]{br_show_fitted_line_2d()}},
-\code{\link[=br_show_forest_circle]{br_show_forest_circle()}},
-\code{\link[=br_show_forest_ggstats]{br_show_forest_ggstats()}},
-\code{\link[=br_show_forest_ggstatsplot]{br_show_forest_ggstatsplot()}},
-\code{\link[=br_show_nomogram]{br_show_nomogram()}},
-\code{\link[=br_show_residuals]{br_show_residuals()}},
-\code{\link[=br_show_risk_network]{br_show_risk_network()}},
-\code{\link[=br_show_survival_curves]{br_show_survival_curves()}},
-\code{\link[=br_show_table]{br_show_table()}},
-\code{\link[=br_show_table_gt]{br_show_table_gt()}}
+Other br_show: 
+\code{\link{br_show_coxph_diagnostics}()},
+\code{\link{br_show_fitted_line}()},
+\code{\link{br_show_fitted_line_2d}()},
+\code{\link{br_show_forest_circle}()},
+\code{\link{br_show_forest_ggstats}()},
+\code{\link{br_show_forest_ggstatsplot}()},
+\code{\link{br_show_nomogram}()},
+\code{\link{br_show_residuals}()},
+\code{\link{br_show_risk_network}()},
+\code{\link{br_show_survival_curves}()},
+\code{\link{br_show_table}()},
+\code{\link{br_show_table_gt}()}
 }
 \concept{br_show}

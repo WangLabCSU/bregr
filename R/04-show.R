@@ -363,8 +363,8 @@ br_show_forest_ggstatsplot <- function(breg, idx = 1, ...) {
 #' @note
 #' Starting with **visreg** 3.0, all plots use ggplot2 (the `gg` argument has
 #' been removed) and several arguments have been renamed to use snake_case:
-#' `line.par` → `line`, `fill.par` → `fill`, `points.par` → `points`,
-#' `band.par` → `band`. See
+#' `line.par` -> `line`, `fill.par` -> `fill`, `points.par` -> `points`,
+#' `band.par` -> `band`. See
 #' `vignette("migrating-to-3-0", package = "visreg")` for full details.
 #'
 #' @inheritParams br_show_forest_ggstatsplot

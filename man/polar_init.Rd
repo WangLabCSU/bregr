@@ -73,8 +73,8 @@ if (requireNamespace("ggnewscale")) {
 }
 }
 \seealso{
-Other risk_network:
-\code{\link[=br_show_risk_network]{br_show_risk_network()}},
-\code{\link[=polar_connect]{polar_connect()}}
+Other risk_network: 
+\code{\link{br_show_risk_network}()},
+\code{\link{polar_connect}()}
 }
 \concept{risk_network}

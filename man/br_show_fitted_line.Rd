@@ -27,8 +27,8 @@ Provides an interface to visualize the model results with \href{https://pbreheny
 \note{
 Starting with \strong{visreg} 3.0, all plots use ggplot2 (the \code{gg} argument has
 been removed) and several arguments have been renamed to use snake_case:
-\code{line.par} → \code{line}, \code{fill.par} → \code{fill}, \code{points.par} → \code{points},
-\code{band.par} → \code{band}. See
+\code{line.par} -> \code{line}, \code{fill.par} -> \code{fill}, \code{points.par} -> \code{points},
+\code{band.par} -> \code{band}. See
 \code{vignette("migrating-to-3-0", package = "visreg")} for full details.
 }
 \examples{
@@ -48,18 +48,18 @@ if (rlang::is_installed("visreg")) {
 
 }
 \seealso{
-Other br_show:
-\code{\link[=br_show_coxph_diagnostics]{br_show_coxph_diagnostics()}},
-\code{\link[=br_show_fitted_line_2d]{br_show_fitted_line_2d()}},
-\code{\link[=br_show_forest]{br_show_forest()}},
-\code{\link[=br_show_forest_circle]{br_show_forest_circle()}},
-\code{\link[=br_show_forest_ggstats]{br_show_forest_ggstats()}},
-\code{\link[=br_show_forest_ggstatsplot]{br_show_forest_ggstatsplot()}},
-\code{\link[=br_show_nomogram]{br_show_nomogram()}},
-\code{\link[=br_show_residuals]{br_show_residuals()}},
-\code{\link[=br_show_risk_network]{br_show_risk_network()}},
-\code{\link[=br_show_survival_curves]{br_show_survival_curves()}},
-\code{\link[=br_show_table]{br_show_table()}},
-\code{\link[=br_show_table_gt]{br_show_table_gt()}}
+Other br_show: 
+\code{\link{br_show_coxph_diagnostics}()},
+\code{\link{br_show_fitted_line_2d}()},
+\code{\link{br_show_forest}()},
+\code{\link{br_show_forest_circle}()},
+\code{\link{br_show_forest_ggstats}()},
+\code{\link{br_show_forest_ggstatsplot}()},
+\code{\link{br_show_nomogram}()},
+\code{\link{br_show_residuals}()},
+\code{\link{br_show_risk_network}()},
+\code{\link{br_show_survival_curves}()},
+\code{\link{br_show_table}()},
+\code{\link{br_show_table_gt}()}
 }
 \concept{br_show}

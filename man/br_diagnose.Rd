@@ -43,8 +43,8 @@ diagnostics <- br_diagnose(mds)
 print(diagnostics)
 }
 \seealso{
-Other accessors:
+Other accessors: 
 \code{\link{accessors}},
-\code{\link[=br_predict]{br_predict()}}
+\code{\link{br_predict}()}
 }
 \concept{accessors}

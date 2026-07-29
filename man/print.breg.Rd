@@ -3,10 +3,6 @@
 \name{print.breg}
 \alias{print.breg}
 \title{Print method for breg object}
-\usage{
-## S7 method for class <bregr::breg>
-print(x, ..., raw = FALSE)
-}
 \arguments{
 \item{x}{An object of class \code{breg}.}
 
