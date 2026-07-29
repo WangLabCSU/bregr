@@ -358,10 +358,18 @@ br_show_forest_ggstatsplot <- function(breg, idx = 1, ...) {
 #' @description
 #' `r lifecycle::badge('stable')`
 #'
-#' Provides an interface to visualize the model results with [**visreg**](https://github.com/larmarange/ggstats/) package, to show how a predictor variable `x` affects an outcome `y`.
+#' Provides an interface to visualize the model results with [**visreg**](https://pbreheny.github.io/visreg/) package, to show how a predictor variable `x` affects an outcome `y`.
+#'
+#' @note
+#' Starting with **visreg** 3.0, all plots use ggplot2 (the `gg` argument has
+#' been removed) and several arguments have been renamed to use snake_case:
+#' `line.par` → `line`, `fill.par` → `fill`, `points.par` → `points`,
+#' `band.par` → `band`. See
+#' `vignette("migrating-to-3-0", package = "visreg")` for full details.
 #'
 #' @inheritParams br_show_forest_ggstatsplot
 #' @param ... Arguments passing to [visreg::visreg()] excepts `fit` and `data`.
+#'   See [visreg::visreg()] for available arguments.
 #' @export
 #' @returns A plot
 #' @family br_show
@@ -402,8 +410,14 @@ br_show_fitted_line <- function(breg, idx = 1, ...) {
 #'
 #' Similar to [br_show_fitted_line()], but visualize how *two variables* interact to affect the response in regression models.
 #'
+#' @note
+#' Starting with **visreg** 3.0, all plots use ggplot2 (the `gg` argument has
+#' been removed) and several arguments have been renamed to use snake_case.
+#' See the note in [br_show_fitted_line()] for details.
+#'
 #' @inheritParams br_show_forest_ggstatsplot
 #' @param ... Arguments passing to [visreg::visreg2d()] excepts `fit` and `data`.
+#'   See [visreg::visreg2d()] for available arguments.
 #' @export
 #' @returns A plot
 #' @family br_show

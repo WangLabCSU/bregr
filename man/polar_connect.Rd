@@ -23,8 +23,8 @@ A \code{ggplot} object.
 Check \code{\link[=polar_init]{polar_init()}} for examples.
 }
 \seealso{
-Other risk_network: 
-\code{\link{br_show_risk_network}()},
-\code{\link{polar_init}()}
+Other risk_network:
+\code{\link[=br_show_risk_network]{br_show_risk_network()}},
+\code{\link[=polar_init]{polar_init()}}
 }
 \concept{risk_network}

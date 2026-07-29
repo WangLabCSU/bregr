@@ -77,7 +77,7 @@ comparison$combined_results_tidy
 br_show_forest_comparison(comparison)
 }
 \seealso{
-Other br_compare: 
-\code{\link{br_show_forest_comparison}()}
+Other br_compare:
+\code{\link[=br_show_forest_comparison]{br_show_forest_comparison()}}
 }
 \concept{br_compare}

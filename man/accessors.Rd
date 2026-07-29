@@ -55,7 +55,7 @@ is selected.}
 \item{new_names}{Character vector to replace existing model names.}
 
 \item{tidy}{If \code{TRUE} return tidy (compact) results, otherwise return comprehensive results.
-The tidy results are obtained from \code{\link[broom:reexports]{broom::tidy()}} while comprehensive results are obtained from
+The tidy results are obtained from \code{\link[broom:tidy]{broom::tidy()}} while comprehensive results are obtained from
 \code{\link[broom.helpers:tidy_plus_plus]{broom.helpers::tidy_plus_plus()}}. The results can be configured when run with \code{\link[=br_run]{br_run()}}.}
 
 \item{...}{Subset operations passing to \code{\link[dplyr:filter]{dplyr::filter()}} to filter results.}
@@ -108,8 +108,8 @@ br_get_results(m, tidy = TRUE, term == "cyl")
 \seealso{
 \link{pipeline} for building \code{breg} objects.
 
-Other accessors: 
-\code{\link{br_diagnose}()},
-\code{\link{br_predict}()}
+Other accessors:
+\code{\link[=br_diagnose]{br_diagnose()}},
+\code{\link[=br_predict]{br_predict()}}
 }
 \concept{accessors}

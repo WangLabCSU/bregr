@@ -40,7 +40,7 @@ comparison <- br_compare_models(
 br_show_forest_comparison(comparison)
 }
 \seealso{
-Other br_compare: 
-\code{\link{br_compare_models}()}
+Other br_compare:
+\code{\link[=br_compare_models]{br_compare_models()}}
 }
 \concept{br_compare}

@@ -54,7 +54,7 @@ A ggplot object
 This function creates a circular (polar) forest plot from regression results,
 providing an alternative visualization to the traditional linear forest plot.
 The function uses the same input as \code{\link[=br_show_forest]{br_show_forest()}} but displays the results
-in a circular format using \code{\link[ggplot2:coord_radial]{ggplot2::coord_polar()}}.
+in a circular format using \code{\link[ggplot2:coord_polar]{ggplot2::coord_polar()}}.
 }
 \examples{
 m <- br_pipeline(mtcars,
@@ -73,18 +73,18 @@ br_show_forest_circle(m, ref_line = 0.5)
 Implementation of circular forest plot \verb{https://mp.weixin.qq.com/s/PBKcsEFGrDSQJp6ZmUgfHA}
 }
 \seealso{
-Other br_show: 
-\code{\link{br_show_coxph_diagnostics}()},
-\code{\link{br_show_fitted_line}()},
-\code{\link{br_show_fitted_line_2d}()},
-\code{\link{br_show_forest}()},
-\code{\link{br_show_forest_ggstats}()},
-\code{\link{br_show_forest_ggstatsplot}()},
-\code{\link{br_show_nomogram}()},
-\code{\link{br_show_residuals}()},
-\code{\link{br_show_risk_network}()},
-\code{\link{br_show_survival_curves}()},
-\code{\link{br_show_table}()},
-\code{\link{br_show_table_gt}()}
+Other br_show:
+\code{\link[=br_show_coxph_diagnostics]{br_show_coxph_diagnostics()}},
+\code{\link[=br_show_fitted_line]{br_show_fitted_line()}},
+\code{\link[=br_show_fitted_line_2d]{br_show_fitted_line_2d()}},
+\code{\link[=br_show_forest]{br_show_forest()}},
+\code{\link[=br_show_forest_ggstats]{br_show_forest_ggstats()}},
+\code{\link[=br_show_forest_ggstatsplot]{br_show_forest_ggstatsplot()}},
+\code{\link[=br_show_nomogram]{br_show_nomogram()}},
+\code{\link[=br_show_residuals]{br_show_residuals()}},
+\code{\link[=br_show_risk_network]{br_show_risk_network()}},
+\code{\link[=br_show_survival_curves]{br_show_survival_curves()}},
+\code{\link[=br_show_table]{br_show_table()}},
+\code{\link[=br_show_table_gt]{br_show_table_gt()}}
 }
 \concept{br_show}

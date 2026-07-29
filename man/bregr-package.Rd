@@ -24,6 +24,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Shixiang Wang \email{w_shixiang@163.com} (\href{https://orcid.org/0000-0001-9855-7357}{ORCID})
   \item Yun Peng \email{yunyunp96@163.com} (\href{https://orcid.org/0000-0003-2801-3332}{ORCID})
   \item Chenyang Shu \email{402221506@qq.com}
 }

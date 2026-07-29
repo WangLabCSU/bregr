@@ -33,7 +33,7 @@ breg(
 
 \item{results}{A \code{data.frame} of model results from \code{\link[broom.helpers:tidy_plus_plus]{broom.helpers::tidy_plus_plus()}}.}
 
-\item{results_tidy}{A \code{data.frame} of tidy model results from \code{\link[broom:reexports]{broom::tidy()}}.}
+\item{results_tidy}{A \code{data.frame} of tidy model results from \code{\link[broom:tidy]{broom::tidy()}}.}
 }
 \value{
 A constructed \code{breg} object.

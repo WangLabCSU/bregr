@@ -2,6 +2,9 @@
 
 - Added `br_compare_models()` and `br_show_forest_comparison()` (#54).
 - Replaced the deprecated package `qs` with `qs2`.
+- Updated `br_show_fitted_line()` and `br_show_fitted_line_2d()` documentation
+  for compatibility with **visreg** 3.0, which removes the `gg` argument and
+  renames `line.par`, `fill.par`, `points.par` to `line`, `fill`, `points` (#65).
 
 # bregr 1.3.2
 
