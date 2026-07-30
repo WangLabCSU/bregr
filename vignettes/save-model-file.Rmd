@@ -18,6 +18,8 @@ knitr::opts_chunk$set(
   comment = "#>",
   out.width = "100%"
 )
+qs2_available <- requireNamespace("qs2", quietly = TRUE) &&
+  requireNamespace("ids", quietly = TRUE)
 ```
 
 ```{r setup}
@@ -26,7 +28,7 @@ library(bregr)
 
 Two global options have been introduced to control whether models are saved as local files (`bregr.save_model`, default is `FALSE`) and where they should be saved (`bregr.path`, default uses a temporary path).
 
-```{r}
+```{r, eval = qs2_available}
 options(bregr.save_model = TRUE)
 # Set model save path if necessary
 # options(bregr.path = "/model/to/path")
@@ -43,13 +45,13 @@ options(bregr.save_model = FALSE)
 
 In summary, the models have been saved to a unique path. We can verify this by examining the model objects:
 
-```{r}
+```{r, eval = qs2_available}
 m@models
 ```
 
 We can retrieve the saved models using the following commands:
 
-```{r}
+```{r, eval = qs2_available}
 br_get_models(m, 1)
 br_get_models(m, c(1, 3))
 br_get_models(m, "cyl")
@@ -61,7 +63,7 @@ The modeling results should remain consistent, regardless of whether they are sa
 
 Run without saving models.
 
-```{r}
+```{r, eval = qs2_available}
 m2 <- breg(mtcars) |>
   br_set_y("mpg") |>
   br_set_x(colnames(mtcars)[2:4]) |>
@@ -71,7 +73,7 @@ m2 <- breg(mtcars) |>
 m2@models
 ```
 
-```{r}
+```{r, eval = qs2_available}
 all.equal(m, m2)
 ```
 
