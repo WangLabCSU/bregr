@@ -612,6 +612,22 @@ Output results in table of different formats.
 
   Show regression models with `gtsummary` interface
 
+## SEED Pipeline
+
+Identify cancer prognosis target genes from expression data without
+control samples. Four-step pipeline: screening, enrichment,
+Lasso/multivariate/stepwise selection, and risk model construction.
+
+- [`br_seed()`](https://wanglabcsu.github.io/bregr/reference/br_seed.md)
+  **\[experimental\]** : Run the full SEED gene selection pipeline
+- [`br_seed_screen()`](https://wanglabcsu.github.io/bregr/reference/br_seed_screen.md)
+  **\[experimental\]** : Screen genes via univariate regression
+- [`br_seed_select()`](https://wanglabcsu.github.io/bregr/reference/br_seed_select.md)
+  **\[experimental\]** : Select genes via Lasso -\> multivariate -\>
+  stepwise regression
+- [`br_seed_model()`](https://wanglabcsu.github.io/bregr/reference/br_seed_model.md)
+  **\[experimental\]** : Build a risk score model from selected genes
+
 ## Utility
 
 Helpers for analysis and visualization.

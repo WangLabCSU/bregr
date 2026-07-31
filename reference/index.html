@@ -247,6 +247,43 @@
         </dt>
         <dd>Show regression models with <code>gtsummary</code> interface</dd>
       </dl></div><div class="section level2">
+      <h2 id="seed-pipeline">SEED Pipeline<a class="anchor" aria-label="anchor" href="#seed-pipeline"></a></h2>
+
+      <div class="section-desc"><p>Identify cancer prognosis target genes from expression data without control samples. Four-step pipeline: screening, enrichment, Lasso/multivariate/stepwise selection, and risk model construction.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="br_seed.html">br_seed()</a></code>
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
+        </dt>
+        <dd>Run the full SEED gene selection pipeline</dd>
+
+        <dt>
+
+          <code><a href="br_seed_screen.html">br_seed_screen()</a></code>
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
+        </dt>
+        <dd>Screen genes via univariate regression</dd>
+
+        <dt>
+
+          <code><a href="br_seed_select.html">br_seed_select()</a></code>
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
+        </dt>
+        <dd>Select genes via Lasso -&gt; multivariate -&gt; stepwise regression</dd>
+
+        <dt>
+
+          <code><a href="br_seed_model.html">br_seed_model()</a></code>
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
+        </dt>
+        <dd>Build a risk score model from selected genes</dd>
+      </dl></div><div class="section level2">
       <h2 id="utility">Utility<a class="anchor" aria-label="anchor" href="#utility"></a></h2>
 
       <div class="section-desc"><p>Helpers for analysis and visualization.</p></div>

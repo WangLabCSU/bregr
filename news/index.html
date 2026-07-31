@@ -41,7 +41,13 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.5.0" id="bregr-150">bregr 1.5.0<a class="anchor" aria-label="anchor" href="#bregr-150"></a></h2>
-</div>
+<ul><li>Added <code><a href="../reference/br_seed.html">br_seed()</a></code>, <code><a href="../reference/br_seed_screen.html">br_seed_screen()</a></code>, <code><a href="../reference/br_seed_select.html">br_seed_select()</a></code>, and <code><a href="../reference/br_seed_model.html">br_seed_model()</a></code> implementing the SEED (Selection of Essential prognostic genes from Expression Data) pipeline for identifying cancer prognosis target genes without control samples (<a href="https://github.com/WangLabCSU/bregr/issues/57" class="external-link">#57</a>). Based on Yang et al. (2025) <em>Cancer Letters</em>, DOI: 10.1016/j.canlet.2025.217960. The four-step pipeline includes:
+<ul><li>Step 1 (<code>br_seed_screen</code>): Univariate screening via Cox/logistic regression or Spearman correlation against one or more clinical indicators, with p-value threshold filtering and significance intersection across indicators.</li>
+<li>Step 2 (optional enrichment): GO/KEGG pathway enrichment via clusterProfiler to refine gene sets (gated by <code>enrich</code> argument).</li>
+<li>Step 3 (<code>br_seed_select</code>): Sequential gene selection through Lasso regularization (glmnet), multivariate regression, and stepwise selection with reproducibility via <code>seed</code>.</li>
+<li>Step 4 (<code>br_seed_model</code>): Risk score model construction with coefficient extraction and optional z-score expression scaling. All functions return S3 list objects with cli-based print methods, reuse the existing <code><a href="../reference/pipeline.html">br_pipeline()</a></code> engine for batch regression, and support mirai parallelization via <code>n_workers</code>.</li>
+</ul></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.4.0" id="bregr-140">bregr 1.4.0<a class="anchor" aria-label="anchor" href="#bregr-140"></a></h2><p class="text-muted">CRAN release: 2026-01-18</p>
 <ul><li>Added <code><a href="../reference/br_compare_models.html">br_compare_models()</a></code> and <code><a href="../reference/br_show_forest_comparison.html">br_show_forest_comparison()</a></code> (<a href="https://github.com/WangLabCSU/bregr/issues/54" class="external-link">#54</a>).</li>

@@ -2,6 +2,35 @@
 
 ## bregr 1.5.0
 
+- Added
+  [`br_seed()`](https://wanglabcsu.github.io/bregr/reference/br_seed.md),
+  [`br_seed_screen()`](https://wanglabcsu.github.io/bregr/reference/br_seed_screen.md),
+  [`br_seed_select()`](https://wanglabcsu.github.io/bregr/reference/br_seed_select.md),
+  and
+  [`br_seed_model()`](https://wanglabcsu.github.io/bregr/reference/br_seed_model.md)
+  implementing the SEED (Selection of Essential prognostic genes from
+  Expression Data) pipeline for identifying cancer prognosis target
+  genes without control samples
+  ([\#57](https://github.com/WangLabCSU/bregr/issues/57)). Based on Yang
+  et al. (2025) *Cancer Letters*, DOI: 10.1016/j.canlet.2025.217960. The
+  four-step pipeline includes:
+  - Step 1 (`br_seed_screen`): Univariate screening via Cox/logistic
+    regression or Spearman correlation against one or more clinical
+    indicators, with p-value threshold filtering and significance
+    intersection across indicators.
+  - Step 2 (optional enrichment): GO/KEGG pathway enrichment via
+    clusterProfiler to refine gene sets (gated by `enrich` argument).
+  - Step 3 (`br_seed_select`): Sequential gene selection through Lasso
+    regularization (glmnet), multivariate regression, and stepwise
+    selection with reproducibility via `seed`.
+  - Step 4 (`br_seed_model`): Risk score model construction with
+    coefficient extraction and optional z-score expression scaling. All
+    functions return S3 list objects with cli-based print methods, reuse
+    the existing
+    [`br_pipeline()`](https://wanglabcsu.github.io/bregr/reference/pipeline.md)
+    engine for batch regression, and support mirai parallelization via
+    `n_workers`.
+
 ## bregr 1.4.0
 
 CRAN release: 2026-01-18
