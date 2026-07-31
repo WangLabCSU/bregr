@@ -1,3 +1,5 @@
+# bregr 1.5.0
+
 # bregr 1.4.0
 
 - Added `br_compare_models()` and `br_show_forest_comparison()` (#54).
