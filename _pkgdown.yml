@@ -49,6 +49,16 @@ reference:
     contents:
     - br_show_table
     - br_show_table_gt
+  - title: SEED Pipeline
+    desc: >-
+      Identify cancer prognosis target genes from expression data without
+      control samples. Four-step pipeline: screening, enrichment,
+      Lasso/multivariate/stepwise selection, and risk model construction.
+    contents:
+    - br_seed
+    - br_seed_screen
+    - br_seed_select
+    - br_seed_model
   - title: Utility
     desc: Helpers for analysis and visualization.
     contents:
