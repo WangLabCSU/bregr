@@ -49,7 +49,7 @@ test_that("Function br_show_forest_ggstatsplot() @ L345", {
 })
 
 
-test_that("Function br_show_fitted_line() @ L385", {
+test_that("Function br_show_fitted_line() @ L393", {
   
   if (rlang::is_installed("visreg")) {
     m <- br_pipeline(mtcars,
@@ -69,7 +69,7 @@ test_that("Function br_show_fitted_line() @ L385", {
 })
 
 
-test_that("Function br_show_fitted_line_2d() @ L424", {
+test_that("Function br_show_fitted_line_2d() @ L438", {
   
   if (rlang::is_installed("visreg")) {
     m <- br_pipeline(mtcars,
@@ -86,7 +86,7 @@ test_that("Function br_show_fitted_line_2d() @ L424", {
 })
 
 
-test_that("Function br_show_coxph_diagnostics() @ L479", {
+test_that("Function br_show_coxph_diagnostics() @ L493", {
   
   # Create Cox models
   mds <- br_pipeline(
@@ -108,7 +108,7 @@ test_that("Function br_show_coxph_diagnostics() @ L479", {
 })
 
 
-test_that("Function br_show_table() @ L920", {
+test_that("Function br_show_table() @ L934", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
@@ -126,7 +126,7 @@ test_that("Function br_show_table() @ L920", {
 })
 
 
-test_that("Function br_show_table_gt() @ L958", {
+test_that("Function br_show_table_gt() @ L972", {
   
   if (rlang::is_installed("gtsummary")) {
     m <- br_pipeline(mtcars,
@@ -142,7 +142,7 @@ test_that("Function br_show_table_gt() @ L958", {
 })
 
 
-test_that("Function br_show_residuals() @ L1200", {
+test_that("Function br_show_residuals() @ L1214", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
@@ -164,7 +164,7 @@ test_that("Function br_show_residuals() @ L1200", {
 })
 
 
-test_that("Function br_show_nomogram() @ L1384", {
+test_that("Function br_show_nomogram() @ L1398", {
   
   
   # Cox regression nomogram
@@ -198,7 +198,7 @@ test_that("Function br_show_nomogram() @ L1384", {
 })
 
 
-test_that("Function br_show_forest_circle() @ L1468", {
+test_that("Function br_show_forest_circle() @ L1482", {
   
   m <- br_pipeline(mtcars,
     y = "mpg",
