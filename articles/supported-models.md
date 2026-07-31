@@ -234,8 +234,8 @@ br_avail_method_config("coxph")
 #> {
 #>     glue::glue("survival::Surv({paste(y, collapse = ', ')})")
 #> }
-#> <bytecode: 0x564693e32348>
-#> <environment: 0x5646964d2010>
+#> <bytecode: 0x563eef4e6838>
+#> <environment: 0x563ef2e914d0>
 #> 
 #> $args_method
 #> NULL

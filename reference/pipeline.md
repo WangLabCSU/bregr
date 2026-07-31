@@ -281,4 +281,23 @@ m5 <- breg(dt) |>
 #> Warning: nonstandard method `quasi(variance = "mu", link = "log")` passed to
 #> `stats::glm()`, double-check if it's correct
 # }
+
+# 4. Non-standard variable names ---
+# bregr automatically handles column names with special characters
+# (::, hyphens, leading digits, spaces, reserved words)
+dt_special <- data.frame(
+  y = rnorm(30),
+  age = rnorm(30, 60, 10),
+  g = rnorm(30)
+)
+colnames(dt_special)[3] <- "FGFR3::TACC3"  # fusion gene notation
+m6 <- br_pipeline(dt_special,
+  y = "y", x = "FGFR3::TACC3", x2 = "age", method = "gaussian"
+)
+br_get_results(m6, tidy = TRUE)
+#> # A tibble: 2 × 8
+#>   Focal_variable term    estimate std.error statistic p.value conf.low conf.high
+#>   <chr>          <chr>      <dbl>     <dbl>     <dbl>   <dbl>    <dbl>     <dbl>
+#> 1 `FGFR3::TACC3` `FGFR3…  0.299      0.268      1.12    0.274  -0.226     0.824 
+#> 2 `FGFR3::TACC3` age     -0.00455    0.0221    -0.206   0.838  -0.0479    0.0387
 ```

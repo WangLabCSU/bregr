@@ -306,6 +306,25 @@ Which could be splitted into the following steps</p></li>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> `stats::glm()`, double-check if it's correct</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># 4. Non-standard variable names ---</span></span></span>
+<span class="r-in"><span><span class="co"># bregr automatically handles column names with special characters</span></span></span>
+<span class="r-in"><span><span class="co"># (::, hyphens, leading digits, spaces, reserved words)</span></span></span>
+<span class="r-in"><span><span class="va">dt_special</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">30</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">30</span>, <span class="fl">60</span>, <span class="fl">10</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  g <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">30</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">dt_special</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"FGFR3::TACC3"</span>  <span class="co"># fusion gene notation</span></span></span>
+<span class="r-in"><span><span class="va">m6</span> <span class="op">&lt;-</span> <span class="fu">br_pipeline</span><span class="op">(</span><span class="va">dt_special</span>,</span></span>
+<span class="r-in"><span>  y <span class="op">=</span> <span class="st">"y"</span>, x <span class="op">=</span> <span class="st">"FGFR3::TACC3"</span>, x2 <span class="op">=</span> <span class="st">"age"</span>, method <span class="op">=</span> <span class="st">"gaussian"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="accessors.html">br_get_results</a></span><span class="op">(</span><span class="va">m6</span>, tidy <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 8</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Focal_variable term    estimate std.error statistic p.value conf.low conf.high</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> `FGFR3::TACC3` `FGFR3…  0.299      0.268      1.12    0.274  -<span style="color: #BB0000;">0.226</span>     0.824 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> `FGFR3::TACC3` age     -<span style="color: #BB0000;">0.004</span><span style="color: #BB0000; text-decoration: underline;">55</span>    0.022<span style="text-decoration: underline;">1</span>    -<span style="color: #BB0000;">0.206</span>   0.838  -<span style="color: #BB0000;">0.047</span><span style="color: #BB0000; text-decoration: underline;">9</span>    0.038<span style="text-decoration: underline;">7</span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
