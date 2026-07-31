@@ -13,7 +13,8 @@ br_show_fitted_line(breg, idx = 1, ...)
 This is different from \code{idx} in \link{br_show_forest_ggstats}, only one model is supported
 to visualized here, so only length-1 vector is supported as \code{idx}.}
 
-\item{...}{Arguments passing to \code{\link[visreg:visreg]{visreg::visreg()}} excepts \code{fit} and \code{data}.}
+\item{...}{Arguments passing to \code{\link[visreg:visreg]{visreg::visreg()}} excepts \code{fit} and \code{data}.
+See \code{\link[visreg:visreg]{visreg::visreg()}} for available arguments.}
 }
 \value{
 A plot
@@ -21,7 +22,14 @@ A plot
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 
-Provides an interface to visualize the model results with \href{https://github.com/larmarange/ggstats/}{\strong{visreg}} package, to show how a predictor variable \code{x} affects an outcome \code{y}.
+Provides an interface to visualize the model results with \href{https://pbreheny.github.io/visreg/}{\strong{visreg}} package, to show how a predictor variable \code{x} affects an outcome \code{y}.
+}
+\note{
+Starting with \strong{visreg} 3.0, all plots use ggplot2 (the \code{gg} argument has
+been removed) and several arguments have been renamed to use snake_case:
+\code{line.par} -> \code{line}, \code{fill.par} -> \code{fill}, \code{points.par} -> \code{points},
+\code{band.par} -> \code{band}. See
+\code{vignette("migrating-to-3-0", package = "visreg")} for full details.
 }
 \examples{
 if (rlang::is_installed("visreg")) {

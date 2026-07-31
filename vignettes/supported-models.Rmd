@@ -24,6 +24,7 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(bregr)
+options(bregr.save_model = FALSE)
 ```
 
 ## Default Supported Models

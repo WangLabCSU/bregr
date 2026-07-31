@@ -13,7 +13,8 @@ br_show_fitted_line_2d(breg, idx = 1, ...)
 This is different from \code{idx} in \link{br_show_forest_ggstats}, only one model is supported
 to visualized here, so only length-1 vector is supported as \code{idx}.}
 
-\item{...}{Arguments passing to \code{\link[visreg:visreg2d]{visreg::visreg2d()}} excepts \code{fit} and \code{data}.}
+\item{...}{Arguments passing to \code{\link[visreg:visreg2d]{visreg::visreg2d()}} excepts \code{fit} and \code{data}.
+See \code{\link[visreg:visreg2d]{visreg::visreg2d()}} for available arguments.}
 }
 \value{
 A plot
@@ -22,6 +23,11 @@ A plot
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
 
 Similar to \code{\link[=br_show_fitted_line]{br_show_fitted_line()}}, but visualize how \emph{two variables} interact to affect the response in regression models.
+}
+\note{
+Starting with \strong{visreg} 3.0, all plots use ggplot2 (the \code{gg} argument has
+been removed) and several arguments have been renamed to use snake_case.
+See the note in \code{\link[=br_show_fitted_line]{br_show_fitted_line()}} for details.
 }
 \examples{
 if (rlang::is_installed("visreg")) {
