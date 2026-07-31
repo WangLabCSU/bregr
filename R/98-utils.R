@@ -60,12 +60,13 @@ merge_vars <- function(...) {
 # 1: valid column names: keep
 # 2: invalid column names: transform
 # 3: other cases (treat as formula term): keep
-# repair_names(c("abc", "?|100", "abc * d"), c("abc", "?|100", "d"))
+# repair_names(c("abc", "?|100", "abc * d", "`already_quoted`"), c("abc", "?|100", "already_quoted", "d"))
 repair_names <- function(x, y) {
+  raw <- remove_backticks(x)
   if_else(
-    (x %in% y) & !(make.names(x) == x | (startsWith(x, "`") & endsWith(x, "`"))),
-    paste0("`", x, "`"),
-    x
+    (raw %in% y) & !(make.names(raw) == raw),
+    paste0("`", raw, "`"),
+    raw
   )
 }
 

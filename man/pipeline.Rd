@@ -205,6 +205,20 @@ m5 <- breg(dt) |>
   br_run()
 }
 
+# 4. Non-standard variable names ---
+# bregr automatically handles column names with special characters
+# (::, hyphens, leading digits, spaces, reserved words)
+dt_special <- data.frame(
+  y = rnorm(30),
+  age = rnorm(30, 60, 10),
+  g = rnorm(30)
+)
+colnames(dt_special)[3] <- "FGFR3::TACC3"  # fusion gene notation
+m6 <- br_pipeline(dt_special,
+  y = "y", x = "FGFR3::TACC3", x2 = "age", method = "gaussian"
+)
+br_get_results(m6, tidy = TRUE)
+
 }
 \seealso{
 \link{accessors} for accessing \code{breg} object properties.
