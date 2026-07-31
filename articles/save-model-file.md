@@ -1,10 +1,11 @@
 # Save Models to Local Disk
 
 ``` r
+
 library(bregr)
 #> Welcome to 'bregr' package!
 #> =======================================================================
-#> You are using bregr version 1.4.0
+#> You are using bregr version 1.5.0
 #> 
 #> Project home : https://github.com/WangLabCSU/bregr
 #> Documentation: https://wanglabcsu.github.io/bregr/
@@ -20,6 +21,7 @@ saved as local files (`bregr.save_model`, default is `FALSE`) and where
 they should be saved (`bregr.path`, default uses a temporary path).
 
 ``` r
+
 options(bregr.save_model = TRUE)
 # Set model save path if necessary
 # options(bregr.path = "/model/to/path")
@@ -30,7 +32,7 @@ m <- breg(mtcars) |>
   br_set_x2("vs") |>
   br_set_model("gaussian") |>
   br_run()
-#> model save is enabled with result path /tmp/Rtmpja7GzH
+#> model save is enabled with result path /tmp/RtmpSoA9iu
 #> This message is displayed once per session.
 
 options(bregr.save_model = FALSE)
@@ -40,20 +42,22 @@ In summary, the models have been saved to a unique path. We can verify
 this by examining the model objects:
 
 ``` r
+
 m@models
 #> $cyl
-#> /tmp/Rtmpja7GzH/e5d0fdf2-f43f-11f0-8309-7ced8d2a83ef.qs
+#> /tmp/RtmpSoA9iu/1b28d3b2-8c8e-11f1-9e63-002248454841.qs
 #> 
 #> $disp
-#> /tmp/Rtmpja7GzH/e60104b6-f43f-11f0-8309-7ced8d2a83ef.qs
+#> /tmp/RtmpSoA9iu/1b5a804c-8c8e-11f1-9e63-002248454841.qs
 #> 
 #> $hp
-#> /tmp/Rtmpja7GzH/e62decd8-f43f-11f0-8309-7ced8d2a83ef.qs
+#> /tmp/RtmpSoA9iu/1b8875ba-8c8e-11f1-9e63-002248454841.qs
 ```
 
 We can retrieve the saved models using the following commands:
 
 ``` r
+
 br_get_models(m, 1)
 #> 
 #> Call:  stats::glm(formula = mpg ~ cyl + vs, family = stats::gaussian, 
@@ -177,6 +181,7 @@ they are saved or not.
 Run without saving models.
 
 ``` r
+
 m2 <- breg(mtcars) |>
   br_set_y("mpg") |>
   br_set_x(colnames(mtcars)[2:4]) |>
@@ -225,6 +230,7 @@ m2@models
 ```
 
 ``` r
+
 all.equal(m, m2)
 #> [1] TRUE
 ```

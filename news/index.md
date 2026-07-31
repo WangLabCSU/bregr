@@ -1,6 +1,10 @@
 # Changelog
 
+## bregr 1.5.0
+
 ## bregr 1.4.0
+
+CRAN release: 2026-01-18
 
 - Added
   [`br_compare_models()`](https://wanglabcsu.github.io/bregr/reference/br_compare_models.md)
@@ -8,6 +12,14 @@
   [`br_show_forest_comparison()`](https://wanglabcsu.github.io/bregr/reference/br_show_forest_comparison.md)
   ([\#54](https://github.com/WangLabCSU/bregr/issues/54)).
 - Replaced the deprecated package `qs` with `qs2`.
+- Updated
+  [`br_show_fitted_line()`](https://wanglabcsu.github.io/bregr/reference/br_show_fitted_line.md)
+  and
+  [`br_show_fitted_line_2d()`](https://wanglabcsu.github.io/bregr/reference/br_show_fitted_line_2d.md)
+  documentation for compatibility with **visreg** 3.0, which removes the
+  `gg` argument and renames `line.par`, `fill.par`, `points.par` to
+  `line`, `fill`, `points`
+  ([\#65](https://github.com/WangLabCSU/bregr/issues/65)).
 
 ## bregr 1.3.2
 

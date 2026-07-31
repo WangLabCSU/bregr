@@ -6,10 +6,11 @@ vignette](https://CRAN.R-project.org/package=ezcox/vignettes/ezgroup.html).
 Load the package and data.
 
 ``` r
+
 library(bregr)
 #> Welcome to 'bregr' package!
 #> =======================================================================
-#> You are using bregr version 1.4.0
+#> You are using bregr version 1.5.0
 #> 
 #> Project home : https://github.com/WangLabCSU/bregr
 #> Documentation: https://wanglabcsu.github.io/bregr/
@@ -31,6 +32,7 @@ Construct grouped batch survival models to determine if the variable
 `ph.ecog` has different survival effects under different sex groups.
 
 ``` r
+
 mds <- br_pipeline(
   data,
   y = c("time", "status"),
@@ -45,6 +47,7 @@ mds <- br_pipeline(
 We can examine the constructed models.
 
 ``` r
+
 br_get_models(mds)
 #> $Female_ph.ecog
 #> Call:
@@ -91,6 +94,7 @@ br_get_models(mds)
 Now, display the results using a forest plot.
 
 ``` r
+
 br_show_forest(mds)
 ```
 
@@ -101,6 +105,7 @@ removing the second column of the table and eliminating the row with
 `NA` results.
 
 ``` r
+
 br_show_forest(
   mds,
   drop = 2,
@@ -119,6 +124,7 @@ negated rows.
 If drop `All` group is necessary, update the `subset` with:
 
 ``` r
+
 br_show_forest(
   mds,
   drop = 2,

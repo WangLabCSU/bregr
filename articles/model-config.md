@@ -1,10 +1,11 @@
 # Model Configurations
 
 ``` r
+
 library(bregr)
 #> Welcome to 'bregr' package!
 #> =======================================================================
-#> You are using bregr version 1.4.0
+#> You are using bregr version 1.5.0
 #> 
 #> Project home : https://github.com/WangLabCSU/bregr
 #> Documentation: https://wanglabcsu.github.io/bregr/
@@ -24,6 +25,7 @@ that the interaction term is inherently supported by the model.
 Below is an illustrative example using a linear model:
 
 ``` r
+
 rv <- br_pipeline(
   data = mtcars,
   y = "mpg", x = c("cyl", "disp*hp"), x2 = "am",
@@ -34,6 +36,7 @@ rv <- br_pipeline(
 Examine the results:
 
 ``` r
+
 br_get_results(rv, tidy = TRUE)
 #> # A tibble: 6 × 8
 #>   Focal_variable term    estimate std.error statistic p.value conf.low conf.high
@@ -49,6 +52,7 @@ br_get_results(rv, tidy = TRUE)
 Visualize the results:
 
 ``` r
+
 br_show_forest(rv)
 ```
 
@@ -58,6 +62,7 @@ Additionally, specified models can be visualized using the functions
 provided by **bregr**:
 
 ``` r
+
 br_show_forest_ggstats(rv, idx = 2)
 ```
 
@@ -66,6 +71,7 @@ br_show_forest_ggstats(rv, idx = 2)
 Or compare them:
 
 ``` r
+
 br_show_forest_ggstats(rv)
 ```
 
@@ -78,6 +84,7 @@ arguments. By default, **bregr** directly supports GLM family functions
 with their default arguments, which can be viewed using:  
 
 ``` r
+
 br_avail_methods()
 #>  [1] "lm"               "coxph"            "survreg"          "clogit"          
 #>  [5] "cch"              "binomial"         "gaussian"         "Gamma"           
@@ -90,6 +97,7 @@ directly. For instance, consider the following example using a
 quasi-family with specified variance and link functions:
 
 ``` r
+
 data <- data.frame(
   x = rnorm(100)
 )
@@ -105,6 +113,7 @@ head(data)
 ```
 
 ``` r
+
 rv <- br_pipeline(
   data = data,
   y = "y", x = "x",
@@ -122,6 +131,7 @@ br_get_results(rv, tidy = TRUE)
 This is equivalent to:
 
 ``` r
+
 glm(y ~ x, data = data, family = quasi(variance = "mu", link = "log")) |>
   summary()
 #> 

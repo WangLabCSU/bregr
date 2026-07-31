@@ -148,6 +148,7 @@ R --slave -e "devtools::document()"
 ### Example Usage
 
 ``` r
+
 library(bregr)
 
 # Simple linear regression example

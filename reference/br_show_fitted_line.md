@@ -3,8 +3,8 @@
 **\[stable\]**
 
 Provides an interface to visualize the model results with
-[**visreg**](https://github.com/larmarange/ggstats/) package, to show
-how a predictor variable `x` affects an outcome `y`.
+[**visreg**](https://pbreheny.github.io/visreg/) package, to show how a
+predictor variable `x` affects an outcome `y`.
 
 ## Usage
 
@@ -31,11 +31,21 @@ br_show_fitted_line(breg, idx = 1, ...)
 
   Arguments passing to
   [`visreg::visreg()`](https://pbreheny.github.io/visreg/reference/visreg.html)
-  excepts `fit` and `data`.
+  excepts `fit` and `data`. See
+  [`visreg::visreg()`](https://pbreheny.github.io/visreg/reference/visreg.html)
+  for available arguments.
 
 ## Value
 
 A plot
+
+## Note
+
+Starting with **visreg** 3.0, all plots use ggplot2 (the `gg` argument
+has been removed) and several arguments have been renamed to use
+snake_case: `line.par` -\> `line`, `fill.par` -\> `fill`, `points.par`
+-\> `points`, `band.par` -\> `band`. See
+`vignette("migrating-to-3-0", package = "visreg")` for full details.
 
 ## See also
 

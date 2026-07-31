@@ -1,10 +1,11 @@
 # Quickly Analyze Cancer Data with Data from UCSCXenaShiny
 
 ``` r
+
 library(bregr)
 #> Welcome to 'bregr' package!
 #> =======================================================================
-#> You are using bregr version 1.4.0
+#> You are using bregr version 1.5.0
 #> 
 #> Project home : https://github.com/WangLabCSU/bregr
 #> Documentation: https://wanglabcsu.github.io/bregr/
@@ -29,7 +30,7 @@ if (!requireNamespace("UCSCXenaShiny")) {
 #> Loading required namespace: UCSCXenaShiny
 library(UCSCXenaShiny)
 #> =========================================================================================
-#> UCSCXenaShiny version 2.2.0
+#> UCSCXenaShiny version 2.2.1
 #> Project URL: https://github.com/openbiox/UCSCXenaShiny
 #> Usages: https://openbiox.github.io/UCSCXenaShiny/
 #> 
@@ -49,6 +50,7 @@ facilitate analysis and visualization.
 ## Obtain Data
 
 ``` r
+
 data <- inner_join(
   tcga_clinical_fine,
   tcga_surv |> select(sample, OS, OS.time),
@@ -72,6 +74,7 @@ Assessing the influence of AJCC Stage on overall survival can be done by
 analyzing data grouped by gender.
 
 ``` r
+
 m <- br_pipeline(
   data = data,
   y = c("OS.time", "OS"),
@@ -103,30 +106,32 @@ m
 ```
 
 ``` r
+
 br_get_results(m, tidy = TRUE) |>
   knitr::kable()
 ```
 
-| Group_variable | Focal_variable | term                | estimate | std.error | statistic |   p.value | conf.low | conf.high |
-|:---------------|:---------------|:--------------------|---------:|----------:|----------:|----------:|---------:|----------:|
-| FEMALE         | Stage_ajcc     | Stage_ajccStage II  | 1.273682 | 0.0959397 |  2.521499 | 0.0116856 | 1.055351 |  1.537181 |
-| FEMALE         | Stage_ajcc     | Stage_ajccStage III | 2.149478 | 0.0967063 |  7.912875 | 0.0000000 | 1.778347 |  2.598062 |
-| FEMALE         | Stage_ajcc     | Stage_ajccStage IV  | 5.178744 | 0.1081300 | 15.209118 | 0.0000000 | 4.189710 |  6.401251 |
-| FEMALE         | Stage_ajcc     | Age                 | 1.035787 | 0.0025991 | 13.528430 | 0.0000000 | 1.030524 |  1.041077 |
-| MALE           | Stage_ajcc     | Stage_ajccStage II  | 1.768884 | 0.0833656 |  6.841537 | 0.0000000 | 1.502237 |  2.082861 |
-| MALE           | Stage_ajcc     | Stage_ajccStage III | 2.235855 | 0.0811756 |  9.912137 | 0.0000000 | 1.906983 |  2.621443 |
-| MALE           | Stage_ajcc     | Stage_ajccStage IV  | 3.379213 | 0.0849960 | 14.325886 | 0.0000000 | 2.860664 |  3.991759 |
-| MALE           | Stage_ajcc     | Age                 | 1.029710 | 0.0023311 | 12.559176 | 0.0000000 | 1.025016 |  1.034425 |
-| All            | Stage_ajcc     | Stage_ajccStage II  | 1.468986 | 0.0628836 |  6.115624 | 0.0000000 | 1.298647 |  1.661668 |
-| All            | Stage_ajcc     | Stage_ajccStage III | 2.193520 | 0.0621347 | 12.642015 | 0.0000000 | 1.942014 |  2.477597 |
-| All            | Stage_ajcc     | Stage_ajccStage IV  | 4.014838 | 0.0665694 | 20.880417 | 0.0000000 | 3.523741 |  4.574377 |
-| All            | Stage_ajcc     | Age                 | 1.033083 | 0.0017248 | 18.869895 | 0.0000000 | 1.029596 |  1.036581 |
+| Group_variable | Focal_variable | term | estimate | std.error | statistic | p.value | conf.low | conf.high |
+|:---|:---|:---|---:|---:|---:|---:|---:|---:|
+| FEMALE | Stage_ajcc | Stage_ajccStage II | 1.273682 | 0.0959397 | 2.521499 | 0.0116856 | 1.055351 | 1.537181 |
+| FEMALE | Stage_ajcc | Stage_ajccStage III | 2.149478 | 0.0967063 | 7.912875 | 0.0000000 | 1.778347 | 2.598062 |
+| FEMALE | Stage_ajcc | Stage_ajccStage IV | 5.178744 | 0.1081300 | 15.209118 | 0.0000000 | 4.189710 | 6.401251 |
+| FEMALE | Stage_ajcc | Age | 1.035787 | 0.0025991 | 13.528430 | 0.0000000 | 1.030524 | 1.041077 |
+| MALE | Stage_ajcc | Stage_ajccStage II | 1.768884 | 0.0833656 | 6.841537 | 0.0000000 | 1.502237 | 2.082861 |
+| MALE | Stage_ajcc | Stage_ajccStage III | 2.235855 | 0.0811756 | 9.912137 | 0.0000000 | 1.906983 | 2.621443 |
+| MALE | Stage_ajcc | Stage_ajccStage IV | 3.379213 | 0.0849960 | 14.325886 | 0.0000000 | 2.860664 | 3.991759 |
+| MALE | Stage_ajcc | Age | 1.029710 | 0.0023311 | 12.559176 | 0.0000000 | 1.025016 | 1.034425 |
+| All | Stage_ajcc | Stage_ajccStage II | 1.468986 | 0.0628836 | 6.115624 | 0.0000000 | 1.298647 | 1.661668 |
+| All | Stage_ajcc | Stage_ajccStage III | 2.193520 | 0.0621347 | 12.642015 | 0.0000000 | 1.942014 | 2.477597 |
+| All | Stage_ajcc | Stage_ajccStage IV | 4.014838 | 0.0665694 | 20.880417 | 0.0000000 | 3.523741 | 4.574377 |
+| All | Stage_ajcc | Age | 1.033083 | 0.0017248 | 18.869895 | 0.0000000 | 1.029596 | 1.036581 |
 
 ## Generate Visualizations
 
 For example:
 
 ``` r
+
 m <- br_rename_models(m, c("Female", "Male", "All"))
 #> rename model names from "FEMALE_Stage_ajcc", "MALE_Stage_ajcc", and
 #> "All_Stage_ajcc" to "Female", "Male", and "All"

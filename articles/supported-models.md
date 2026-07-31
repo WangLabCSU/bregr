@@ -1,10 +1,11 @@
 # Supported Models
 
 ``` r
+
 library(bregr)
 #> Welcome to 'bregr' package!
 #> =======================================================================
-#> You are using bregr version 1.4.0
+#> You are using bregr version 1.5.0
 #> 
 #> Project home : https://github.com/WangLabCSU/bregr
 #> Documentation: https://wanglabcsu.github.io/bregr/
@@ -13,6 +14,7 @@ library(bregr)
 #>   bregr: An R Package for Streamlined Batch Processing and Visualization of Biomedical Regression Models. Med Research.
 #> =======================================================================
 #> 
+options(bregr.save_model = FALSE)
 ```
 
 ## Default Supported Models
@@ -27,6 +29,7 @@ can be retrieved using the
 function:
 
 ``` r
+
 br_avail_methods()
 #>  [1] "lm"               "coxph"            "survreg"          "clogit"          
 #>  [5] "cch"              "binomial"         "gaussian"         "Gamma"           
@@ -40,6 +43,7 @@ of a piped workflow to maintain simplicity.
 ### Linear Models
 
 ``` r
+
 rv <- br_pipeline(
   data = mtcars,
   y = "mpg", x = c("cyl", "disp", "hp"), x2 = "am",
@@ -48,6 +52,7 @@ rv <- br_pipeline(
 ```
 
 ``` r
+
 br_get_results(rv, tidy = TRUE)
 #> # A tibble: 6 × 8
 #>   Focal_variable term  estimate std.error statistic   p.value conf.low conf.high
@@ -63,6 +68,7 @@ br_get_results(rv, tidy = TRUE)
 To focus on the results of focal variables:
 
 ``` r
+
 br_get_results(rv, tidy = TRUE) |>
   dplyr::filter(Focal_variable == term)
 #> # A tibble: 3 × 8
@@ -77,6 +83,7 @@ This corresponds to the “gaussian” family defined within generalized
 linear models.
 
 ``` r
+
 br_pipeline(
   data = mtcars,
   y = "mpg", x = c("cyl", "disp", "hp"), x2 = "am",
@@ -101,6 +108,7 @@ data.
 For a logistic regression model:
 
 ``` r
+
 br_pipeline(
   data = mtcars,
   y = "vs", x = c("cyl", "disp", "hp"), x2 = "am",
@@ -122,6 +130,7 @@ br_pipeline(
 ### Cox-PH Models
 
 ``` r
+
 br_pipeline(
   data = survival::lung,
   y = c("time", "status"),
@@ -150,62 +159,63 @@ for model result processing. Consequently, any model supported by
 corresponding dependent packages are installed.
 
 ``` r
+
 knitr::kable(
   broom.helpers::supported_models
 )
 ```
 
-| model                                                                  | notes                                                                                                                                                                                                                                                                       |
-|:-----------------------------------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `betareg::betareg()`                                                   | Use `tidy_parameters()` as `tidy_fun` with `component` argument to control with coefficients to return. [`broom::tidy()`](https://generics.r-lib.org/reference/tidy.html) does not support the `exponentiate` argument for betareg models, use `tidy_parameters()` instead. |
-| `biglm::bigglm()`                                                      |                                                                                                                                                                                                                                                                             |
-| `brms::brm()`                                                          | `broom.mixed` package required                                                                                                                                                                                                                                              |
-| `cmprsk::crr()`                                                        | Limited support. It is recommended to use `tidycmprsk::crr()` instead.                                                                                                                                                                                                      |
-| `fixest::feglm()`                                                      | May fail with R \<= 4.0.                                                                                                                                                                                                                                                    |
-| `fixest::femlm()`                                                      | May fail with R \<= 4.0.                                                                                                                                                                                                                                                    |
-| `fixest::feNmlm()`                                                     | May fail with R \<= 4.0.                                                                                                                                                                                                                                                    |
-| `fixest::feols()`                                                      | May fail with R \<= 4.0.                                                                                                                                                                                                                                                    |
-| `gam::gam()`                                                           |                                                                                                                                                                                                                                                                             |
-| `geepack::geeglm()`                                                    |                                                                                                                                                                                                                                                                             |
-| `glmmTMB::glmmTMB()`                                                   | `broom.mixed` package required                                                                                                                                                                                                                                              |
-| `glmtoolbox::glmgee()`                                                 |                                                                                                                                                                                                                                                                             |
-| [`lavaan::lavaan()`](https://rdrr.io/pkg/lavaan/man/lavaan.html)       | Limited support for categorical variables                                                                                                                                                                                                                                   |
-| `lfe::felm()`                                                          |                                                                                                                                                                                                                                                                             |
-| [`lme4::glmer.nb()`](https://rdrr.io/pkg/lme4/man/glmer.nb.html)       | `broom.mixed` package required                                                                                                                                                                                                                                              |
-| [`lme4::glmer()`](https://rdrr.io/pkg/lme4/man/glmer.html)             | `broom.mixed` package required                                                                                                                                                                                                                                              |
-| [`lme4::lmer()`](https://rdrr.io/pkg/lme4/man/lmer.html)               | `broom.mixed` package required                                                                                                                                                                                                                                              |
-| `logitr::logitr()`                                                     | Requires logitr \>= 0.8.0                                                                                                                                                                                                                                                   |
-| [`MASS::glm.nb()`](https://rdrr.io/pkg/MASS/man/glm.nb.html)           |                                                                                                                                                                                                                                                                             |
-| [`MASS::polr()`](https://rdrr.io/pkg/MASS/man/polr.html)               |                                                                                                                                                                                                                                                                             |
-| [`mgcv::gam()`](https://rdrr.io/pkg/mgcv/man/gam.html)                 | Use default tidier [`broom::tidy()`](https://generics.r-lib.org/reference/tidy.html) for smooth terms only, or [`gtsummary::tidy_gam()`](https://www.danieldsjoberg.com/gtsummary/reference/custom_tidiers.html) to include parametric terms                                |
-| `mice::mira`                                                           | Limited support. If `mod` is a `mira` object, use `tidy_fun = function(x, ...) {mice::pool(x) &#124;> mice::tidy(...)}`                                                                                                                                                     |
-| `mmrm::mmrm()`                                                         |                                                                                                                                                                                                                                                                             |
-| `multgee::nomLORgee()`                                                 | Use `tidy_multgee()` as `tidy_fun`.                                                                                                                                                                                                                                         |
-| `multgee::ordLORgee()`                                                 | Use `tidy_multgee()` as `tidy_fun`.                                                                                                                                                                                                                                         |
-| [`nnet::multinom()`](https://rdrr.io/pkg/nnet/man/multinom.html)       |                                                                                                                                                                                                                                                                             |
-| `ordinal::clm()`                                                       | Limited support for models with nominal predictors.                                                                                                                                                                                                                         |
-| `ordinal::clmm()`                                                      | Limited support for models with nominal predictors.                                                                                                                                                                                                                         |
-| `parsnip::model_fit`                                                   | Supported as long as the type of model and the engine is supported.                                                                                                                                                                                                         |
-| `plm::plm()`                                                           |                                                                                                                                                                                                                                                                             |
-| `pscl::hurdle()`                                                       | Use `tidy_zeroinfl()` as `tidy_fun`.                                                                                                                                                                                                                                        |
-| `pscl::zeroinfl()`                                                     | Use `tidy_zeroinfl()` as `tidy_fun`.                                                                                                                                                                                                                                        |
-| [`quantreg::rq()`](https://rdrr.io/pkg/quantreg/man/rq.html)           | If several quantiles are estimated, use `tidy_with_broom_or_parameters()` tidier, the default tidier used by `tidy_plus_plus()`.                                                                                                                                            |
-| `rstanarm::stan_glm()`                                                 | `broom.mixed` package required                                                                                                                                                                                                                                              |
-| [`stats::aov()`](https://rdrr.io/r/stats/aov.html)                     | Reference rows are not relevant for such models.                                                                                                                                                                                                                            |
-| [`stats::glm()`](https://rdrr.io/r/stats/glm.html)                     |                                                                                                                                                                                                                                                                             |
-| [`stats::lm()`](https://rdrr.io/r/stats/lm.html)                       |                                                                                                                                                                                                                                                                             |
-| [`stats::nls()`](https://rdrr.io/r/stats/nls.html)                     | Limited support                                                                                                                                                                                                                                                             |
-| `survey::svycoxph()`                                                   |                                                                                                                                                                                                                                                                             |
-| `survey::svyglm()`                                                     |                                                                                                                                                                                                                                                                             |
-| `survey::svyolr()`                                                     |                                                                                                                                                                                                                                                                             |
-| [`survival::cch()`](https://rdrr.io/pkg/survival/man/cch.html)         | Experimental support.                                                                                                                                                                                                                                                       |
-| [`survival::clogit()`](https://rdrr.io/pkg/survival/man/clogit.html)   |                                                                                                                                                                                                                                                                             |
-| [`survival::coxph()`](https://rdrr.io/pkg/survival/man/coxph.html)     |                                                                                                                                                                                                                                                                             |
-| [`survival::survreg()`](https://rdrr.io/pkg/survival/man/survreg.html) |                                                                                                                                                                                                                                                                             |
-| `svyVGAM::svy_vglm()`                                                  | Experimental support. It is recommended to use `tidy_svy_vglm()` as `tidy_fun`.                                                                                                                                                                                             |
-| `tidycmprsk::crr()`                                                    |                                                                                                                                                                                                                                                                             |
-| `VGAM::vgam()`                                                         | Experimental support. It is recommended to use `tidy_vgam()` as `tidy_fun`.                                                                                                                                                                                                 |
-| `VGAM::vglm()`                                                         | Experimental support. It is recommended to use `tidy_vgam()` as `tidy_fun`.                                                                                                                                                                                                 |
+| model | notes |
+|:---|:---|
+| `betareg::betareg()` | Use `tidy_parameters()` as `tidy_fun` with `component` argument to control with coefficients to return. [`broom::tidy()`](https://generics.r-lib.org/reference/tidy.html) does not support the `exponentiate` argument for betareg models, use `tidy_parameters()` instead. |
+| `biglm::bigglm()` |  |
+| `brms::brm()` | `broom.mixed` package required |
+| `cmprsk::crr()` | Limited support. It is recommended to use `tidycmprsk::crr()` instead. |
+| `fixest::feglm()` | May fail with R \<= 4.0. |
+| `fixest::femlm()` | May fail with R \<= 4.0. |
+| `fixest::feNmlm()` | May fail with R \<= 4.0. |
+| `fixest::feols()` | May fail with R \<= 4.0. |
+| `gam::gam()` |  |
+| `geepack::geeglm()` |  |
+| `glmmTMB::glmmTMB()` | `broom.mixed` package required |
+| `glmtoolbox::glmgee()` |  |
+| [`lavaan::lavaan()`](https://rdrr.io/pkg/lavaan/man/lavaan.html) | Limited support for categorical variables |
+| `lfe::felm()` |  |
+| [`lme4::glmer.nb()`](https://rdrr.io/pkg/lme4/man/glmer.nb.html) | `broom.mixed` package required |
+| [`lme4::glmer()`](https://rdrr.io/pkg/lme4/man/glmer.html) | `broom.mixed` package required |
+| [`lme4::lmer()`](https://rdrr.io/pkg/lme4/man/lmer.html) | `broom.mixed` package required |
+| `logitr::logitr()` | Requires logitr \>= 0.8.0 |
+| [`MASS::glm.nb()`](https://rdrr.io/pkg/MASS/man/glm.nb.html) |  |
+| [`MASS::polr()`](https://rdrr.io/pkg/MASS/man/polr.html) |  |
+| [`mgcv::gam()`](https://rdrr.io/pkg/mgcv/man/gam.html) | Use default tidier [`broom::tidy()`](https://generics.r-lib.org/reference/tidy.html) for smooth terms only, or [`gtsummary::tidy_gam()`](https://www.danieldsjoberg.com/gtsummary/reference/custom_tidiers.html) to include parametric terms |
+| `mice::mira` | Limited support. If `mod` is a `mira` object, use `tidy_fun = function(x, ...) {mice::pool(x) &#124;> mice::tidy(...)}` |
+| `mmrm::mmrm()` |  |
+| `multgee::nomLORgee()` | Use `tidy_multgee()` as `tidy_fun`. |
+| `multgee::ordLORgee()` | Use `tidy_multgee()` as `tidy_fun`. |
+| [`nnet::multinom()`](https://rdrr.io/pkg/nnet/man/multinom.html) |  |
+| `ordinal::clm()` | Limited support for models with nominal predictors. |
+| `ordinal::clmm()` | Limited support for models with nominal predictors. |
+| `parsnip::model_fit` | Supported as long as the type of model and the engine is supported. |
+| `plm::plm()` |  |
+| `pscl::hurdle()` | Use `tidy_zeroinfl()` as `tidy_fun`. |
+| `pscl::zeroinfl()` | Use `tidy_zeroinfl()` as `tidy_fun`. |
+| [`quantreg::rq()`](https://rdrr.io/pkg/quantreg/man/rq.html) | If several quantiles are estimated, use `tidy_with_broom_or_parameters()` tidier, the default tidier used by `tidy_plus_plus()`. |
+| `rstanarm::stan_glm()` | `broom.mixed` package required |
+| [`stats::aov()`](https://rdrr.io/r/stats/aov.html) | Reference rows are not relevant for such models. |
+| [`stats::glm()`](https://rdrr.io/r/stats/glm.html) |  |
+| [`stats::lm()`](https://rdrr.io/r/stats/lm.html) |  |
+| [`stats::nls()`](https://rdrr.io/r/stats/nls.html) | Limited support |
+| `survey::svycoxph()` |  |
+| `survey::svyglm()` |  |
+| `survey::svyolr()` |  |
+| [`survival::cch()`](https://rdrr.io/pkg/survival/man/cch.html) | Experimental support. |
+| [`survival::clogit()`](https://rdrr.io/pkg/survival/man/clogit.html) |  |
+| [`survival::coxph()`](https://rdrr.io/pkg/survival/man/coxph.html) |  |
+| [`survival::survreg()`](https://rdrr.io/pkg/survival/man/survreg.html) |  |
+| `svyVGAM::svy_vglm()` | Experimental support. It is recommended to use `tidy_svy_vglm()` as `tidy_fun`. |
+| `tidycmprsk::crr()` |  |
+| `VGAM::vgam()` | Experimental support. It is recommended to use `tidy_vgam()` as `tidy_fun`. |
+| `VGAM::vglm()` | Experimental support. It is recommended to use `tidy_vgam()` as `tidy_fun`. |
 
 In such instances, model methods must be configured using a list
 comprising four elements.
@@ -214,6 +224,7 @@ For default supported model methods, configurations are prebuilt within
 the package and can be inspected using:
 
 ``` r
+
 br_avail_method_config("coxph")
 #> $f_call
 #> survival::coxph
@@ -223,8 +234,8 @@ br_avail_method_config("coxph")
 #> {
 #>     glue::glue("survival::Surv({paste(y, collapse = ', ')})")
 #> }
-#> <bytecode: 0x5564fa5c1c10>
-#> <environment: 0x5564fbe1a468>
+#> <bytecode: 0x55a615c91690>
+#> <environment: 0x55a619812bf0>
 #> 
 #> $args_method
 #> NULL
@@ -234,6 +245,7 @@ br_avail_method_config("coxph")
 ```
 
 ``` r
+
 br_avail_method_config("binomial")
 #> $f_call
 #> stats::glm
@@ -270,6 +282,7 @@ br_avail_method_config("binomial")
 For example, to configure a linear mixed model:
 
 ``` r
+
 if (requireNamespace("lme4")) {
   md_config <- list(
     f_call = "lme4::lmer",
@@ -284,6 +297,7 @@ if (requireNamespace("lme4")) {
 Subsequently, utilize it in the `method` argument:
 
 ``` r
+
 if (requireNamespace("lme4") && requireNamespace("merDeriv") && requireNamespace("broom.mixed")) {
   br_pipeline(
     data = lme4::sleepstudy,
@@ -302,31 +316,31 @@ if (requireNamespace("lme4") && requireNamespace("merDeriv") && requireNamespace
 #>   See ?lme4::convergence and ?lme4::troubleshooting.
 ```
 
-| Focal_variable | effect   | group    | term                    | estimate | std.error | statistic | conf.int            |
-|----------------|----------|----------|-------------------------|----------|-----------|-----------|---------------------|
-| Days           | fixed    |          | Days                    | 10.47    | 1.55      | 6.77      | \[ 7.44, 13.50\]    |
-| Days           | ran_pars | Subject  | sd\_\_(Intercept)       | 24.74    |           |           |                     |
-| Days           | ran_pars | Subject  | cor\_\_(Intercept).Days | 0.07     |           |           |                     |
-| Days           | ran_pars | Subject  | sd\_\_Days              | 5.92     |           |           |                     |
-| Days           | ran_pars | Residual | sd\_\_Observation       | 25.59    |           |           |                     |
-| Subject        | fixed    |          | Subject309              | -22.12   | 65.92     | -0.34     | \[-151.32, 107.08\] |
-| Subject        | fixed    |          | Subject310              | -27.05   | 65.92     | -0.41     | \[-156.25, 102.15\] |
-| Subject        | fixed    |          | Subject330              | 61.86    | 65.92     | 0.94      | \[ -67.34, 191.06\] |
-| Subject        | fixed    |          | Subject331              | 55.95    | 65.92     | 0.85      | \[ -73.25, 185.15\] |
-| Subject        | fixed    |          | Subject332              | 30.71    | 65.92     | 0.47      | \[ -98.50, 159.91\] |
-| Subject        | fixed    |          | Subject333              | 41.84    | 65.92     | 0.63      | \[ -87.36, 171.04\] |
-| Subject        | fixed    |          | Subject334              | 4.27     | 65.92     | 0.06      | \[-124.93, 133.47\] |
-| Subject        | fixed    |          | Subject335              | 40.35    | 65.92     | 0.61      | \[ -88.85, 169.55\] |
-| Subject        | fixed    |          | Subject337              | 48.30    | 65.92     | 0.73      | \[ -80.90, 177.50\] |
-| Subject        | fixed    |          | Subject349              | -21.86   | 65.92     | -0.33     | \[-151.06, 107.34\] |
-| Subject        | fixed    |          | Subject350              | -16.38   | 65.92     | -0.25     | \[-145.59, 112.82\] |
-| Subject        | fixed    |          | Subject351              | 30.34    | 65.92     | 0.46      | \[ -98.87, 159.54\] |
-| Subject        | fixed    |          | Subject352              | 39.33    | 65.92     | 0.60      | \[ -89.87, 168.54\] |
-| Subject        | fixed    |          | Subject369              | 19.87    | 65.92     | 0.30      | \[-109.33, 149.07\] |
-| Subject        | fixed    |          | Subject370              | -30.51   | 65.92     | -0.46     | \[-159.71, 98.69\]  |
-| Subject        | fixed    |          | Subject371              | 20.42    | 65.92     | 0.31      | \[-108.78, 149.62\] |
-| Subject        | fixed    |          | Subject372              | 31.99    | 65.92     | 0.49      | \[ -97.21, 161.19\] |
-| Subject        | ran_pars | Subject  | sd\_\_(Intercept)       | 45.40    |           |           |                     |
-| Subject        | ran_pars | Subject  | cor\_\_(Intercept).Days | 0.31     |           |           |                     |
-| Subject        | ran_pars | Subject  | sd\_\_Days              | 11.93    |           |           |                     |
-| Subject        | ran_pars | Residual | sd\_\_Observation       | 25.59    |           |           |                     |
+| Focal_variable | effect | group | term | estimate | std.error | statistic | conf.int |
+|----|----|----|----|----|----|----|----|
+| Days | fixed |  | Days | 10.47 | 1.55 | 6.77 | \[ 7.44, 13.50\] |
+| Days | ran_pars | Subject | sd\_\_(Intercept) | 24.74 |  |  |  |
+| Days | ran_pars | Subject | sd\_\_Days | 5.92 |  |  |  |
+| Days | ran_pars | Subject | cor\_\_(Intercept).Days | 0.07 |  |  |  |
+| Days | ran_pars | Residual | sd\_\_Observation | 25.59 |  |  |  |
+| Subject | fixed |  | Subject309 | -22.12 | 65.92 | -0.34 | \[-151.32, 107.08\] |
+| Subject | fixed |  | Subject310 | -27.05 | 65.92 | -0.41 | \[-156.25, 102.15\] |
+| Subject | fixed |  | Subject330 | 61.86 | 65.92 | 0.94 | \[ -67.34, 191.06\] |
+| Subject | fixed |  | Subject331 | 55.95 | 65.92 | 0.85 | \[ -73.25, 185.15\] |
+| Subject | fixed |  | Subject332 | 30.71 | 65.92 | 0.47 | \[ -98.50, 159.91\] |
+| Subject | fixed |  | Subject333 | 41.84 | 65.92 | 0.63 | \[ -87.36, 171.04\] |
+| Subject | fixed |  | Subject334 | 4.27 | 65.92 | 0.06 | \[-124.93, 133.47\] |
+| Subject | fixed |  | Subject335 | 40.35 | 65.92 | 0.61 | \[ -88.85, 169.55\] |
+| Subject | fixed |  | Subject337 | 48.30 | 65.92 | 0.73 | \[ -80.90, 177.50\] |
+| Subject | fixed |  | Subject349 | -21.86 | 65.92 | -0.33 | \[-151.06, 107.34\] |
+| Subject | fixed |  | Subject350 | -16.38 | 65.92 | -0.25 | \[-145.59, 112.82\] |
+| Subject | fixed |  | Subject351 | 30.34 | 65.92 | 0.46 | \[ -98.87, 159.54\] |
+| Subject | fixed |  | Subject352 | 39.33 | 65.92 | 0.60 | \[ -89.87, 168.54\] |
+| Subject | fixed |  | Subject369 | 19.87 | 65.92 | 0.30 | \[-109.33, 149.07\] |
+| Subject | fixed |  | Subject370 | -30.51 | 65.92 | -0.46 | \[-159.71, 98.69\] |
+| Subject | fixed |  | Subject371 | 20.42 | 65.92 | 0.31 | \[-108.78, 149.62\] |
+| Subject | fixed |  | Subject372 | 31.99 | 65.92 | 0.49 | \[ -97.21, 161.19\] |
+| Subject | ran_pars | Subject | sd\_\_(Intercept) | 45.40 |  |  |  |
+| Subject | ran_pars | Subject | sd\_\_Days | 11.93 |  |  |  |
+| Subject | ran_pars | Subject | cor\_\_(Intercept).Days | 0.31 |  |  |  |
+| Subject | ran_pars | Residual | sd\_\_Observation | 25.59 |  |  |  |

@@ -23,10 +23,10 @@ efficient pipelines.
 
 Batch regression streamlines analyses where:
 
-- Each model shares **identical control variables** ($c_{1}$, $c_{2}$,
+- Each model shares **identical control variables** ($`c_1`$, $`c_2`$,
   …).
-- **Focal predictors** ($x_{1}$, $x_{2}$, …) or **response variables**
-  ($y_{1}$, $y_{2}$, …) vary systematically.
+- **Focal predictors** ($`x_1`$, $`x_2`$, …) or **response variables**
+  ($`y_1`$, $`y_2`$, …) vary systematically.
 
 A simplified overview of batch regression modeling is given below for
 illustration:
@@ -38,6 +38,7 @@ illustration:
 You can install the stable version of bregr from CRAN with:
 
 ``` r
+
 install.packages("bregr")
 ```
 
@@ -45,12 +46,14 @@ Alternatively, install the development version from
 [r-universe](https://wanglabcsu.r-universe.dev/bregr) with:
 
 ``` r
+
 install.packages('bregr', repos = c('https://wanglabcsu.r-universe.dev', 'https://cloud.r-project.org'))
 ```
 
 or from [GitHub](https://github.com/) with:
 
 ``` r
+
 #install.packages("remotes")
 remotes::install_github("WangLabCSU/bregr")
 ```
@@ -60,6 +63,7 @@ remotes::install_github("WangLabCSU/bregr")
 Load package(s):
 
 ``` r
+
 library(bregr)
 #> Welcome to 'bregr' package!
 #> =======================================================================
@@ -77,6 +81,7 @@ library(bregr)
 Load data:
 
 ``` r
+
 lung <- survival::lung |>
   dplyr::filter(ph.ecog != 3)
 lung$ph.ecog <- factor(lung$ph.ecog)
@@ -92,6 +97,7 @@ user-friendly.
 Define and construct batch models:
 
 ``` r
+
 mds <- breg(lung) |> # Init breg object
   br_set_y(c("time", "status")) |> # Survival outcomes
   br_set_x(colnames(lung)[6:10]) |> # Focal predictors
@@ -104,6 +110,7 @@ mds <- breg(lung) |> # Init breg object
 ### One-Step Pipeline
 
 ``` r
+
 mds <- br_pipeline(
   lung,
   y = c("time", "status"),
@@ -116,6 +123,7 @@ mds <- br_pipeline(
 Run in parallel:
 
 ``` r
+
 mds_p <- br_pipeline(
   lung,
   y = c("time", "status"),
@@ -131,6 +139,7 @@ mds_p <- br_pipeline(
 ```
 
 ``` r
+
 all.equal(mds, mds_p)
 #> [1] TRUE
 ```
@@ -145,6 +154,7 @@ Use `br_get_*()` function family to access attributes and data of result
 `breg` object.
 
 ``` r
+
 br_get_models(mds) # Raw model objects
 #> $ph.ecog
 #> Call:
@@ -271,6 +281,7 @@ bregr mainly provides
 for plotting data table of modeling results.
 
 ``` r
+
 br_show_forest(mds)
 ```
 
@@ -280,6 +291,7 @@ We can tune the plot to only keep focal variables and adjust the limits
 of x axis.
 
 ``` r
+
 br_show_forest(
   mds,
   rm_controls = TRUE, # Focus on focal predictors
@@ -309,6 +321,7 @@ modeled individually (univariate) versus together (multivariate). The
 function builds both types of models and displays them side-by-side:
 
 ``` r
+
 # Compare univariate and multivariate models
 comparison <- br_compare_models(
   lung,
@@ -335,6 +348,7 @@ For Cox-PH modeling results (focal variables must be continuous type),
 we provide a risk network plotting function.
 
 ``` r
+
 mds2 <- br_pipeline(
   survival::lung,
   y = c("time", "status"),
@@ -346,6 +360,7 @@ mds2 <- br_pipeline(
 ```
 
 ``` r
+
 br_show_risk_network(mds2)
 #> please note only continuous focal terms analyzed and visualized
 ```
@@ -358,6 +373,7 @@ For Cox-PH models, you can generate model predictions (risk scores) and
 create survival curves grouped by these scores:
 
 ``` r
+
 # Generate model predictions
 scores <- br_predict(mds2, idx = "ph.ecog")
 #> `type` is not specified, use lp for the model
@@ -369,6 +385,7 @@ head(scores)
 ```
 
 ``` r
+
 # Create survival curves based on model scores
 br_show_survival_curves(
   mds2,
@@ -387,6 +404,7 @@ br_show_survival_curves(
 Show tidy table result as pretty table:
 
 ``` r
+
 br_show_table(mds)
 #>    Focal_variable      term estimate std.error statistic p.value     conf.int
 #> 1         ph.ecog  ph.ecog1     1.51      0.20      2.05  0.040  [1.02, 2.23]
@@ -410,6 +428,7 @@ br_show_table(mds)
 As markdown table:
 
 ``` r
+
 br_show_table(mds, export = TRUE)
 #> Focal_variable |      term | estimate | std.error | statistic | p.value |     conf.int
 #> --------------------------------------------------------------------------------------
@@ -434,6 +453,7 @@ br_show_table(mds, export = TRUE)
 As HTML table:
 
 ``` r
+
 br_show_table(mds, export = TRUE, args_table_export = list(format = "html"))
 ```
 
@@ -447,6 +467,7 @@ site](https://wanglabcsu.github.io/bregr/).
 ## Coverage
 
 ``` r
+
 covr::package_coverage()
 ```
 

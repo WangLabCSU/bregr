@@ -30,7 +30,7 @@ br_show_forest_ggstatsplot(breg, idx = 1, ...)
 - ...:
 
   Arguments passing to
-  [`ggstatsplot::ggcoefstats()`](https://indrajeetpatil.github.io/ggstatsplot/reference/ggcoefstats.html)
+  [`ggstatsplot::ggcoefstats()`](https://www.indrapatil.com/ggstatsplot/reference/ggcoefstats.html)
   excepts `x`.
 
 ## Value

@@ -32,11 +32,21 @@ br_show_fitted_line_2d(breg, idx = 1, ...)
 
   Arguments passing to
   [`visreg::visreg2d()`](https://pbreheny.github.io/visreg/reference/visreg2d.html)
-  excepts `fit` and `data`.
+  excepts `fit` and `data`. See
+  [`visreg::visreg2d()`](https://pbreheny.github.io/visreg/reference/visreg2d.html)
+  for available arguments.
 
 ## Value
 
 A plot
+
+## Note
+
+Starting with **visreg** 3.0, all plots use ggplot2 (the `gg` argument
+has been removed) and several arguments have been renamed to use
+snake_case. See the note in
+[`br_show_fitted_line()`](https://wanglabcsu.github.io/bregr/reference/br_show_fitted_line.md)
+for details.
 
 ## See also
 
