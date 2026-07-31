@@ -18,6 +18,17 @@
   All functions return S3 list objects with cli-based print methods, reuse the
   existing `br_pipeline()` engine for batch regression, and support mirai
   parallelization via `n_workers`.
+- Added `br_get_model_stats()` returning a tidy data.frame of per-model summary
+  statistics (N, events, C-index, AIC, LR test p, PH test p for Cox; N, AIC,
+  deviance for GLM; N, R-squared for LM), eliminating the need for manual
+  supplementary model fitting to obtain diagnostic metrics (#68).
+- Added AIC to Cox model diagnostics in `br_diagnose()`.
+- Systematically support non-standard variable names: `FGFR3::TACC3`, `EGFR-AS1`,
+  `1p`/`2q`, `gene name`, R reserved words (`if`, `TRUE`, `NA`), and
+  backtick-quoted user input in `x`, `x2`, and `y` variables (#69). Refactored
+  `repair_names()` with `remove_backticks()` for robust quoting, and applied
+  quoting to response variables in `br_set_y()`.
+- Added `biocViews` field to DESCRIPTION for Bioconductor Suggests compatibility.
 
 # bregr 1.4.0
 
