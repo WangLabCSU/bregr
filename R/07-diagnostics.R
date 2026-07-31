@@ -42,7 +42,7 @@
 br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
   assert_breg_obj_with_results(breg)
 
-  models <- br_get_models(breg, idx)
+  models <- br_get_models(breg, idx, auto_drop = FALSE)
   diagnostic_results <- list()
 
   for (i in seq_along(models)) {
@@ -80,6 +80,7 @@ br_diagnose <- function(breg, idx = NULL, transform = "km", ...) {
         summary = list(
           n = model$n,
           events = model$nevent,
+          aic = stats::AIC(model),
           loglik = model$loglik,
           lr_test = if (!is.null(model$score) && is.numeric(model$score)) {
             tryCatch(
@@ -157,6 +158,7 @@ print.br_diagnostics <- function(x, ...) {
     if (diag_result$model_type == "coxph") {
       cli::cli_text("Sample size: {diag_result$summary$n}")
       cli::cli_text("Events: {diag_result$summary$events}")
+      cli::cli_text("AIC: {round(diag_result$summary$aic, 3)}")
       cli::cli_text("Log-likelihood: {round(diag_result$summary$loglik[2], 3)}")
 
       # Show likelihood ratio test if available
@@ -217,4 +219,111 @@ print.br_diagnostics <- function(x, ...) {
   }
 
   invisible(x)
+}
+
+#' Get model-level statistics in tidy format
+#'
+#' @description
+#' `r lifecycle::badge('experimental')`
+#'
+#' Extracts per-model summary statistics (N, events, C-index, AIC, PH test,
+#' etc.) and returns them as a tidy data.frame. This complements
+#' [br_get_results()] which provides per-term estimates.
+#'
+#' @param breg A regression object with results.
+#' @param idx Index or name (focal variable) of the model(s). If `NULL`,
+#'   returns stats for all models.
+#'
+#' @returns A data.frame with one row per model. Columns depend on model type:
+#'   - Cox models: `model`, `n`, `events`, `c_index`, `aic`, `ph_test_p`, `lr_test_p`
+#'   - GLM models: `model`, `n`, `aic`, `deviance`, `df_residual`
+#'   - LM models: `model`, `n`, `r_squared`, `adj_r_squared`, `df_residual`
+#' @export
+#' @family accessors
+#' @examples
+#' m <- br_pipeline(survival::lung,
+#'   y = c("time", "status"),
+#'   x = colnames(survival::lung)[6:10],
+#'   method = "coxph"
+#' )
+#' br_get_model_stats(m)
+#' @testexamples
+#' expect_s3_class(br_get_model_stats(m), "data.frame")
+br_get_model_stats <- function(breg, idx = NULL) {
+  assert_breg_obj_with_results(breg)
+
+  models <- br_get_models(breg, idx, auto_drop = FALSE)
+  stats <- purrr::imap_dfr(models, function(model, model_name) {
+    if (inherits(model, "coxph")) {
+      # C-index: handle both named-vector (recent survival) and list forms
+      c_idx <- tryCatch(
+        {
+          conc <- model$concordance
+          if (is.list(conc) && "concordance" %in% names(conc)) {
+            conc$concordance
+          } else if (is.numeric(conc) && "concordance" %in% names(conc)) {
+            unname(conc["concordance"])
+          } else if (is.numeric(conc) && length(conc) >= 6) {
+            unname(conc[6])  # 6th element is concordance index
+          } else {
+            NA_real_
+          }
+        },
+        error = function(e) NA_real_
+      )
+
+      # PH test global p-value
+      ph_p <- tryCatch(
+        {
+          ph <- survival::cox.zph(model)
+          ph$table["GLOBAL", "p"]
+        },
+        error = function(e) NA_real_
+      )
+
+      # LR test p-value
+      lr_p <- tryCatch(
+        1 - stats::pchisq(model$score, model$df),
+        error = function(e) NA_real_
+      )
+
+      data.frame(
+        model = model_name,
+        n = model$n,
+        events = model$nevent,
+        c_index = c_idx,
+        aic = stats::AIC(model),
+        lr_test_p = lr_p,
+        ph_test_p = ph_p,
+        stringsAsFactors = FALSE
+      )
+    } else if (inherits(model, "glm")) {
+      data.frame(
+        model = model_name,
+        n = stats::nobs(model),
+        aic = model$aic,
+        deviance = model$deviance,
+        df_residual = model$df.residual,
+        stringsAsFactors = FALSE
+      )
+    } else if (inherits(model, "lm")) {
+      sm <- summary(model)
+      data.frame(
+        model = model_name,
+        n = stats::nobs(model),
+        r_squared = sm$r.squared,
+        adj_r_squared = sm$adj.r.squared,
+        df_residual = model$df.residual,
+        stringsAsFactors = FALSE
+      )
+    } else {
+      data.frame(
+        model = model_name,
+        n = tryCatch(stats::nobs(model), error = function(e) NA_integer_),
+        stringsAsFactors = FALSE
+      )
+    }
+  })
+
+  stats
 }

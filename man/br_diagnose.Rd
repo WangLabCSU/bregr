@@ -45,6 +45,7 @@ print(diagnostics)
 \seealso{
 Other accessors: 
 \code{\link{accessors}},
+\code{\link{br_get_model_stats}()},
 \code{\link{br_predict}()}
 }
 \concept{accessors}

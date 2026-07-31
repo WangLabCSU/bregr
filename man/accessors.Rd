@@ -110,6 +110,7 @@ br_get_results(m, tidy = TRUE, term == "cyl")
 
 Other accessors: 
 \code{\link{br_diagnose}()},
+\code{\link{br_get_model_stats}()},
 \code{\link{br_predict}()}
 }
 \concept{accessors}

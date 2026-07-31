@@ -19,3 +19,15 @@ test_that("Function br_diagnose() @ L42", {
   expect_s3_class(diagnostics, "br_diagnostics")
 })
 
+
+test_that("Function br_get_model_stats() @ L252", {
+  
+  m <- br_pipeline(survival::lung,
+    y = c("time", "status"),
+    x = colnames(survival::lung)[6:10],
+    method = "coxph"
+  )
+  br_get_model_stats(m)
+  expect_s3_class(br_get_model_stats(m), "data.frame")
+})
+
