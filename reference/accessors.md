@@ -103,6 +103,7 @@ building `breg` objects.
 
 Other accessors:
 [`br_diagnose()`](https://wanglabcsu.github.io/bregr/reference/br_diagnose.md),
+[`br_get_model_stats()`](https://wanglabcsu.github.io/bregr/reference/br_get_model_stats.md),
 [`br_predict()`](https://wanglabcsu.github.io/bregr/reference/br_predict.md)
 
 ## Examples

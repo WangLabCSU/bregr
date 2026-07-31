@@ -573,6 +573,9 @@ effective model utilization.
 - [`br_diagnose()`](https://wanglabcsu.github.io/bregr/reference/br_diagnose.md)
   **\[experimental\]** : Diagnose regression models
 
+- [`br_get_model_stats()`](https://wanglabcsu.github.io/bregr/reference/br_get_model_stats.md)
+  **\[experimental\]** : Get model-level statistics in tidy format
+
 - [`br_predict()`](https://wanglabcsu.github.io/bregr/reference/br_predict.md)
   **\[experimental\]** : Predict method for breg objects
 

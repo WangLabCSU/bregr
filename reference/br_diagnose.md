@@ -42,6 +42,7 @@ A list containing diagnostic results for each model.
 
 Other accessors:
 [`accessors`](https://wanglabcsu.github.io/bregr/reference/accessors.md),
+[`br_get_model_stats()`](https://wanglabcsu.github.io/bregr/reference/br_get_model_stats.md),
 [`br_predict()`](https://wanglabcsu.github.io/bregr/reference/br_predict.md)
 
 ## Examples
@@ -67,6 +68,7 @@ print(diagnostics)
 #> 
 #> Sample size: 227
 #> Events: 164
+#> AIC: 1464.46
 #> Log-likelihood: -729.23
 #> Concordance: 12544, 7117, 126, 28, 0, 0.637, and 0.025
 #> 
@@ -81,6 +83,7 @@ print(diagnostics)
 #> 
 #> Sample size: 227
 #> Events: 164
+#> AIC: 1476.157
 #> Log-likelihood: -735.078
 #> Concordance: 12578, 7145, 65, 28, 0, 0.637, and 0.025
 #> 
@@ -95,6 +98,7 @@ print(diagnostics)
 #> 
 #> Sample size: 225
 #> Events: 162
+#> AIC: 1449.175
 #> Log-likelihood: -721.587
 #> Concordance: 12343, 6957, 57, 26, 0, 0.639, and 0.025
 #> 
@@ -109,6 +113,7 @@ print(diagnostics)
 #> 
 #> Sample size: 181
 #> Events: 134
+#> AIC: 1153.136
 #> Log-likelihood: -573.568
 #> Concordance: 7761, 5080, 7, 17, 0, 0.604, and 0.029
 #> 
@@ -123,6 +128,7 @@ print(diagnostics)
 #> 
 #> Sample size: 214
 #> Events: 152
+#> AIC: 1352.112
 #> Log-likelihood: -673.056
 #> Concordance: 10531, 6672, 10, 22, 0, 0.612, and 0.027
 #> 

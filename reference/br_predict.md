@@ -40,7 +40,8 @@ Typically, a numeric vector of predictions.
 
 Other accessors:
 [`accessors`](https://wanglabcsu.github.io/bregr/reference/accessors.md),
-[`br_diagnose()`](https://wanglabcsu.github.io/bregr/reference/br_diagnose.md)
+[`br_diagnose()`](https://wanglabcsu.github.io/bregr/reference/br_diagnose.md),
+[`br_get_model_stats()`](https://wanglabcsu.github.io/bregr/reference/br_get_model_stats.md)
 
 ## Examples
 

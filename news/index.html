@@ -47,6 +47,10 @@
 <li>Step 3 (<code>br_seed_select</code>): Sequential gene selection through Lasso regularization (glmnet), multivariate regression, and stepwise selection with reproducibility via <code>seed</code>.</li>
 <li>Step 4 (<code>br_seed_model</code>): Risk score model construction with coefficient extraction and optional z-score expression scaling. All functions return S3 list objects with cli-based print methods, reuse the existing <code><a href="../reference/pipeline.html">br_pipeline()</a></code> engine for batch regression, and support mirai parallelization via <code>n_workers</code>.</li>
 </ul></li>
+<li>Added <code><a href="../reference/br_get_model_stats.html">br_get_model_stats()</a></code> returning a tidy data.frame of per-model summary statistics (N, events, C-index, AIC, LR test p, PH test p for Cox; N, AIC, deviance for GLM; N, R-squared for LM), eliminating the need for manual supplementary model fitting to obtain diagnostic metrics (<a href="https://github.com/WangLabCSU/bregr/issues/68" class="external-link">#68</a>).</li>
+<li>Added AIC to Cox model diagnostics in <code><a href="../reference/br_diagnose.html">br_diagnose()</a></code>.</li>
+<li>Systematically support non-standard variable names: <code>FGFR3::TACC3</code>, <code>EGFR-AS1</code>, <code>1p</code>/<code>2q</code>, <code>gene name</code>, R reserved words (<code>if</code>, <code>TRUE</code>, <code>NA</code>), and backtick-quoted user input in <code>x</code>, <code>x2</code>, and <code>y</code> variables (<a href="https://github.com/WangLabCSU/bregr/issues/69" class="external-link">#69</a>). Refactored <code>repair_names()</code> with <code>remove_backticks()</code> for robust quoting, and applied quoting to response variables in <code><a href="../reference/pipeline.html">br_set_y()</a></code>.</li>
+<li>Added <code>biocViews</code> field to DESCRIPTION for Bioconductor Suggests compatibility.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.4.0" id="bregr-140">bregr 1.4.0<a class="anchor" aria-label="anchor" href="#bregr-140"></a></h2><p class="text-muted">CRAN release: 2026-01-18</p>
