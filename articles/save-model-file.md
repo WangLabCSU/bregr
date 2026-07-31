@@ -32,7 +32,7 @@ m <- breg(mtcars) |>
   br_set_x2("vs") |>
   br_set_model("gaussian") |>
   br_run()
-#> model save is enabled with result path /tmp/Rtmptszt66
+#> model save is enabled with result path /tmp/RtmpzlXoBO
 #> This message is displayed once per session.
 
 options(bregr.save_model = FALSE)
@@ -45,13 +45,13 @@ this by examining the model objects:
 
 m@models
 #> $cyl
-#> /tmp/Rtmptszt66/3107f74e-8c98-11f1-b3b3-7ced8d4bd993.qs
+#> /tmp/RtmpzlXoBO/e4b393d2-8ce5-11f1-bd52-6045bd084616.qs
 #> 
 #> $disp
-#> /tmp/Rtmptszt66/313da5c4-8c98-11f1-b3b3-7ced8d4bd993.qs
+#> /tmp/RtmpzlXoBO/e4e86774-8ce5-11f1-bd52-6045bd084616.qs
 #> 
 #> $hp
-#> /tmp/Rtmptszt66/31704240-8c98-11f1-b3b3-7ced8d4bd993.qs
+#> /tmp/RtmpzlXoBO/e5182dba-8ce5-11f1-bd52-6045bd084616.qs
 ```
 
 We can retrieve the saved models using the following commands:
