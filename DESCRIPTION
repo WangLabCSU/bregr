@@ -53,6 +53,8 @@ Suggests:
     qs2,
     rmarkdown,
     testthat (>= 3.0.0),
+    clusterProfiler,
+    glmnet,
     UCSCXenaShiny,
     visreg
 VignetteBuilder: 

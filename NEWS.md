@@ -1,5 +1,24 @@
 # bregr 1.5.0
 
+- Added `br_seed()`, `br_seed_screen()`, `br_seed_select()`, and `br_seed_model()`
+  implementing the SEED (Selection of Essential prognostic genes from Expression Data)
+  pipeline for identifying cancer prognosis target genes without control samples (#57).
+  Based on Yang et al. (2025) *Cancer Letters*, DOI: 10.1016/j.canlet.2025.217960.
+  The four-step pipeline includes:
+  - Step 1 (`br_seed_screen`): Univariate screening via Cox/logistic regression or
+    Spearman correlation against one or more clinical indicators, with p-value
+    threshold filtering and significance intersection across indicators.
+  - Step 2 (optional enrichment): GO/KEGG pathway enrichment via clusterProfiler
+    to refine gene sets (gated by `enrich` argument).
+  - Step 3 (`br_seed_select`): Sequential gene selection through Lasso
+    regularization (glmnet), multivariate regression, and stepwise selection
+    with reproducibility via `seed`.
+  - Step 4 (`br_seed_model`): Risk score model construction with coefficient
+    extraction and optional z-score expression scaling.
+  All functions return S3 list objects with cli-based print methods, reuse the
+  existing `br_pipeline()` engine for batch regression, and support mirai
+  parallelization via `n_workers`.
+
 # bregr 1.4.0
 
 - Added `br_compare_models()` and `br_show_forest_comparison()` (#54).
