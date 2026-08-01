@@ -2,20 +2,6 @@
 
 **\[stable\]**
 
-## Arguments
-
-- x:
-
-  An object of class `breg`.
-
-- ...:
-
-  Additional arguments (currently not used).
-
-- raw:
-
-  Logical, whether to print raw S7 representation. Default is `FALSE`.
-
-## Value
-
-Invisibly returns `x`.
+Prints a summary of the `breg` object including slots, focal and control
+terms, group_by, and model configuration. Set `raw = TRUE` for the
+internal S7 representation.
