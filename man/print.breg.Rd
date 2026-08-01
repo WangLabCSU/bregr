@@ -3,16 +3,10 @@
 \name{print.breg}
 \alias{print.breg}
 \title{Print method for breg object}
-\arguments{
-\item{x}{An object of class \code{breg}.}
-
-\item{...}{Additional arguments (currently not used).}
-
-\item{raw}{Logical, whether to print raw S7 representation. Default is \code{FALSE}.}
-}
-\value{
-Invisibly returns \code{x}.
-}
 \description{
 \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+
+Prints a summary of the \code{breg} object including slots, focal and control
+terms, group_by, and model configuration. Set \code{raw = TRUE} for the
+internal S7 representation.
 }

@@ -71,11 +71,12 @@ breg <- new_class("breg",
 #' Print method for breg object
 #' @description
 #' `r lifecycle::badge('stable')`
+#'
+#' Prints a summary of the `breg` object including slots, focal and control
+#' terms, group_by, and model configuration. Set `raw = TRUE` for the
+#' internal S7 representation.
+#'
 #' @name print.breg
-#' @param x An object of class `breg`.
-#' @param ... Additional arguments (currently not used).
-#' @param raw Logical, whether to print raw S7 representation. Default is `FALSE`.
-#' @return Invisibly returns `x`.
 #'
 #' @method print breg
 method(print, breg) <- function(x, ..., raw = FALSE) {
